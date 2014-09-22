@@ -1,0 +1,6 @@
+# Ignore build folder
+build/
+*.csv
+*.vtk
+*.edge
+*~
