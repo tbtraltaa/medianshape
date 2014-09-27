@@ -2,13 +2,15 @@ import importlib
 import random
 import math
 
-from sets import Set
-
 import numpy as np
-import numpy.ma as ma
+import matplotlib.pyplot as plt
+
+from scipy.sparse.csgraph import shortest_path
+from scipy.sparse.csgraph import dijkstra
+from scipy.sparse import csr_matrix
+
 from meshpy.triangle import MeshInfo, build, write_gnuplot_mesh
 
-import matplotlib.pyplot as plt
 
 class Mesh():
     shapes = ['rectangle', 'triangle', 'circle']
@@ -20,6 +22,7 @@ class Mesh():
         self.y = 0
         self.x_range = 1
         self.y_range = 1
+        self.interval_size = 3
 
     def set_points(self, x, y, x_range, y_range=None, shape=None):
         self.x = x
@@ -34,26 +37,22 @@ class Mesh():
         self.mesh_info = MeshInfo()
         self.mesh_info.set_points(self.points)
         self.mesh_info.set_facets(self.facets)
-        self.mesh = build(self.mesh_info, generate_faces=True, max_volume=self.max_volume)
-        print type(self.mesh.points)
-        self.mesh_points = np.array(np.array(self.mesh.points), dtype=[("x", float), ("y", float)]).reshape(len(self.mesh.points), 2)
-        self.mesh_point_indices = np.array(np.array(range(0, len(self.mesh.points))), dtype=[("idx", float)]).reshape(len(self.mesh.points), 1)
-        print type(self.mesh_point_indices), self.mesh_point_indices.shape
-        print type(self.mesh_points), self.mesh_points.shape
+        self.mesh = build(self.mesh_info, generate_faces=True, min_angle = 30, max_volume=self.max_volume)
 
-        print self.mesh_points.x
-        self.mesh_points = np.concatenate((self.mesh_point_indices, self.mesh_points), axis=1)
+        self.mesh_points = np.array(self.mesh.points).reshape(len(self.mesh.points), 2)
+        mesh_points_idx = np.array(range(0, len(self.mesh.points))).reshape(len(self.mesh.points), 1)
+        self.mesh_points = np.concatenate((mesh_points_idx, self.mesh_points), axis=1)
 
         self.mesh_faces = np.array(self.mesh.faces).reshape(len(self.mesh.faces), 2)
-        self.mesh_face_indices = np.array(range(0, len(self.mesh.faces))).reshape(len(self.mesh.faces), 1)
-        self.mesh_faces = np.hstack((self.mesh_face_indices, self.mesh_faces))
+        mesh_faces_idx = np.array(range(0, len(self.mesh.faces))).reshape(len(self.mesh.faces), 1)
+        self.mesh_faces = np.hstack((mesh_faces_idx, self.mesh_faces))
 
         self.mesh_elements = np.array(self.mesh.elements).reshape(len(self.mesh.elements), 3)
-        self.mesh_element_indices = np.array(range(0, len(self.mesh.elements))).reshape(len(self.mesh.elements), 1)
-        self.mesh_elements = np.hstack((self.mesh_element_indices, self.mesh_elements))
-        self.mesh_points_ordered = np.sort(self.mesh_points, order="x")
-        print self.mesh_points_ordered
+        mesh_elements_idx = np.array(range(0, len(self.mesh.elements))).reshape(len(self.mesh.elements), 1)
+        self.mesh_elements = np.hstack((mesh_elements_idx, self.mesh_elements))
+        self.point_X= np.sort(np.unique(self.mesh_points[:,1]))
 
+        #self.mesh_points_ordered = self.mesh_points[self.mesh_points[:,1].argsort()]
 
     def to_string(self):
         print "Mesh Points:"
@@ -75,41 +74,102 @@ class Mesh():
                 #print "%f %f" % tuple(self.mesh.points[pt])
             #print "\n"
 
-    @staticmethod
-    def disp_edges(edges):
-        print "Point numbers in edges:"
-        for i, edge in enumerate(edges):
-            print i, edge
-    
-    def generate_curve(self, func_str=None):
+    def generate_curve(self, func_str=None, interval_size=None):
+        if interval_size:
+            self.interval_size = interval_size
         sample_points = random.sample(self.mesh_points, int(math.sqrt(self.mesh_points.size)))
         sample_points = np.array(sample_points)
+        sample_X = np.unique(sample_points[:, 1])
+        sample_X = sample_X.reshape(sample_X.size, 1)
         print "Sample points"
         print sample_points
-        #sample_points = np.concatenate((sample_Xs, self.find_closest_point(func_str, sample_Xs)), axis=1)
-        self.find_closest_point(func_str, sample_points)
-
-        func_points = []
+        optimum_points= self.find_closest_points(func_str, sample_X)
+        print "Optimum_points\n", optimum_points
+        func_values = Mesh.vectorize_func(func_str, sample_X) 
+        func_values = func_values.reshape(func_values.size, 1)
+        func_points = np.concatenate((sample_X, func_values), axis=1)
         func_edges = []
         print "Function points:"
         print func_points
+        func_edges = self.find_func_edges(optimum_points)
         Mesh.disp_edges(func_edges)
         self.plot()
+        plt.scatter(func_points[:,0], func_points[:,1], c="r")
+        plt.scatter(optimum_points[:,1], optimum_points[:,2], c="y")
         self.plot_curve(func_points, func_edges)
 
-    def find_closest_point(self, func_str, sample_points):
-        sample_Xs = np.sort(np.unique(sample_points[:,1]))
-        func_values = Mesh.vectorize_func(func_str, sample_Xs)[:,1] 
-        print sample_Xs
-        for i, x in enumerate(sample_Xs):
-            y = self.mesh_points[self.mesh_points[:,1]==x][:,2]
-            #print  abs(func_values[i] - y)
-        return []
+    def find_func_edges(self, optimum_points):
+        no_of_points = self.mesh_points.shape[0] 
+        adjacency_matrix = np.zeros((no_of_points, no_of_points), dtype=int)  
+        for i, p1 in enumerate(self.mesh_points):
+            for j, p2 in enumerate(self.mesh_points): 
+                tmp = self.mesh_faces[:, 1:] == (p1[0], p2[0])
+                edge1 = np.any(np.logical_and(tmp[:,0], tmp[:,1]))
+                tmp = self.mesh_faces[:, 1:] == (p2[0], p1[0])
+                edge2 = np.any(np.logical_and(tmp[:,0], tmp[:,1]))
+                if edge1 or edge2:
+                    adjacency_matrix[i,j] = 1
 
-    def find_interval_points(self, x):
-        pass
-         
-        
+        graph = csr_matrix(adjacency_matrix)  
+        print "Adjacent matrix \n", adjacency_matrix
+        path = list()
+        for i, point in enumerate(optimum_points): 
+            if i+1 < optimum_points.shape[0]:
+                i1 = point[0]
+                i2 = optimum_points[i+1][0]
+                distances, predecessors = dijkstra(graph, indices=i1, return_predecessors=True)
+                j = i2
+                while j != i1:
+                    path.append(self.mesh_points[j].tolist())
+                    j = predecessors[j]
+                path.append(self.mesh_points[i1].tolist())
+        faces = list()
+        for i, p in reversed(list(enumerate(path))):
+            if i+1 < len(path):
+                tmp = self.mesh_faces[:, 1:] == (p[0], path[i+1][0])
+                edge1 = np.any(np.logical_and(tmp[:,0], tmp[:,1]))
+                if edge1:
+                    faces.append([int(p[0]), int(path[i+1][0])])
+                tmp = self.mesh_faces[:, 1:] == (path[i+1][0], p[0])
+                edge2 = np.any(np.logical_and(tmp[:,0], tmp[:,1]))
+                if edge2:
+                    faces.append([int(path[i+1][0]), int(p[0])])
+        return  faces
+
+    def find_closest_points(self, func_str, sample_X):
+        sample_X = np.sort(sample_X)
+        optimum_points = list()
+        for i, x in enumerate(sample_X):
+            optimum_points.append(self.find_optimum_point(func_str, x))
+        return  np.array(optimum_points)
+
+    def find_optimum_point(self, func_str, x):
+        candidate_points = self.mesh_points[np.where(self.mesh_points[:,1]==x)]        
+        interval_X = self.find_interval_X(x)
+        interval_func_values = Mesh.vectorize_func(func_str, interval_X)
+        min_diff = 1000
+        optimum_point = list()
+        for point in candidate_points:
+            d = interval_func_values - point[2]
+            diff = abs(sum(interval_func_values - point[2])) 
+            if diff < min_diff:
+                min_diff = diff
+                optimum_point = point.tolist()
+        return optimum_point
+
+    def find_interval_X(self, x):
+        x_idx = np.where(self.point_X==x)[0]
+        interval_X = []      
+        i = 0
+        start_idx = 0
+        while True:
+            interval_idx = x_idx - self.interval_size//2 + i
+            if interval_idx >= 0:
+                start_idx = interval_idx
+                break
+            i += 1
+        interval_X = self.point_X[start_idx:start_idx + self.interval_size]
+        return interval_X
 
     def find_closest_edge(self, prev_edge_idx, curr_point, next_point=[]):
         edges = {}
@@ -135,13 +195,6 @@ class Mesh():
                 closest_edge_idx = i
         return  closest_edge_idx
 
-    def find_connected_edges(self, edge_idx):
-        connected_edges = {}
-        for i, edge in enumerate(self.mesh.faces):
-            if self.mesh.faces[edge_idx][1] == edge[0]:
-                connected_edges[i]= edge
-        return connected_edges
-
     @staticmethod
     def myfunc(x):
         return x
@@ -157,11 +210,14 @@ class Mesh():
         else:
             func = getattr(Mesh, func_str)
             vec_func = np.vectorize(func)    
-        Y = vec_func(X)
-        X = X.reshape(X.size, 1)
-        Y = Y.reshape(Y.size, 1)
-        func_points = np.concatenate((X, Y), axis=1)
-        return func_points
+        func_values = vec_func(X)
+        return func_values
+    
+    @staticmethod
+    def disp_edges(edges):
+        print "Point numbers in edges:"
+        for i, edge in enumerate(edges):
+            print i, edge
 
     def plot(self):
         plt.figure(0)
@@ -171,26 +227,26 @@ class Mesh():
             for point in edge:
                 X.append(self.mesh.points[point][0])
                 Y.append(self.mesh.points[point][1])
-            plt.plot(X, Y)
+        plt.plot(X, Y)
 
         X = []
         Y = []
         for i, p in enumerate(self.mesh.points):
-            X.append(p[1])
-            Y.append(p[0])
+            X.append(p[0])
+            Y.append(p[1])
         plt.scatter(X,Y)
         plt.show()
 
     def plot_curve(self, func_points, func_edges):
         func_points = np.asarray(func_points)
-        plt.scatter(func_points[:,0], func_points[:,1], c="r")
+        plt.plot(func_points[:,0], func_points[:,1], c="r")
         for i, edge in enumerate(func_edges):
             X = []
             Y = []
             for point in edge:
                 X.append(self.mesh.points[point][0])
                 Y.append(self.mesh.points[point][1])
-            plt.plot(X, Y, "r--")
+            plt.plot(X, Y, "g--")
         plt.show()
 
 def ufunction(x):
@@ -200,7 +256,7 @@ if __name__ == "__main__":
     #points = [(0,0), (10, 0), (10, 10), (0, 10)]
     #facets = [(0,1), (1,2), (2,3), (3,0)]
     mesh = Mesh();
-    mesh.set_points(0, 0, 100)
+    mesh.set_points(0, 0, 50)
     mesh.generate_mesh()
     mesh.to_string()
     mesh.list_edges()
