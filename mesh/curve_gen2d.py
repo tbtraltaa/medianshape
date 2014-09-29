@@ -5,6 +5,8 @@ import math
 import numpy as np
 import matplotlib.pyplot as plt
 
+from scipy.spatial.distance import pdist
+
 from scipy.sparse.csgraph import shortest_path
 from scipy.sparse.csgraph import dijkstra
 from scipy.sparse import csr_matrix
@@ -68,12 +70,6 @@ class Mesh():
             print i, face
         write_gnuplot_mesh("faces", self.mesh)
 
-        for points in self.mesh.elements:
-            for pt in points:
-                pass
-                #print "%f %f" % tuple(self.mesh.points[pt])
-            #print "\n"
-
     def generate_curve(self, func_str=None, interval_size=None):
         if interval_size:
             self.interval_size = interval_size
@@ -91,14 +87,12 @@ class Mesh():
         func_edges = []
         print "Function points:"
         print func_points
-        func_edges = self.find_func_edges(optimum_points)
-        Mesh.disp_edges(func_edges)
+        func_edges = self.find_func_edges(func_str, optimum_points)
+        Mesh.disp_edges(func_edges, "Function edges")
         self.plot()
-        plt.scatter(func_points[:,0], func_points[:,1], c="r")
-        plt.scatter(optimum_points[:,1], optimum_points[:,2], c="y")
-        self.plot_curve(func_points, func_edges)
+        self.plot_curve(func_points, func_edges, optimum_points)
 
-    def find_func_edges(self, optimum_points):
+    def find_func_edges(self, func_str, optimum_points):
         no_of_points = self.mesh_points.shape[0] 
         adjacency_matrix = np.zeros((no_of_points, no_of_points), dtype=int)  
         for i, p1 in enumerate(self.mesh_points):
@@ -108,7 +102,9 @@ class Mesh():
                 tmp = self.mesh_faces[:, 1:] == (p2[0], p1[0])
                 edge2 = np.any(np.logical_and(tmp[:,0], tmp[:,1]))
                 if edge1 or edge2:
-                    adjacency_matrix[i,j] = 1
+                    p1 = p1.reshape(p1.size,1)
+                    p2 = p2.reshape(p2.size,1)
+                    adjacency_matrix[i,j] = 1 + Mesh.find_diff(func_str, np.append(p1.T, p2.T, axis=0))
 
         graph = csr_matrix(adjacency_matrix)  
         print "Adjacent matrix \n", adjacency_matrix
@@ -135,6 +131,12 @@ class Mesh():
                 if edge2:
                     faces.append([int(path[i+1][0]), int(p[0])])
         return  faces
+
+    @staticmethod
+    def find_diff(func_str, points):
+        metric = abs(sum(points[:,2] - Mesh.vectorize_func(func_str, points[:,1])))
+        #metric += pdist(points[:,1:], 'euclidean')
+        return metric
 
     def find_closest_points(self, func_str, sample_X):
         sample_X = np.sort(sample_X)
@@ -214,13 +216,15 @@ class Mesh():
         return func_values
     
     @staticmethod
-    def disp_edges(edges):
-        print "Point numbers in edges:"
+    def disp_edges(edges, title):
+        print title
         for i, edge in enumerate(edges):
             print i, edge
 
     def plot(self):
-        plt.figure(0)
+        print type(self.mesh_points[:,0])
+        print type(self.mesh_points[:,1])
+        print type(self.mesh_elements.copy())
         X = []
         Y = []
         for i, edge in enumerate(self.mesh.faces):
@@ -228,30 +232,25 @@ class Mesh():
                 X.append(self.mesh.points[point][0])
                 Y.append(self.mesh.points[point][1])
         plt.plot(X, Y)
+        plt.plot(self.mesh_points[:,1], self.mesh_points[:,2], 'ro')
+        #plt.triplot(self.mesh_points[:,1], self.mesh_points[:,2], self.mesh_elements)
 
+
+    def plot_curve(self, func_points, func_edges, optimum_points):
+        func_points = np.asarray(func_points)
+        plt.plot(func_points[:,0], func_points[:,1], "g--")
         X = []
         Y = []
-        for i, p in enumerate(self.mesh.points):
-            X.append(p[0])
-            Y.append(p[1])
-        plt.scatter(X,Y)
-        plt.show()
-
-    def plot_curve(self, func_points, func_edges):
-        func_points = np.asarray(func_points)
-        plt.plot(func_points[:,0], func_points[:,1], c="r")
         for i, edge in enumerate(func_edges):
             X = []
             Y = []
             for point in edge:
                 X.append(self.mesh.points[point][0])
                 Y.append(self.mesh.points[point][1])
-            plt.plot(X, Y, "g--")
+            plt.plot(X, Y, "r")
+        plt.scatter(optimum_points[:,1], optimum_points[:,2], s=100)
         plt.show()
 
-def ufunction(x):
-    return x
-    
 if __name__ == "__main__":
     #points = [(0,0), (10, 0), (10, 10), (0, 10)]
     #facets = [(0,1), (1,2), (2,3), (3,0)]
