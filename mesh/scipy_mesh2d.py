@@ -244,8 +244,8 @@ class Mesh():
 
 if __name__ == "__main__":
     mesh = Mesh();
-    #mesh.set_points(np.array([[0,0],[0,1], [1,1], [1,0], [0.5, 0.5],[0.7, 0.7],[0.9, 0.9],[0.3, 0.3]]))
-    mesh.set_points(np.append(np.random.uniform(size=(10,2)),[[0,0],[0,1],[1,0],[1,1]], axis=0))
+    mesh.set_points(np.array([[0,0],[0,1], [1,1], [1,0], [0.5, 0.5],[0.7, 0.7],[0.9, 0.9],[0.3, 0.3]]))
+    #mesh.set_points(np.append(np.random.uniform(size=(50,2)),[[0,0],[0,1],[1,0],[1,1]], axis=0))
     mesh.generate_mesh()
     mesh.to_string()
     mesh.generate_curve("myfunc")
