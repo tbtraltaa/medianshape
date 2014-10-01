@@ -11,27 +11,25 @@ from scipy.sparse.csgraph import shortest_path
 from scipy.sparse.csgraph import dijkstra
 from scipy.sparse import csr_matrix
 
-
-
-from meshpy.triangle import MeshInfo, build, write_gnuplot_mesh
-
-
 class Mesh():
-    def __init__(self, points=[], x_range=1, y_range=None):
+    def __init__(self, points=[], x_range=1, y_range=None, interval_size=None):
         self.points = points
         self.x_range = x_range
         self.y_range = y_range
         if not self.y_range:
             self.y_range = x_range
-        self.interval_size = 3
+        if not interval_size:
+            self.interval_size = 4
 
-    def set_points(self, points, x_range=1, y_range=None, shape=None):
+    def set_points(self, points, x_range=1, y_range=None, interval_size=None):
         self.x_range = x_range
         self.y_range = y_range
         if not self.y_range:
             self.y_range = x_range
         #points = np.append(points,[(0,0), (0, self.y_range), (self.x_range, 0 ), (self.x_range,0)], axis=0)
         self.points = points
+        if not interval_size:
+            self.interval_size = 4
             
     def generate_mesh(self):
         self.mesh = Delaunay(self.points)
@@ -49,8 +47,12 @@ class Mesh():
         self.mesh_elements = np.array(self.mesh.simplices).reshape(len(self.mesh.simplices), 3)
         mesh_elements_idx = np.array(range(0, len(self.mesh.simplices))).reshape(len(self.mesh.simplices), 1)
         self.mesh_elements = np.hstack((mesh_elements_idx, self.mesh_elements))
-        self.point_X= np.sort(np.unique(self.mesh_points[:,1]))
         #self.mesh_points_ordered = self.mesh_points[self.mesh_points[:,1].argsort()]
+        self.sample_size = int(math.sqrt(len(self.mesh_points)))
+        self.ordered_X = np.sort(np.unique(self.mesh_points[:,1]))
+        self.sample_step = self.ordered_X.size//self.sample_size
+        if self.interval_size > self.sample_step:
+            self.interval_size = self.sample_step
 
     def set_edges(self):
         if self.mesh.points.shape[1] == 2:
@@ -84,16 +86,9 @@ class Mesh():
     def generate_curve(self, func_str=None, interval_size=None):
         if interval_size:
             self.interval_size = interval_size
-        sample_points = random.sample(self.mesh_points, int(math.sqrt(self.mesh_points.size)))
-        sample_points = np.array(sample_points)
-        sample_X = np.unique(sample_points[:, 1])
-        sample_X = sample_X.reshape(sample_X.size, 1)
-        print "Sample points:\n", sample_points
-        optimum_points= self.find_closest_points(func_str, sample_X)
+        #print "Sample points:\n", sample_points
+        optimum_points, func_points = self.find_closest_points(func_str)
         print "Optimum_points:\n", optimum_points
-        func_values = Mesh.vectorize_func(func_str, sample_X) 
-        func_values = func_values.reshape(func_values.size, 1)
-        func_points = np.concatenate((sample_X, func_values), axis=1)
         func_edges = []
         print "Function points:\n",func_points
         func_edges = self.find_func_edges(func_str, optimum_points)
@@ -143,49 +138,37 @@ class Mesh():
                     faces.append([int(path[i+1][0]), int(p[0])])
         return  faces
 
-    def find_closest_points(self, func_str, sample_X):
-        sample_X = np.sort(sample_X)
+    def find_closest_points(self, func_str):
+        sample_X = []
         optimum_points = list()
-        for i, x in enumerate(sample_X):
-            if i+1 < sample_X.size:
-                optimum_points.append(self.find_optimum_point(func_str, x, sample_X[i+1]))
-            else:
-                optimum_points.append(self.find_optimum_point(func_str, x))
+        for i in range(0, self.ordered_X.size, self.sample_step):
+            optimum_points.append(self.find_optimum_point(func_str, i))
+            sample_X.append(self.ordered_X[i])
+        func_points = np.hstack((np.array(sample_X).reshape(len(sample_X),1), Mesh.vectorize_func(func_str, sample_X).reshape(len(sample_X),1)))
+        return  np.array(optimum_points), func_points
 
-        return  np.array(optimum_points)
-
-    def find_optimum_point(self, func_str, x, x_next=None):
-        neighbors = []
-        #if x_next:
-            #neighbors = self.mesh_points[np.where(self.mesh_points[:1] > x)]
-            #neighbors = self.mesh_points[np.where(neighbors[:1] <= x_next)]
-        candidate_points = self.mesh_points[np.where(self.mesh_points[:,1]==x)]        
-        interval_X = self.find_interval_X(x)
-        interval_func_values = Mesh.vectorize_func(func_str, interval_X)
+    def find_optimum_point(self, func_str, x_idx):
+        interval_X = self.find_interval_X(x_idx)
+        func_values = Mesh.vectorize_func(func_str, interval_X)
         min_diff = 1000
         optimum_point = list()
-        for point in candidate_points:
-            d = interval_func_values - point[2]
-            diff = abs(sum(interval_func_values - point[2])) 
-            if diff < min_diff:
-                min_diff = diff
-                optimum_point = point.tolist()
-        for point in neighbors:
-            d = interval_func_values - point[2]
-            diff = abs(sum(interval_func_values - point[2])) 
-            if diff < min_diff:
-                min_diff = diff
-                optimum_point = point.tolist()
+        func_points = np.hstack((interval_X, func_values))
+        for i, x in enumerate(interval_X):
+            candidate_points = self.mesh_points[np.where(self.mesh_points[:,1]==x)]        
+            for cpoint in candidate_points:
+                points = np.vstack((func_points[i], cpoint[-2:])) 
+                diff = pdist(points) 
+                if diff < min_diff:
+                    min_diff = diff
+                    optimum_point = cpoint.tolist()
         return optimum_point
 
     @staticmethod
     def find_diff(func_str, points):
-        metric = abs(sum(points[:,2] - Mesh.vectorize_func(func_str, points[:,1])))
-        metric += pdist(points[:,1:], 'euclidean')
+        metric = pdist(points[:,-2:], 'euclidean')
         return metric
 
-    def find_interval_X(self, x):
-        x_idx = np.where(self.point_X==x)[0]
+    def find_interval_X(self, x_idx):
         interval_X = []      
         i = 0
         start_idx = 0
@@ -195,8 +178,8 @@ class Mesh():
                 start_idx = interval_idx
                 break
             i += 1
-        interval_X = self.point_X[start_idx:start_idx + self.interval_size]
-        return interval_X
+        interval_X = self.ordered_X[start_idx:start_idx + self.interval_size]
+        return interval_X.reshape(interval_X.size, 1)
 
     @staticmethod
     def myfunc(x):
@@ -223,9 +206,6 @@ class Mesh():
             print i, edge
 
     def plot(self):
-        print type(self.mesh.points[:,0])
-        print type(self.mesh.points[:,1])
-        print type(self.mesh.simplices.copy())
         plt.triplot(self.mesh.points[:,0], self.mesh.points[:,1], self.mesh.simplices.copy())
         plt.plot(self.mesh.points[:,0], self.mesh.points[:,1], 'o')
         
@@ -244,8 +224,8 @@ class Mesh():
 
 if __name__ == "__main__":
     mesh = Mesh();
-    mesh.set_points(np.array([[0,0],[0,1], [1,1], [1,0], [0.5, 0.5],[0.7, 0.7],[0.9, 0.9],[0.3, 0.3]]))
-    #mesh.set_points(np.append(np.random.uniform(size=(50,2)),[[0,0],[0,1],[1,0],[1,1]], axis=0))
+    #mesh.set_points(np.array([[0,0],[0,1], [1,1], [1,0], [0.5, 0.5],[0.7, 0.7],[0.9, 0.9],[0.3, 0.3]]))
+    mesh.set_points(np.append(np.random.uniform(size=(12,2)),[[0,0],[0,1],[1,0],[1,1]], axis=0))
     mesh.generate_mesh()
     mesh.to_string()
     mesh.generate_curve("myfunc")
