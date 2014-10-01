@@ -115,17 +115,22 @@ class Mesh():
         graph = csr_matrix(adjacency_matrix)  
         print "Adjacent matrix \n", adjacency_matrix
         path = list()
-        for i, point in enumerate(optimum_points): 
-            if i+1 < optimum_points.shape[0]:
-                i1 = point[0]
-                i2 = optimum_points[i+1][0]
+        for i, point in reversed(list(enumerate(optimum_points))): 
+            if i-1 >= 0:
+                i1 = optimum_points[i-1][0]
+                i2 = point[0]
                 distances, predecessors = dijkstra(graph, indices=i1, return_predecessors=True)
                 j = i2
                 while j != i1:
-                    path.append(self.mesh_points[j].tolist())
+                    if len(path) == 0:
+                        path.append(self.mesh_points[j].tolist())
+                    if len(path) > 0 and path[-1][0]!= j:
+                        path.append(self.mesh_points[j].tolist())
                     j = predecessors[j]
                 path.append(self.mesh_points[i1].tolist())
         faces = list()
+        path = np.array(path)
+        print path[:,0]
         for i, p in reversed(list(enumerate(path))):
             if i+1 < len(path):
                 tmp = self.mesh_faces[:, 1:] == (p[0], path[i+1][0])
@@ -207,7 +212,7 @@ class Mesh():
 
     def plot(self):
         plt.triplot(self.mesh.points[:,0], self.mesh.points[:,1], self.mesh.simplices.copy())
-        plt.plot(self.mesh.points[:,0], self.mesh.points[:,1], 'o')
+        plt.plot(self.mesh.points[:,0], self.mesh.points[:,1], 'yo')
         
     def plot_curve(self, func_points, func_edges, optimum_points):
         func_points = np.asarray(func_points)
@@ -225,7 +230,7 @@ class Mesh():
 if __name__ == "__main__":
     mesh = Mesh();
     #mesh.set_points(np.array([[0,0],[0,1], [1,1], [1,0], [0.5, 0.5],[0.7, 0.7],[0.9, 0.9],[0.3, 0.3]]))
-    mesh.set_points(np.append(np.random.uniform(size=(12,2)),[[0,0],[0,1],[1,0],[1,1]], axis=0))
+    mesh.set_points(np.append(np.random.uniform(size=(25,2)),[[0,0],[0,1],[1,0],[1,1]], axis=0))
     mesh.generate_mesh()
     mesh.to_string()
     mesh.generate_curve("myfunc")
