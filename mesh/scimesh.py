@@ -14,12 +14,13 @@ from scipy.sparse import csr_matrix
 class Mesh():
     def __init__(self, points=[], x_range=1, y_range=None, interval_size=None):
         self.points = points
+        self.edges = []
         self.x_range = x_range
         self.y_range = y_range
         if not self.y_range:
             self.y_range = x_range
         if not interval_size:
-            self.interval_size = 3
+            self.interval_size = 5
 
     def set_points(self, points, x_range=1, y_range=None, interval_size=None):
         self.x_range = x_range
@@ -28,7 +29,7 @@ class Mesh():
             self.y_range = x_range
         self.points = points
         if not interval_size:
-            self.interval_size = 3
+            self.interval_size = 5
             
     def generate_mesh(self):
         self.mesh = Delaunay(self.points)
@@ -43,92 +44,41 @@ class Mesh():
 
     def set_edges(self):
         if self.mesh.points.shape[1] == 2:
+            edges = list()
+            self.edges = np.empty(shape=(1,2))
             for i, simplex in enumerate(self.mesh.simplices):
-                edge0 = [simplex[0], simplex[1]]
-                edge1 = [simplex[1], simplex[2]]
-                edge2 = [simplex[2], simplex[0]]
-                if not self.is_in_edges(edge0):
-                    self.edges.append(edge0) 
-                if not self.is_in_edges(edge1):
-                    self.edges.append(edge1) 
-                if not self.is_in_edges(edge2):
-                    self.edges.append(edge2) 
-        self.edges = np.array(self.edges)
+                edge0 = list([simplex[0], simplex[1]])
+                edge1 = list([simplex[1], simplex[2]])
+                edge2 = list([simplex[2], simplex[0]])
+                edge0.sort()
+                edge1.sort()
+                edge2.sort()
+                if not self.edge_exists(edge0):
+                    self.edges = np.vstack((self.edges, edge0)) 
+                if not self.edge_exists(edge1):
+                    self.edges = np.vstack((self.edges, edge1)) 
+                if not self.edge_exists(edge2):
+                    self.edges = np.vstack((self.edges, edge2)) 
+            self.edges = self.edges[1:,:]
 
-    def is_in_edges(self, edge):
-        for e in self.edges:
-            if (e[0] == edge[0] and e[1] == edge[1]) or (e[0] == edge[1] and e[1] == edge[0]):
-                return True
-        return False
-
+    def edge_exists(self, edge):
+        tmp = self.edges == (edge[0], edge[1])
+        return np.any(np.logical_and(tmp[:,0], tmp[:,1]))
     def generate_curve(self, func_str=None, interval_size=None):
         if interval_size and interval_size < self.sample_step -1:
             self.interval_size = interval_size
         #print "Sample points:\n", sample_points
         nearest_points, func_points = self.find_nearest_points(func_str)
         print "Nearest_points:\n", nearest_points
-        func_edges = []
         print "Function points:\n", func_points
-        func_edges = self.find_path(func_str, nearest_points)
-        Mesh.disp_edges(func_edges, "Function edges")
+        func_path = self.find_path(func_str, nearest_points)
+        Mesh.disp_edges(func_path, "Function edges")
         self.plot()
-        self.plot_curve(func_points, nearest_points, func_edges)
-
-    def find_path(self, func_str, nearest_points):
-        no_of_points = self.mesh.points.shape[0] 
-        adjacency_matrix = np.zeros((no_of_points, no_of_points), dtype=np.float64)  
-        for i, p1 in enumerate(self.mesh.points):
-            neighbor_indices = self.find_neighbors(i) 
-            for j  in neighbor_indices:
-                p1 = p1.T.reshape(1,2)
-                p2 = self.mesh.points[j].T.reshape(1,2)
-                adjacency_matrix[i,j] = 1 + cdist(p1, p2, 'euclidean')[0]
-
-        #graph = csr_matrix(adjacency_matrix)  
-        graph = adjacency_matrix
-        #print "Adjacent matrix \n", adjacency_matrix
-        #print graph.data
-        path = list()
-        for i, point in reversed(list(enumerate(nearest_points))): 
-            print i, point
-            if i-1 >= 0:
-                i1 = nearest_points[i-1]
-                i2 = point
-                distances, predecessors = dijkstra(graph, directed=False, \
-                                            indices=i1, return_predecessors=True)
-                j = i2
-                while j != i1:
-                    if len(path) == 0:
-                        path.append(j)
-                        graph[i][j] = 100
-                        #graph[j][1] = graph[j][0][1] + 100
-                        #print graph[j]
-
-                    elif len(path) > 0 and path[-1]!= j:
-                        path.append(j)
-                        graph[i][j] = 100
-                        #print graph[j]
-                        #graph[j][1] = graph[j][0][1] + 100
-                    j = predecessors[j]
-                path.append(i1)
-        faces = list()
-        path = np.array(path)
-        print "Path", path
-        for i, p in reversed(list(enumerate(path))):
-            if i+1 < len(path):
-                tmp = self.edges == (p, path[i+1])
-                edge1 = np.any(np.logical_and(tmp[:,0], tmp[:,1]))
-                if edge1:
-                    faces.append([int(p), int(path[i+1])])
-                tmp = self.edges == (path[i+1], p)
-                edge2 = np.any(np.logical_and(tmp[:,0], tmp[:,1]))
-                if edge2:
-                    faces.append([int(path[i+1]), int(p)])
-        return  faces
-
-    def find_neighbors(self, point_idx):
-        return self.mesh.vertex_neighbor_vertices[1][self.mesh.vertex_neighbor_vertices[0]\
-        [point_idx]:self.mesh.vertex_neighbor_vertices[0][point_idx+1]]
+        self.plot_curve(func_points, nearest_points, func_path)
+        path_vector = self.get_path_vector(func_path)
+        print "Path vector:"
+        for i, orient in enumerate(path_vector):
+            print i, orient
 
     def find_nearest_points(self, func_str):
         sample_X = []
@@ -179,6 +129,68 @@ class Mesh():
             interval_X = self.ordered_X[start_idx:start_idx + self.interval_size]
         return interval_X.reshape(interval_X.size, 1)
 
+    def find_path(self, func_str, nearest_points):
+        no_of_points = self.mesh.points.shape[0] 
+        adjacency_matrix = np.zeros((no_of_points, no_of_points), dtype=np.float64)  
+        for i, p1 in enumerate(self.mesh.points):
+            neighbor_indices = self.find_neighbors(i) 
+            for j  in neighbor_indices:
+                p1 = p1.T.reshape(1,2)
+                p2 = self.mesh.points[j].T.reshape(1,2)
+                adjacency_matrix[i,j] = 1 + cdist(p1, p2, 'euclidean')[0]
+
+        #graph = csr_matrix(adjacency_matrix)  
+        graph = adjacency_matrix
+        #print "Adjacent matrix \n", adjacency_matrix
+        #print graph.data
+        path_vertices = list()
+        for i, point in reversed(list(enumerate(nearest_points))): 
+            if i-1 >= 0:
+                i1 = nearest_points[i-1]
+                i2 = point
+                distances, predecessors = dijkstra(graph, directed=False, \
+                                            indices=i1, return_predecessors=True)
+                j = i2
+                while j != i1:
+                    if len(path_vertices) == 0:
+                        path_vertices.append(j)
+                        graph[i][j] = 100
+                        #graph[j][1] = graph[j][0][1] + 100
+                        #print graph[j]
+
+                    elif len(path_vertices) > 0 and path_vertices[-1]!= j:
+                        path_vertices.append(j)
+                        graph[i][j] = 100
+                        #print graph[j]
+                        #graph[j][1] = graph[j][0][1] + 100
+                    j = predecessors[j]
+                path_vertices.append(i1)
+        path = list()
+        path_vertices = np.array(path_vertices)
+        print "Path", path_vertices
+        for i, point in reversed(list(enumerate(path_vertices))):
+            if i+1 < len(path_vertices):
+                edge = list([path_vertices[i+1], point])
+                path.append(edge)
+        print path
+        return  np.array(path, dtype=int)
+
+    def find_neighbors(self, point_idx):
+        return self.mesh.vertex_neighbor_vertices[1][self.mesh.vertex_neighbor_vertices[0]\
+        [point_idx]:self.mesh.vertex_neighbor_vertices[0][point_idx+1]]
+
+    def get_path_vector(self, func_path):
+        path_vector = np.zeros(shape=(self.edges.shape[0], 1))
+        for i, edge in enumerate(self.edges):
+            for path_edge in func_path:
+                if all((path_edge - edge) == 0):
+                    path_vector[i] = 1
+                    break
+                elif all((path_edge - np.array(list(reversed(edge)))) == 0):
+                    path_vector[i] = -1
+                    break
+        return path_vector
+                
     def to_string(self):
         print "Mesh Points:"
         for i, p in enumerate(self.mesh.points):
@@ -192,10 +204,10 @@ class Mesh():
         plt.triplot(self.mesh.points[:,0], self.mesh.points[:,1], self.mesh.simplices.copy())
         plt.plot(self.mesh.points[:,0], self.mesh.points[:,1], 'yo')
         
-    def plot_curve(self, func_points, nearest_points, func_edges):
+    def plot_curve(self, func_points, nearest_points, func_path):
         func_points = np.asarray(func_points)
         plt.plot(func_points[:,0], func_points[:,1], "g--")
-        for i, edge in enumerate(func_edges):
+        for i, edge in enumerate(func_path):
             points = self.mesh.points[edge]
             plt.plot(points[:,0], points[:,1], "r")
         plt.scatter(self.mesh.points[nearest_points][:,0], self.mesh.points[nearest_points][:,1], s=100)
