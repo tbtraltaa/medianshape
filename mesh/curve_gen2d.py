@@ -225,9 +225,9 @@ class Mesh():
         print type(self.mesh_points[:,0])
         print type(self.mesh_points[:,1])
         print type(self.mesh_elements.copy())
-        X = []
-        Y = []
         for i, edge in enumerate(self.mesh.faces):
+            X = []
+            Y = []
             for point in edge:
                 X.append(self.mesh.points[point][0])
                 Y.append(self.mesh.points[point][1])

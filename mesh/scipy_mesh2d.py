@@ -19,7 +19,7 @@ class Mesh():
         if not self.y_range:
             self.y_range = x_range
         if not interval_size:
-            self.interval_size = 4
+            self.interval_size = 5
 
     def set_points(self, points, x_range=1, y_range=None, interval_size=None):
         self.x_range = x_range
@@ -29,7 +29,7 @@ class Mesh():
         #points = np.append(points,[(0,0), (0, self.y_range), (self.x_range, 0 ), (self.x_range,0)], axis=0)
         self.points = points
         if not interval_size:
-            self.interval_size = 4
+            self.interval_size = 5
             
     def generate_mesh(self):
         self.mesh = Delaunay(self.points)
@@ -100,7 +100,7 @@ class Mesh():
 
     def find_func_edges(self, func_str, optimum_points):
         no_of_points = self.mesh_points.shape[0] 
-        adjacency_matrix = np.zeros((no_of_points, no_of_points), dtype=int)  
+        adjacency_matrix = np.zeros((no_of_points, no_of_points), dtype=float)  
         for i, p1 in enumerate(self.mesh_points):
             for j, p2 in enumerate(self.mesh_points): 
                 tmp = self.mesh_faces[:, 1:] == (p1[0], p2[0])
@@ -114,12 +114,13 @@ class Mesh():
 
         graph = csr_matrix(adjacency_matrix)  
         print "Adjacent matrix \n", adjacency_matrix
+        #print graph.data
         path = list()
         for i, point in reversed(list(enumerate(optimum_points))): 
             if i-1 >= 0:
                 i1 = optimum_points[i-1][0]
                 i2 = point[0]
-                distances, predecessors = dijkstra(graph, indices=i1, return_predecessors=True)
+                distances, predecessors = dijkstra(graph, directed=False, indices=i1, return_predecessors=True)
                 j = i2
                 while j != i1:
                     if len(path) == 0:
@@ -188,7 +189,7 @@ class Mesh():
 
     @staticmethod
     def myfunc(x):
-        return x
+        return x*x
 
     @staticmethod
     def vectorize_func(func_str, X):
@@ -217,9 +218,9 @@ class Mesh():
     def plot_curve(self, func_points, func_edges, optimum_points):
         func_points = np.asarray(func_points)
         plt.plot(func_points[:,0], func_points[:,1], "g--")
-        X = []
-        Y = []
         for i, edge in enumerate(func_edges):
+            X = []
+            Y = []
             for point in edge:
                 X.append(self.mesh.points[point][0])
                 Y.append(self.mesh.points[point][1])
@@ -230,7 +231,8 @@ class Mesh():
 if __name__ == "__main__":
     mesh = Mesh();
     #mesh.set_points(np.array([[0,0],[0,1], [1,1], [1,0], [0.5, 0.5],[0.7, 0.7],[0.9, 0.9],[0.3, 0.3]]))
-    mesh.set_points(np.append(np.random.uniform(size=(25,2)),[[0,0],[0,1],[1,0],[1,1]], axis=0))
+    #mesh.set_points(np.append(np.random.uniform(size=(50,2)),[[0,0],[0,1],[1,0],[1,1]], axis=0))
+    mesh.set_points(np.append(np.random.rand(50,2),[[0,0],[0,1],[1,0],[1,1]], axis=0))
     mesh.generate_mesh()
     mesh.to_string()
     mesh.generate_curve("myfunc")
