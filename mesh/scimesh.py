@@ -75,9 +75,8 @@ class Mesh():
         self.plot()
         self.plot_curve(func_points, nearest_points, func_path)
         path_vector = self.get_path_vector(func_path)
-        print "Path vector:"
-        for i, value in enumerate(path_vector):
-            print i, value
+        csr_path = csr_matrix(path_vector)
+        print "Path vector:\n", csr_path
 
     def find_nearest_points(self, func_str):
         sample_X = []
@@ -171,7 +170,6 @@ class Mesh():
             if i+1 < len(path_vertices):
                 edge = list([path_vertices[i+1], point])
                 path.append(edge)
-        print path
         return  np.array(path, dtype=int)
 
     def find_neighbors(self, point_idx):
@@ -279,7 +277,6 @@ class Mesh():
 
     @staticmethod
     def vectorize(func_str, X):
-        print X
         func_points = []
         if func_str.find(".") != -1:
             mod_name, func_name = func_str.rsplit('.', 1)
