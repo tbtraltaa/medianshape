@@ -40,7 +40,7 @@ class Mesh():
         self.ordered_X = np.sort(np.unique(self.mesh.points[:,0]))
         self.sample_step = self.ordered_X.size//self.sample_size
         if self.interval_size > self.sample_step:
-            self.interval_size = self.sample_step - 1
+            self.interval_size = self.sample_step
 
     def set_edges(self):
         if self.mesh.points.shape[1] == 2:
@@ -67,7 +67,6 @@ class Mesh():
     def generate_curve(self, func_str=None, interval_size=None):
         if interval_size and interval_size < self.sample_step -1:
             self.interval_size = interval_size
-        #print "Sample points:\n", sample_points
         nearest_points, func_points = self.find_nearest_points(func_str)
         print "Nearest_points:\n", nearest_points
         print "Function points:\n", func_points
@@ -77,8 +76,8 @@ class Mesh():
         self.plot_curve(func_points, nearest_points, func_path)
         path_vector = self.get_path_vector(func_path)
         print "Path vector:"
-        for i, orient in enumerate(path_vector):
-            print i, orient
+        for i, value in enumerate(path_vector):
+            print i, value
 
     def find_nearest_points(self, func_str):
         sample_X = []
@@ -179,6 +178,66 @@ class Mesh():
         return self.mesh.vertex_neighbor_vertices[1][self.mesh.vertex_neighbor_vertices[0]\
         [point_idx]:self.mesh.vertex_neighbor_vertices[0][point_idx+1]]
 
+    def orient_simplices(self):
+        self.initial_simplicies = self.mesh.simplices
+        for i, simplex in enumerate(self.mesh.simplices):
+            neighbors = self.mesh.neighbors[i]
+            for opposit_point in np.where(neighbors >= 0)[0]:
+                n_simplex_idx = neighbors[opposit_point]
+                n_simplex = self.mesh.simplices[n_simplex_idx]
+                n_boundary = Mesh.boundary(n_simplex)
+                subsimplex= Mesh.boundary(simplex, opposit_point)
+                for n_face in n_boundary:
+                    if all((np.array(subsimplex) - np.array(n_face)) == 0):
+                        self.mesh.simplices[n_simplex_idx] = n_simplex[::-1]
+        direction = self.right_hand_rule(self.mesh.simplices[0])
+        if direction < 0:
+            self.mesh.simplices = self.mesh.simplices[:,::-1]
+        print self.right_hand_rule(self.mesh.simplices[0])
+
+    def right_hand_rule(self, simplex):
+        edges = list()
+        edges.append(Mesh.boundary(simplex, 0))
+        edges.append(Mesh.boundary(simplex, 1))
+        edge_points = self.mesh.points[np.array(edges)]
+        v1 = edge_points[0][1] - edge_points[0][0]
+        v2 = edge_points[1][1] - edge_points[1][0]
+        direction = np.cross(v1,v2)
+        return direction
+
+    @staticmethod
+    def boundary1(simplex):
+        boundary = list()
+        if len(simplex) > 2:
+            n = len(simplex)
+            boundary.append(simplex[1:])
+            for i in xrange(1,n):
+                face = np.append(simplex[:i], simplex[i+1:])
+                if (-1)^(i+1) < 0: 
+                    face = face[::-1]
+                boundary.append(face)
+        return boundary
+    
+    @staticmethod
+    def boundary(simplex, idx=None):
+        boundary = list()
+        if idx == None:
+            n = len(simplex)
+            for i in xrange(0,n):
+                face = list(simplex)
+                face.pop(i)
+                if (-1)**(i+2) < 0: 
+                    face = face[::-1]
+                boundary.append(face)
+        else:
+            face = list(simplex)
+            face.pop(idx)
+            if (-1)**(idx+2) < 0: 
+                face = face[::-1]
+            boundary = face
+        return boundary
+        
+
     def get_path_vector(self, func_path):
         path_vector = np.zeros(shape=(self.edges.shape[0], 1))
         for i, edge in enumerate(self.edges):
@@ -220,6 +279,7 @@ class Mesh():
 
     @staticmethod
     def vectorize(func_str, X):
+        print X
         func_points = []
         if func_str.find(".") != -1:
             mod_name, func_name = func_str.rsplit('.', 1)
@@ -242,7 +302,10 @@ if __name__ == "__main__":
     mesh = Mesh();
     #mesh.set_points(np.array([[0,0],[0,1], [1,1], [1,0], [0.5, 0.5],[0.7, 0.7],[0.9, 0.9],[0.3, 0.3]]))
     #mesh.set_points(np.append(np.random.uniform(size=(50,2)),[[0,0],[0,1],[1,0],[1,1]], axis=0))
-    mesh.set_points(np.append(np.random.rand(25,2),[[0,0],[0,1],[1,0],[1,1]], axis=0))
+    points = np.append(np.random.rand(30,2),[[0,0],[0,1],[1,0],[1,1]], axis=0)
+    #points = np.array([[0, 0], [0, 1.1], [1, 0], [1, 1]])
+    mesh.set_points(np.array(points))
     mesh.generate_mesh()
     mesh.to_string()
     mesh.generate_curve("myfunc")
+    mesh.orient_simplices()
