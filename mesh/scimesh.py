@@ -135,7 +135,7 @@ class Mesh():
             for j  in neighbor_indices:
                 p1 = p1.T.reshape(1,2)
                 p2 = self.mesh.points[j].T.reshape(1,2)
-                adjacency_matrix[i,j] = 1 + cdist(p1, p2, 'euclidean')[0]
+                adjacency_matrix[i,j] = cdist(p1, p2, 'euclidean')[0]
 
         #graph = csr_matrix(adjacency_matrix)  
         graph = adjacency_matrix
@@ -178,6 +178,9 @@ class Mesh():
 
     def orient_simplices(self):
         self.initial_simplicies = self.mesh.simplices
+        direction = self.right_hand_rule(self.mesh.simplices[0])
+        if direction < 0:
+            self.mesh.simplices[0] = self.mesh.simplices[0,::-1]
         for i, simplex in enumerate(self.mesh.simplices):
             neighbors = self.mesh.neighbors[i]
             for opposit_point in np.where(neighbors >= 0)[0]:
@@ -188,9 +191,13 @@ class Mesh():
                 for n_face in n_boundary:
                     if all((np.array(subsimplex) - np.array(n_face)) == 0):
                         self.mesh.simplices[n_simplex_idx] = n_simplex[::-1]
-        direction = self.right_hand_rule(self.mesh.simplices[0])
-        if direction < 0:
-            self.mesh.simplices = self.mesh.simplices[:,::-1]
+        print self.right_hand_rule(self.mesh.simplices[1])
+
+    def orient_simplices_2D(self):
+        self.initial_simplicies = self.mesh.simplices
+        for i, simplex in enumerate(self.mesh.simplices):
+            if self.right_hand_rule(simplex) < 0: 
+                self.mesh.simplices[i] = self.mesh.simplices[i,::-1]
         print self.right_hand_rule(self.mesh.simplices[0])
 
     def right_hand_rule(self, simplex):
@@ -299,10 +306,10 @@ if __name__ == "__main__":
     mesh = Mesh();
     #mesh.set_points(np.array([[0,0],[0,1], [1,1], [1,0], [0.5, 0.5],[0.7, 0.7],[0.9, 0.9],[0.3, 0.3]]))
     #mesh.set_points(np.append(np.random.uniform(size=(50,2)),[[0,0],[0,1],[1,0],[1,1]], axis=0))
-    points = np.append(np.random.rand(30,2),[[0,0],[0,1],[1,0],[1,1]], axis=0)
+    points = np.append(np.random.rand(50,2),[[0,0],[0,1],[1,0],[1,1]], axis=0)
     #points = np.array([[0, 0], [0, 1.1], [1, 0], [1, 1]])
     mesh.set_points(np.array(points))
     mesh.generate_mesh()
     mesh.to_string()
     mesh.generate_curve("myfunc")
-    mesh.orient_simplices()
+    mesh.orient_simplices_2D()
