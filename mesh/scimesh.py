@@ -179,19 +179,23 @@ class Mesh():
     def orient_simplices(self):
         self.initial_simplicies = self.mesh.simplices
         direction = self.right_hand_rule(self.mesh.simplices[0])
+        simplices = np.array(range(0, len(self.mesh.simplices)))
         if direction < 0:
             self.mesh.simplices[0] = self.mesh.simplices[0,::-1]
         for i, simplex in enumerate(self.mesh.simplices):
+            simplices = np.delete(simplices, np.where(simplices==i))
             neighbors = self.mesh.neighbors[i]
             for opposit_point in np.where(neighbors >= 0)[0]:
                 n_simplex_idx = neighbors[opposit_point]
-                n_simplex = self.mesh.simplices[n_simplex_idx]
-                n_boundary = Mesh.boundary(n_simplex)
-                subsimplex= Mesh.boundary(simplex, opposit_point)
-                for n_face in n_boundary:
-                    if all((np.array(subsimplex) - np.array(n_face)) == 0):
-                        self.mesh.simplices[n_simplex_idx] = n_simplex[::-1]
-        print self.right_hand_rule(self.mesh.simplices[1])
+                if any(simplices==n_simplex_idx):
+                    n_simplex = self.mesh.simplices[n_simplex_idx]
+                    n_boundary = Mesh.boundary(n_simplex)
+                    subsimplex= Mesh.boundary(simplex, opposit_point)
+                    for n_face in n_boundary:
+                        if all((np.array(subsimplex) - np.array(n_face)) == 0):
+                            self.mesh.simplices[n_simplex_idx] = n_simplex[::-1]
+                    simplices = np.delete(simplices, np.where(simplices==n_simplex_idx))
+        print self.right_hand_rule(self.mesh.simplices[0])
 
     def orient_simplices_2D(self):
         self.initial_simplicies = self.mesh.simplices
@@ -313,3 +317,4 @@ if __name__ == "__main__":
     mesh.to_string()
     mesh.generate_curve("myfunc")
     mesh.orient_simplices_2D()
+    #mesh.orient_simplices()
