@@ -20,7 +20,7 @@ class Mesh():
         if not self.y_range:
             self.y_range = x_range
         if not interval_size:
-            self.interval_size = 5
+            self.interval_size = 100
 
     def set_points(self, points, x_range=1, y_range=None, interval_size=None):
         self.x_range = x_range
@@ -29,7 +29,7 @@ class Mesh():
             self.y_range = x_range
         self.points = points
         if not interval_size:
-            self.interval_size = 5
+            self.interval_size = 100
             
     def generate_mesh(self):
         self.mesh = Delaunay(self.points)
@@ -44,26 +44,12 @@ class Mesh():
 
     def set_edges(self):
         if self.mesh.points.shape[1] == 2:
-            edges = list()
-            self.edges = np.empty(shape=(1,2))
-            for i, simplex in enumerate(self.mesh.simplices):
-                edge0 = list([simplex[0], simplex[1]])
-                edge1 = list([simplex[1], simplex[2]])
-                edge2 = list([simplex[2], simplex[0]])
-                edge0.sort()
-                edge1.sort()
-                edge2.sort()
-                if not self.edge_exists(edge0):
-                    self.edges = np.vstack((self.edges, edge0)) 
-                if not self.edge_exists(edge1):
-                    self.edges = np.vstack((self.edges, edge1)) 
-                if not self.edge_exists(edge2):
-                    self.edges = np.vstack((self.edges, edge2)) 
-            self.edges = self.edges[1:,:]
+            edges = set()
+            for simplex in self.mesh.simplices:
+                for i in range(len(simplex)):
+                    edges.add(tuple(sorted([simplex[i], simplex[(i+1)%len(simplex)]])))
+            self.edges = np.array(list(edges))
 
-    def edge_exists(self, edge):
-        tmp = self.edges == (edge[0], edge[1])
-        return np.any(np.logical_and(tmp[:,0], tmp[:,1]))
     def generate_curve(self, func_str=None, interval_size=None):
         if interval_size and interval_size < self.sample_step -1:
             self.interval_size = interval_size
@@ -246,7 +232,6 @@ class Mesh():
             boundary = face
         return boundary
         
-
     def get_path_vector(self, func_path):
         path_vector = np.zeros(shape=(self.edges.shape[0], 1))
         for i, edge in enumerate(self.edges):
@@ -284,7 +269,7 @@ class Mesh():
 
     @staticmethod
     def myfunc(x):
-        return x*x
+        return x**2
 
     @staticmethod
     def vectorize(func_str, X):
@@ -310,7 +295,7 @@ if __name__ == "__main__":
     mesh = Mesh();
     #mesh.set_points(np.array([[0,0],[0,1], [1,1], [1,0], [0.5, 0.5],[0.7, 0.7],[0.9, 0.9],[0.3, 0.3]]))
     #mesh.set_points(np.append(np.random.uniform(size=(50,2)),[[0,0],[0,1],[1,0],[1,1]], axis=0))
-    points = np.append(np.random.rand(50,2),[[0,0],[0,1],[1,0],[1,1]], axis=0)
+    points = np.append(np.random.rand(500,2),[[0,0],[0,1],[1,0],[1,1]], axis=0)
     #points = np.array([[0, 0], [0, 1.1], [1, 0], [1, 1]])
     mesh.set_points(np.array(points))
     mesh.generate_mesh()
