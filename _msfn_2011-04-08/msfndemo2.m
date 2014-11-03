@@ -145,7 +145,7 @@ end
 tic
 inputsimp = M(:,find(t));
 % Calculate flat norm using saved invariants for various values of lambda
-for lambda = [0 0.1 0.5 1 10 50]
+for lambda = [0 1 2 5 10 50]
     [norm, x, s] = msfn(p, K, M, t, lambda, v, w, cons);
     % TODO: Quick fix for when using interior point method; may not work in
     % most cases but seems to return corner points for most instances.
