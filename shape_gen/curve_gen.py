@@ -10,7 +10,6 @@ from scipy.sparse.csgraph import dijkstra
 from scipy.sparse import csr_matrix
 from scipy.spatial.distance import pdist, cdist
 
-#from .. import mesh.mesh.Mesh
 
 class FunctionApprox2d():
     def __init__(self, mesh, func_str=None, sample_step=None, interval_size=None):

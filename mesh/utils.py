@@ -4,6 +4,10 @@ from __future__ import absolute_import
 
 import numpy as np
 
+from scipy.linalg import det
+from scipy.misc import factorial
+from scipy.spatial.distance import cdist, pdist
+
 def extract_edges(simplices):
     edges = set()
     for simplex in simplices:
@@ -32,9 +36,26 @@ def orient_simplices(simplices):
     print right_hand_rule(simplices[0])
     return simplices
 
-
-def simplex_volume():
-    pass
+def simpvol(points, simplices):
+    n = simplices.shape[1]
+    dim = points.shape[1]
+    volume = np.zeros(simplices.shape[0])
+#    if dim == 1:
+#        d01 = p[t[:,1]]-p[t[:,0]]
+#        return d01
+#    elif dim == 2:
+#        d01 = p[t[:,1]]-p[t[:,0]]
+#        d02 = p[t[:,2]]-p[t[:,0]]
+#        return (d01[:,0]*d02[:,1]-d01[:,1]*d02[:,0])/2
+    if dim == 2 and n == 3:
+        for i, simplex in enumerate(simplices):
+            extended_simplex = points[simplex]
+            extended_simplex = np.hstack((extended_simplex, np.ones((n,1))))
+            volume[i] = det(extended_simplex)/factorial(n)
+    elif dim == 2 and n == 2:
+        for i, simplex in enumerate(simplices):
+            volume[i] = pdist(points[simplex])
+    return volume
     
 def boundary1(simplex):
     boundary = list()
@@ -47,6 +68,20 @@ def boundary1(simplex):
                 face = face[::-1]
             boundary.append(face)
     return boundary
+
+def boundary_matrix(simplices, edges):
+    boundary_matrix = np.zeros((len(edges), len(simplices))) 
+    for i, edge in enumerate(edges):
+        for j, simplex in enumerate(simplices):
+            simplex_boundary = boundary(simplex)
+            for s_edge in simplex_boundary:
+                if all((s_edge - edge) == 0):
+                    boundary_matrix[i,j] = 1
+                    break
+                elif all((s_edge - np.array(list(reversed(edge)))) == 0):
+                    boundary_matrix[i,j] = -1
+                    break
+    return boundary_matrix
 
 def boundary(simplex, idx=None):
     boundary = list()
