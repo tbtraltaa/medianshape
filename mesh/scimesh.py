@@ -3,13 +3,16 @@ import random
 import math
 
 import numpy as np
-from scipy.spatial import Delaunay, ConvexHull
+from scipy.spatial import Delaunay, delaunay_plot_2d
 from scipy.spatial.distance import pdist, cdist
 import matplotlib.pyplot as plt
 
 from scipy.sparse.csgraph import shortest_path
 from scipy.sparse.csgraph import dijkstra
 from scipy.sparse import csr_matrix
+
+from scipy.linalg import det
+from scipy.misc import factorial
 
 class Mesh():
     def __init__(self, points=[], x_range=1, y_range=None, interval_size=None):
@@ -59,7 +62,7 @@ class Mesh():
         func_path = self.find_path(func_str, nearest_points)
         Mesh.disp_edges(func_path, "Function edges")
         self.plot()
-        self.plot_curve(func_points, nearest_points, func_path)
+        self.plot_curve(func_str, func_points, nearest_points, func_path)
         path_vector = self.get_path_vector(func_path)
         csr_path = csr_matrix(path_vector)
         print "Path vector:\n", csr_path
@@ -255,10 +258,12 @@ class Mesh():
 
     def plot(self):
         plt.triplot(self.mesh.points[:,0], self.mesh.points[:,1], self.mesh.simplices.copy())
-        plt.plot(self.mesh.points[:,0], self.mesh.points[:,1], 'yo')
+        #delaunay_plot_2d(self.mesh)
+        #plt.plot(self.mesh.points[:,0], self.mesh.points[:,1], 'yo')
         
-    def plot_curve(self, func_points, nearest_points, func_path):
+    def plot_curve(self, func_str, func_points, nearest_points, func_path):
         func_points = np.asarray(func_points)
+        plt.title(func_str)        
         plt.plot(func_points[:,0], func_points[:,1], "g--")
         for i, edge in enumerate(func_path):
             points = self.mesh.points[edge]
@@ -268,8 +273,14 @@ class Mesh():
         plt.show()
 
     @staticmethod
-    def myfunc(x):
+    def x2(x):
         return x**2
+    @staticmethod
+    def x3(x):
+        return x**3
+    @staticmethod
+    def myfunc(x):
+        return x
 
     @staticmethod
     def vectorize(func_str, X):
@@ -291,15 +302,31 @@ class Mesh():
         for i, edge in enumerate(edges):
             print i, edge
 
+    def simplex_volume(self):
+        d = self.mesh.simplices.shape[1]
+        volume = np.zeros(self.mesh.simplices.shape[0])
+        for i, simplex in enumerate(self.mesh.simplices):
+            extended_simplex = self.mesh.points[simplex]
+            extended_simplex = np.hstack((extended_simplex, np.ones((d,1))))
+            volume[i] = det(extended_simplex)/factorial(d)
+        self.volume = volume
+        #print self.volume
+
 if __name__ == "__main__":
     mesh = Mesh();
     #mesh.set_points(np.array([[0,0],[0,1], [1,1], [1,0], [0.5, 0.5],[0.7, 0.7],[0.9, 0.9],[0.3, 0.3]]))
     #mesh.set_points(np.append(np.random.uniform(size=(50,2)),[[0,0],[0,1],[1,0],[1,1]], axis=0))
-    points = np.append(np.random.rand(500,2),[[0,0],[0,1],[1,0],[1,1]], axis=0)
+    #high = 1
+    #low = 0
+    #points = np.append(np.random.uniform(low, high, size=(50,2)),[[low,low],[low,high],[high,low],[high,high]], axis=0)
+    points = np.append(np.random.rand(100,2),[[0,0], [0,1],[1,0],[1,1]], axis=0)
     #points = np.array([[0, 0], [0, 1.1], [1, 0], [1, 1]])
     mesh.set_points(np.array(points))
     mesh.generate_mesh()
     mesh.to_string()
-    mesh.generate_curve("myfunc")
+    functions = ['math.sqrt', 'myfunc', 'x2', 'x3', 'math.atan', 'math.acos']
+    for f in functions:
+        mesh.generate_curve(f)
     mesh.orient_simplices_2D()
+    mesh.simplex_volume()
     #mesh.orient_simplices()

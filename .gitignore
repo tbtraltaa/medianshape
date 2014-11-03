@@ -4,3 +4,4 @@ build/
 *.vtk
 *.edge
 *~
+*.pyc
