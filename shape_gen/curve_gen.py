@@ -2,6 +2,7 @@
 
 from __future__ import division, absolute_import
 
+import importlib
 import math
 
 import numpy as np
@@ -36,10 +37,7 @@ class FunctionApprox2d():
         print "Function points:\n", self.func_points
         self.func_path = self.find_path(self.nearest_points)
         #Mesh.disp_edges(func_path, "Function edges")
-        self.plot_curve()
         path_vector = self.get_path_vector()
-        csr_path = csr_matrix(path_vector)
-        print "Path vector:\n", csr_path
         return path_vector
 
     def find_nearest_points(self):
@@ -171,8 +169,19 @@ class FunctionApprox2d():
     def x2(x):
         return x**2
     @staticmethod
-    def x3(x):
-        return x**2
+    def x5(x):
+        return x**5
+    @staticmethod
+    def func1(x):
+        return 2/3.14*math.acos(x)
+    @staticmethod
+    def func3(x):
+        return np.abs(math.sin(2*3.14*x))
+    @staticmethod
+    def func2(x):
+        return 1/2*(1+math.sin(2*3.14*x))
+
+
     def plot_curve(self):
         plt.plot(self.func_points[:,0], self.func_points[:,1], "g--")
         plt.title(self.func_str)
@@ -181,4 +190,3 @@ class FunctionApprox2d():
             plt.plot(points[:,0], points[:,1], "r")
         plt.scatter(self.points[self.nearest_points][:,0], self.points[self.nearest_points][:,1], s=100)
         plt.scatter(self.func_points[:,0], self.func_points[:,1], c="r")
-        plt.show()
