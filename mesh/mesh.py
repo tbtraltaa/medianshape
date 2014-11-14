@@ -23,7 +23,6 @@ class Mesh():
         for i, simplex in enumerate(self.simplices):
             if self.right_hand_rule(simplex) < 0: 
                 self.simplices[i] = self.simplices[i,::-1]
-        print self.right_hand_rule(self.simplices[0])
 
     def right_hand_rule(self, simplex):
         edges = list()
@@ -49,10 +48,11 @@ class Mesh():
     def plot(self):
         plt.triplot(self.points[:,0], self.points[:,1], self.simplices.copy())
         #plt.scatter(self.points[:,0], self.points[:,1])
-    def plot_curve(self, func_path):
+
+    def plot_curve(self, func_path, color="black"):
         for i, orient in enumerate(func_path):
             if orient != 0:
                 edge = self.edges[i]
                 points = self.points[edge]
-                plt.plot(points[:,0], points[:,1], "black")
-        plt.show()
+                plt.plot(points[:,0], points[:,1], color)
+        return plt

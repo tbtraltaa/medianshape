@@ -181,7 +181,6 @@ class FunctionApprox2d():
     def func2(x):
         return 1/2*(1+math.sin(2*3.14*x))
 
-
     def plot_curve(self):
         plt.plot(self.func_points[:,0], self.func_points[:,1], "g--")
         plt.title(self.func_str)
@@ -190,3 +189,4 @@ class FunctionApprox2d():
             plt.plot(points[:,0], points[:,1], "r")
         plt.scatter(self.points[self.nearest_points][:,0], self.points[self.nearest_points][:,1], s=100)
         plt.scatter(self.func_points[:,0], self.func_points[:,1], c="r")
+        plt.show()

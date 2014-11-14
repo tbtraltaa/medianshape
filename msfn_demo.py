@@ -48,5 +48,6 @@ if __name__ == "__main__":
             fa.plot_curve()
             x, s, norm = msfn.msfn(mesh.points, mesh.simplices, mesh.edges, input_current, l, cons=cons)
             mesh.plot_curve(x)
+
             print "MSFN", norm
     #mesh.orient_simplices()
