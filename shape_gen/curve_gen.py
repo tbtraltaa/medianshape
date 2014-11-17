@@ -173,13 +173,16 @@ class FunctionApprox2d():
         return x**5
     @staticmethod
     def func1(x):
-        return 2/3.14*math.acos(x)
+        return 2/math.pi*math.acos(x)
     @staticmethod
-    def func3(x):
-        return np.abs(math.sin(2*3.14*x))
+    def sin2pi(x):
+        return np.abs(math.sin(2*math.pi*x))
+    @staticmethod
+    def sin1pi(x):
+        return np.abs(math.sin(math.pi*x))
     @staticmethod
     def func2(x):
-        return 1/2*(1+math.sin(2*3.14*x))
+        return 1/2*(1+math.sin(2*math.pi*x))
 
     def plot_curve(self):
         plt.plot(self.func_points[:,0], self.func_points[:,1], "g--")
@@ -189,4 +192,4 @@ class FunctionApprox2d():
             plt.plot(points[:,0], points[:,1], "r")
         plt.scatter(self.points[self.nearest_points][:,0], self.points[self.nearest_points][:,1], s=100)
         plt.scatter(self.func_points[:,0], self.func_points[:,1], c="r")
-        plt.show()
+        return plt

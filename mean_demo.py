@@ -21,11 +21,14 @@ from cvxopt import matrix, solvers
 
 if __name__ == "__main__":
     mesh = Mesh()
-    mesh.points, mesh.simplices = distmesh2d("square", (0,0,1,1),[(0,0), (0,1), (1,0), (1,1)])
+    # l - initial length of triangle sides 
+    # change it to 1 for big traingles
+    mesh.points, mesh.simplices = distmesh2d("square", (0,0,1,1),[(0,0), (0,1), (1,0), (1,1)], l=0.1)
     mesh.set_edges()
     mesh.to_string()
     mesh.orient_simplices_2D()
-    functions = ['myfunc', 'x2', 'x5']
+    functions = ['func2']
+    #functions = ['sin1pi']
     #functions = ['x2']
     fa = FunctionApprox2d(mesh)
     w = simpvol(mesh.points, mesh.edges)
@@ -36,16 +39,22 @@ if __name__ == "__main__":
         csr_path = csr_matrix(input_current)
         print "Path vector:\n", csr_path
         mesh.plot()
-        fa.plot_curve()
+        plt = fa.plot_curve()
+        plt.show()
         input_currents.append(input_current)
-    lambdas = [0.1, 1, 10, 50]
+    lambdas = [1, 10, 50]
+    colors = ['red', 'yellow', 'blue']
     for l in lambdas:
         input_currents = np.array(input_currents)
         x, norm = mean.mean(mesh.points, mesh.simplices, mesh.edges, input_currents, l)
         mesh.plot()
-        for c in input_currents:
-            mesh.plot_curve(c, "red")
-        plt = mesh.plot_curve(x, "black")
+        for i, c in enumerate(input_currents):
+            if i < 3:
+                plt = mesh.plot_curve(c, color=colors[i])
+            else:
+                plt = mesh.plot_curve(c, color=colors[0])
+        title = "lambda=%.01f"%l
+        plt = mesh.plot_curve(x, title, "black")
         plt.show()
         print "Mean", norm
     #mesh.orient_simplices()

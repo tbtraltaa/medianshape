@@ -19,10 +19,10 @@ def msfn(points, simplices, subsimplices, input_current, lambda_, v=[], w=[], co
     if v == []:
         v = simpvol(points, simplices)
     if cons == []:
-        boundary_matrix = boundary_matrix(simplices, subsimplices)
+        b_matrix = boundary_matrix(simplices, subsimplices)
         cons = np.hstack((np.identity(m_edges), -np.identity(m_edges)))
-        cons = np.hstack((cons, boundary_matrix))
-        cons = np.hstack((cons, -boundary_matrix))
+        cons = np.hstack((cons, b_matrix))
+        cons = np.hstack((cons, -b_matrix))
 
     c = np.concatenate((abs(w), abs(w), lambda_*abs(v), lambda_*abs(v))) 
     print "C", c

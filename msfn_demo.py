@@ -28,26 +28,17 @@ if __name__ == "__main__":
     functions = ['func2']
     #functions = ['x2']
     fa = FunctionApprox2d(mesh)
-    boundary_matrix = boundary_matrix(mesh.simplices, mesh.edges)
-    w = simpvol(mesh.points, mesh.edges)
-    v = simpvol(mesh.points, mesh.simplices)
-    m_edges = mesh.edges.shape[0]
-    n_simplices = mesh.simplices.shape[0]
-    cons = np.hstack((np.identity(m_edges), -np.identity(m_edges)))
-    cons = np.hstack((cons, boundary_matrix))
-    cons = np.hstack((cons, -boundary_matrix))
-    print "Constaint matrix shape", cons.shape
-    print "Cons", cons
-    lambdas = [0.1, 1, 5, 10, 50]
-    for l in lambdas:
-        for f in functions:
-            input_current = fa.generate_curve(f)
-            csr_path = csr_matrix(input_current)
-            print "Path vector:\n", csr_path
+    lambdas = [1, 10, 25, 50, 100]
+    for f in functions:
+        input_current = fa.generate_curve(f)
+        csr_path = csr_matrix(input_current)
+        print "Path vector:\n", csr_path
+        for l in lambdas:
             mesh.plot()
             fa.plot_curve()
-            x, s, norm = msfn.msfn(mesh.points, mesh.simplices, mesh.edges, input_current, l, cons=cons)
-            mesh.plot_curve(x)
-
+            title = "lambda=%.01f"%l
+            x, s, norm = msfn.msfn(mesh.points, mesh.simplices, mesh.edges, input_current, l)
+            plt =  mesh.plot_curve(x, title)
+            plt.show()
             print "MSFN", norm
     #mesh.orient_simplices()

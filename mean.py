@@ -11,7 +11,28 @@ import pulp
 
 from cvxopt import matrix, solvers
 
+def print_cons(sub_cons, cons, c):
+    string = ""
+    print "Sub cons:"
+    for row in sub_cons:
+        for col in row:
+            string += "%2d" % col
+        print string
+        string = ""
+
+    string = ""
+    print "\n"
+    print "Cons"
+    for row in cons:
+        for col in row:
+            string += "%2d" % col
+        print string
+        string = ""
+    print "\n"
+    print 'c', c
+
 def mean(points, simplices, subsimplices, input_currents, lambda_, v=[], w=[], cons=[]):
+    input_currents = np.array(input_currents)
     m_edges = subsimplices.shape[0]
     n_simplices = simplices.shape[0]
     k_currents = len(input_currents)
@@ -24,13 +45,14 @@ def mean(points, simplices, subsimplices, input_currents, lambda_, v=[], w=[], c
         b_matrix = boundary_matrix(simplices, subsimplices)
         sub_cons = np.hstack((-np.identity(m_edges), np.identity(m_edges), -b_matrix, b_matrix))
         sub_cons_col_count = 2*m_edges + 2*n_simplices
-        identity_cons = np.hstack((-np.identity(m_edges), np.identity(m_edges)))
+        identity_cons = np.hstack((np.identity(m_edges), -np.identity(m_edges)))
         k_identity_cons = np.tile(identity_cons,(k_currents,1))
 
         c = np.zeros(2*m_edges)
         sub_c = np.hstack((abs(w), abs(w), lambda_*abs(v), lambda_*abs(v)))
         sub_c = sub_c.reshape(len(sub_c),1)
         k_sub_c = np.tile(sub_c, (k_currents,1))
+        k_sub_c = k_sub_c/k_currents
         c = np.append(c, k_sub_c)
         for i in range(0,k_currents):
             cons_row = np.zeros((m_edges, k_currents*(2*m_edges + 2*n_simplices)))
@@ -42,7 +64,8 @@ def mean(points, simplices, subsimplices, input_currents, lambda_, v=[], w=[], c
             else:
                 cons = np.vstack((cons, cons_row))
         cons = np.hstack((k_identity_cons, cons))
-
+    # Uncomment the line below to print sub_cons, cons and c
+    #print_cons(sub_cons,cons, c)
     c = matrix(c) 
     cons = matrix(cons)
     input_currents = matrix(input_currents)
