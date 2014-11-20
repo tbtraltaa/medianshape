@@ -39,6 +39,8 @@ def mean(points, simplices, subsimplices, input_currents, lambda_, v=[], w=[], c
     input_currents  = input_currents.reshape(k_currents*m_edges,1)
     if w == []:
         w = simpvol(points, subsimplices)
+        w[3] = 0.00001
+        w[7] = 0.00001
     if v == []:
         v = simpvol(points, simplices)
     if cons == []:
@@ -77,4 +79,10 @@ def mean(points, simplices, subsimplices, input_currents, lambda_, v=[], w=[], c
     args = np.array(sol['x'])
     norm = sol['primal objective']
     x = args[0:m_edges] - args[m_edges:2*m_edges]
-    return x, norm
+    q1 = args[2*m_edges:3*m_edges] - args[3*m_edges:4*m_edges]
+    r1 = args[4*m_edges:4*m_edges+n_simplices] - args[4*m_edges+n_simplices:4*m_edges+2*n_simplices]
+
+    q2 = args[4*m_edges+2*n_simplices:5*m_edges+2*n_simplices] - args[5*m_edges+2*n_simplices:6*m_edges+2*n_simplices]
+    r2 = args[6*m_edges+2*n_simplices:6*m_edges+3*n_simplices] - args[6*m_edges+3*n_simplices:6*m_edges+4*n_simplices]
+    
+    return x,q1,r1,q2,r2, norm
