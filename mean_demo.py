@@ -24,8 +24,17 @@ if __name__ == "__main__":
     # l - initial length of triangle sides 
     # change it to 1 for big traingles
     mesh.points, mesh.simplices = distmesh2d("square", (0,0,1,1),[(0,0), (0,1), (1,0), (1,1)], l=1)
+
     #mesh.simplices = np.array([[2,1,0],[3,2,0],[4,2,3],[2,4,1]])
     #mesh.edges = np.array([[1,2],[0,1],[1,4],[2,4],[2,3],[0,3]])
+#    mesh.points = np.array([[0,0], [0,1],[1,1],[1,0],[0, 0.5],[0.5,1],[1,0.5],[1,0], [0.5, 0.5]])
+#    mesh.simplices = np.array([[0,8,4],
+#                                [4,8,1],
+#                                [1,8,5],
+#                                [8,6,2],
+#                                [8,3,6],
+#                                [8,7,3],
+#                                [8,0,7]])
     mesh.set_edges()
     mesh.to_string()
     mesh.orient_simplices_2D()
@@ -36,22 +45,22 @@ if __name__ == "__main__":
     w = simpvol(mesh.points, mesh.edges)
     v = simpvol(mesh.points, mesh.simplices)
     input_currents = list()
-    for f in functions:
-        input_current = fa.generate_curve(f)
-        csr_path = csr_matrix(input_current)
-        print "Path vector:\n", csr_path
-        mesh.plot()
-        plt = fa.plot_curve()
-        plt.show()
-        input_currents.append(input_current)
+#    for f in functions:
+#        input_current = fa.generate_curve(f)
+#        csr_path = csr_matrix(input_current)
+#        print "Path vector:\n", csr_path
+#        mesh.plot()
+#        plt = fa.plot_curve()
+#        plt.show()
+#        input_currents.append(input_current)
     lambdas = [1, 10, 50]
     colors = ['red', 'yellow', 'blue']
     for l in lambdas:
         input_currents = list()
-        current1 = np.zeros(shape=(8,1))
+        current1 = np.zeros(shape=(len(mesh.edges),1))
         current1[1] = 1
         current1[2] = 1
-        current2 = np.zeros(shape=(8,1))
+        current2 = np.zeros(shape=(len(mesh.edges),1))
         current2[5] = 1
         current2[6] = 1
         input_currents.append(current1)

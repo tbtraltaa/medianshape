@@ -39,8 +39,8 @@ def mean(points, simplices, subsimplices, input_currents, lambda_, v=[], w=[], c
     input_currents  = input_currents.reshape(k_currents*m_edges,1)
     if w == []:
         w = simpvol(points, subsimplices)
-        w[3] = 0.00001
-        w[7] = 0.00001
+        #w[3] = 0.00001
+        #w[7] = 0.00001
     if v == []:
         v = simpvol(points, simplices)
     if cons == []:
