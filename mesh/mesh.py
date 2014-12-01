@@ -46,6 +46,7 @@ class Mesh():
             print i, edge
 
     def plot(self):
+        #plt.figure(facecolor="white", edgecolor="none")
         plt.triplot(self.points[:,0], self.points[:,1], self.simplices.copy())
         #plt.scatter(self.points[:,0], self.points[:,1])
         return plt
