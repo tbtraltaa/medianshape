@@ -23,7 +23,7 @@ if __name__ == "__main__":
     mesh = Mesh()
     # l - initial length of triangle sides 
     # change it to 1 for big traingles
-    mesh.points, mesh.simplices = distmesh2d("square", (0,0,1,1),[(0,0), (0,1), (1,0), (1,1)])
+    mesh.points, mesh.simplices = distmesh2d("square", (0,0,1,1),[(0,0), (0,1), (1,0), (1,1)], l=1)
     mesh.set_edges()
 
 #    mesh.simplices = np.array([[2,1,0],[3,2,0],[4,2,3],[2,4,1]])
@@ -72,16 +72,16 @@ if __name__ == "__main__":
     lambdas = [1, 10, 20, 25, 30, 35, 45,50,100]
     colors = ['red', 'yellow', 'pink']
     for l in lambdas:
-#        input_currents = list()
-#        current1 = np.zeros(shape=(len(mesh.edges),1))
-#        current1[1] = -1
-#        current1[2] = -1
-#        current2 = np.zeros(shape=(len(mesh.edges),1))
-#        current2[5] = 1
-#        current2[6] = 1
-#        input_currents.append(current1)
-#        input_currents.append(current2)
-#        input_currents = np.array(input_currents)
+        input_currents = list()
+        current1 = np.zeros(shape=(len(mesh.edges),1))
+        current1[1] = -1
+        current1[2] = -1
+        current2 = np.zeros(shape=(len(mesh.edges),1))
+        current2[5] = 1
+        current2[6] = 1
+        input_currents.append(current1)
+        input_currents.append(current2)
+        input_currents = np.array(input_currents)
         x,q1,r1,q2,r2, norm = mean.mean(mesh.points, mesh.simplices, mesh.edges, input_currents, l)
         plt.figure(facecolor="white", edgecolor=None)
         mesh.plot()
@@ -93,9 +93,9 @@ if __name__ == "__main__":
         title = "lambda=%.01f"%l
         plt = mesh.plot_curve(x, title, "black")
         plt.show()
-#        print "Mean", norm
-#        print "x", x
-#        print "q1", q1
-#        print "r1", r1
-#        print "q2", q2
-#        print "r2", r2
+        print "Mean", norm
+        print "x", x
+        print "q1", q1
+        print "r1", r1
+        print "q2", q2
+        print "r2", r2
