@@ -57,8 +57,9 @@ def mean(points, simplices, subsimplices, input_currents, lambda_, v=[], w=[], c
         sub_c = np.hstack((abs(w), abs(w), lambda_*abs(v), lambda_*abs(v)))
         sub_c = sub_c.reshape(len(sub_c),1)
         k_sub_c = np.tile(sub_c, (sub_cons_count,1))
-        k_sub_c = k_sub_c/k_currents
         c = np.append(c, k_sub_c)
+        c = c/k_currents
+
         for i in range(0,sub_cons_count):
             cons_row = np.zeros((m_edges, sub_cons_count*(2*m_edges + 2*n_simplices)))
             sub_cons_start = i*sub_cons_col_count

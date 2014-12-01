@@ -69,7 +69,7 @@ if __name__ == "__main__":
         plt.show()
         input_currents.append(input_current)
     input_currents = np.array(input_currents)
-    lambdas = [1, 10, 20, 25, 30, 35, 45,50,100]
+    lambdas = [50, 1, 0.1, 0.01]
     colors = ['red', 'yellow', 'pink']
     for l in lambdas:
 #        input_currents = list()
