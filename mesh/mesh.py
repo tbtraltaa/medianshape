@@ -46,10 +46,8 @@ class Mesh():
             print i, edge
 
     def plot(self):
-        #plt.figure(facecolor="white", edgecolor="none")
         plt.triplot(self.points[:,0], self.points[:,1], self.simplices.copy())
         #plt.scatter(self.points[:,0], self.points[:,1])
-        return plt
 
     def plot_curve(self, func_path, title=None, color="black"):
         for i, orient in enumerate(func_path):
@@ -59,4 +57,3 @@ class Mesh():
                 plt.plot(points[:,0], points[:,1], color, linewidth=2)
         if title:
             plt.title(title)
-        return plt

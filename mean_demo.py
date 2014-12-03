@@ -2,12 +2,15 @@
 
 from __future__ import absolute_import
 
+import math
 import importlib
 import random
-import math
+import itertools
+
 
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.figure import Figure
 
 from scipy.sparse import csr_matrix
 
@@ -58,19 +61,22 @@ if __name__ == "__main__":
     #functions = ['func2']
     #functions = ['sin1pi']
     functions = ['myfunc', 'x2', 'x5']
+    colors = itertools.cycle("gry")
     fa = FunctionApprox2d(mesh)
     input_currents = list()
-    for f in functions:
+    plt.figure(facecolor="white", edgecolor=None, frameon=False, linewidth=0)
+    plt.gca().set_aspect('equal')
+    mesh.plot()
+    for i, f in enumerate(functions):
         input_current = fa.generate_curve(f)
         csr_path = csr_matrix(input_current)
         print "Path vector:\n", csr_path
-        mesh.plot()
-        plt = fa.plot_curve()
-        plt.show()
+        fa.plot_curve(color=colors.next())
         input_currents.append(input_current)
+    plt.title("Functions")
+    plt.show()
     input_currents = np.array(input_currents)
-    lambdas = [1, 10, 20, 25, 30, 35, 45,50,100]
-    colors = ['red', 'yellow', 'green']
+    lambdas = [0.01, 0.1, 1, 20, 50]
     for l in lambdas:
 #        input_currents = list()
 #        current1 = np.zeros(shape=(len(mesh.edges),1))
@@ -83,15 +89,13 @@ if __name__ == "__main__":
 #        input_currents.append(current2)
 #        input_currents = np.array(input_currents)
         x,q1,r1,q2,r2, norm = mean.mean(mesh.points, mesh.simplices, mesh.edges, input_currents, l)
-        plt.figure(facecolor="white", edgecolor=None)
+        plt.figure(facecolor="white", edgecolor=None, frameon=False, linewidth=0)
+        plt.gca().set_aspect('equal')
         mesh.plot()
         for i, c in enumerate(input_currents):
-            if i < 3:
-                plt = mesh.plot_curve(c, color=colors[i])
-            else:
-                plt = mesh.plot_curve(c, color=colors[0])
-        title = "lambda=%.01f"%l
-        plt = mesh.plot_curve(x, title, "black")
+            mesh.plot_curve(c, color=colors.next())
+        title = "lambda=%.02f"%l
+        mesh.plot_curve(x, title)
         plt.show()
 #        print "Mean", norm
 #        print "x", x
