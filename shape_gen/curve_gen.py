@@ -184,12 +184,11 @@ class FunctionApprox2d():
     def func2(x):
         return 1/2*(1+math.sin(2*math.pi*x))
 
-    def plot_curve(self):
-        plt.plot(self.func_points[:,0], self.func_points[:,1], "g--")
+    def plot_curve(self, title=None, color="red"):
+        plt.plot(self.func_points[:,0], self.func_points[:,1], c=color, ls="--")
         plt.title(self.func_str)
         for i, edge in enumerate(self.func_path):
             points = self.points[edge]
-            plt.plot(points[:,0], points[:,1], "r")
+            plt.plot(points[:,0], points[:,1], color, linewidth=2)
         plt.scatter(self.points[self.nearest_points][:,0], self.points[self.nearest_points][:,1], s=100)
-        plt.scatter(self.func_points[:,0], self.func_points[:,1], c="r")
-        return plt
+        plt.scatter(self.func_points[:,0], self.func_points[:,1], c=color)
