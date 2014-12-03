@@ -70,7 +70,7 @@ if __name__ == "__main__":
         input_currents.append(input_current)
     input_currents = np.array(input_currents)
     lambdas = [1, 10, 20, 25, 30, 35, 45,50,100]
-    colors = ['red', 'yellow', 'pink']
+    colors = ['red', 'yellow', 'green']
     for l in lambdas:
 #        input_currents = list()
 #        current1 = np.zeros(shape=(len(mesh.edges),1))

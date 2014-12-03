@@ -56,7 +56,7 @@ class Mesh():
             if orient != 0:
                 edge = self.edges[i]
                 points = self.points[edge]
-                plt.plot(points[:,0], points[:,1], color)
+                plt.plot(points[:,0], points[:,1], color, linewidth=2)
         if title:
             plt.title(title)
         return plt
