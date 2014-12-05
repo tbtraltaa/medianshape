@@ -181,6 +181,9 @@ class FunctionApprox2d():
     def sin1pi(x):
         return np.abs(math.sin(math.pi*x))
     @staticmethod
+    def sin1pi1(x):
+        return np.abs(math.sin(math.pi*x))/1.5
+    @staticmethod
     def func2(x):
         return 1/2*(1+math.sin(2*math.pi*x))
 

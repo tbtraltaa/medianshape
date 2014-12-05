@@ -60,7 +60,7 @@ if __name__ == "__main__":
     mesh.orient_simplices_2D()
     #functions = ['func2']
     #functions = ['sin1pi']
-    functions = ['myfunc', 'x2', 'x5']
+    functions = ['sin1pi', 'sin1pi1']
     colors = itertools.cycle("gry")
     fa = FunctionApprox2d(mesh)
     input_currents = list()
