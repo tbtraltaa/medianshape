@@ -59,8 +59,8 @@ if __name__ == "__main__":
     mesh.to_string()
     mesh.orient_simplices_2D()
     #functions = ['func2']
-    #functions = ['sin1pi']
-    functions = ['myfunc', 'x2', 'x5']
+    functions = ['sin1pi', 'sin1pi1']
+    #functions = ['myfunc', 'x2', 'x5']
     colors = itertools.cycle("gry")
     fa = FunctionApprox2d(mesh)
     input_currents = list()
@@ -80,14 +80,15 @@ if __name__ == "__main__":
     for l in lambdas:
 #        input_currents = list()
 #        current1 = np.zeros(shape=(len(mesh.edges),1))
-#        current1[1] = -1
-#        current1[2] = -1
+#        current1[1] = 1
+#        current1[2] = 1
+#        current1[6] = -1
 #        current2 = np.zeros(shape=(len(mesh.edges),1))
 #        current2[5] = 1
-#        current2[6] = 1
 #        input_currents.append(current1)
 #        input_currents.append(current2)
 #        input_currents = np.array(input_currents)
+#        print "Input current", input_currents
         x,q1,r1,q2,r2, norm = mean.mean(mesh.points, mesh.simplices, mesh.edges, input_currents, l)
         plt.figure(facecolor="white", edgecolor=None, frameon=False, linewidth=0)
         plt.gca().set_aspect('equal')
@@ -99,7 +100,7 @@ if __name__ == "__main__":
         plt.show()
         print "Mean", norm
         print "x", x
-#        print "q1", q1
-#        print "r1", r1
-#        print "q2", q2
-#        print "r2", r2
+        #print "q1", q1
+        #print "r1", r1
+        #print "q2", q2
+        #print "r2", r2
