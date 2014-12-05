@@ -22,6 +22,11 @@ from mesh.utils import boundary_matrix, simpvol
 import mean
 from cvxopt import matrix, solvers
 
+options = {   'default': 1,
+            'mass': 2,
+            'msfn': 3
+        }
+
 if __name__ == "__main__":
     mesh = Mesh()
     # l - initial length of triangle sides 
@@ -58,9 +63,8 @@ if __name__ == "__main__":
 #                            [7,8]])
     mesh.to_string()
     mesh.orient_simplices_2D()
-    #functions = ['func2']
     functions = ['sin1pi', 'sin1pi1']
-    #functions = ['myfunc', 'x2', 'x5']
+    #functions = ['x', 'x2', 'x5']
     colors = itertools.cycle("gry")
     fa = FunctionApprox2d(mesh)
     input_currents = list()
@@ -76,7 +80,7 @@ if __name__ == "__main__":
     plt.title("Functions")
     plt.show()
     input_currents = np.array(input_currents)
-    lambdas = [0.01, 0.1, 1, 20, 50]
+    lambdas = [0.01, 1, 50]
     for l in lambdas:
 #        input_currents = list()
 #        current1 = np.zeros(shape=(len(mesh.edges),1))
@@ -89,7 +93,7 @@ if __name__ == "__main__":
 #        input_currents.append(current2)
 #        input_currents = np.array(input_currents)
 #        print "Input current", input_currents
-        x,q1,r1,q2,r2, norm = mean.mean(mesh.points, mesh.simplices, mesh.edges, input_currents, l)
+        x,q1,r1,q2,r2, norm = mean.mean(mesh.points, mesh.simplices, mesh.edges, input_currents, l, options['mass'])
         plt.figure(facecolor="white", edgecolor=None, frameon=False, linewidth=0)
         plt.gca().set_aspect('equal')
         mesh.plot()

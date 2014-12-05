@@ -11,6 +11,11 @@ import pulp
 
 from cvxopt import matrix, solvers
 
+options = {   'default': 1,
+            'mass': 2,
+            'msfn': 3
+        }
+
 def print_cons(sub_cons, cons, c):
     string = ""
     print "Sub cons:"
@@ -31,13 +36,12 @@ def print_cons(sub_cons, cons, c):
     print "\n"
     print 'c', c
 
-def mean(points, simplices, subsimplices, input_currents, lambda_, v=[], w=[], cons=[]):
+def mean(points, simplices, subsimplices, input_currents, lambda_, opts=options['default'], v=[], w=[], cons=[]):
     input_currents = np.array(input_currents)
     m_edges = subsimplices.shape[0]
     n_simplices = simplices.shape[0]
     k_currents = len(input_currents)
     input_currents  = input_currents.reshape(k_currents*m_edges,1)
-    input_currents = np.vstack((input_currents, np.zeros((m_edges,1))))
     if w == []:
         w = simpvol(points, subsimplices)
         #w[3] = 0.00001
@@ -45,15 +49,22 @@ def mean(points, simplices, subsimplices, input_currents, lambda_, v=[], w=[], c
     if v == []:
         v = simpvol(points, simplices)
     if cons == []:
-        sub_cons_count = k_currents + 1
+        sub_cons_count = k_currents
+        c = np.zeros((2*m_edges,1))
+        # Msfn option
+        if opts == options['msfn']:
+            sub_cons_count += 1
+            input_currents = np.vstack((input_currents, np.zeros((m_edges,1))))
+        # Mass option
+        elif opts == options['mass']:
+            c = np.vstack((abs(w),abs(w)))
+
         b_matrix = boundary_matrix(simplices, subsimplices)
         identity_cons = np.hstack((np.identity(m_edges), -np.identity(m_edges)))
         sub_cons = np.hstack((-np.identity(m_edges), np.identity(m_edges), -b_matrix, b_matrix))
         sub_cons_col_count = 2*m_edges + 2*n_simplices
-        msfn_cons = np.hstack((-np.identity(m_edges), np.identity(m_edges), -b_matrix, b_matrix))
         k_identity_cons = np.tile(identity_cons,(sub_cons_count,1))
 
-        c = np.zeros((2*m_edges,1))
         sub_c = np.hstack((abs(w), abs(w), lambda_*abs(v), lambda_*abs(v)))
         sub_c = sub_c.reshape(len(sub_c),1)
         k_sub_c = np.tile(sub_c, (sub_cons_count,1))

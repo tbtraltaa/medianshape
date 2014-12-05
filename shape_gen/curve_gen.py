@@ -163,7 +163,7 @@ class FunctionApprox2d():
         return func_values
 
     @staticmethod
-    def myfunc(x):
+    def x(x):
         return x
     @staticmethod
     def x2(x):
