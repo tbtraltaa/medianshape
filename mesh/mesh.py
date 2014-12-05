@@ -50,6 +50,7 @@ class Mesh():
         #plt.scatter(self.points[:,0], self.points[:,1])
 
     def plot_curve(self, func_path, title=None, color="black"):
+        func_path = func_path.astype(int)
         for i, orient in enumerate(func_path):
             if orient != 0:
                 edge = self.edges[i]
