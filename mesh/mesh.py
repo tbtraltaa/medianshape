@@ -3,6 +3,7 @@ from __future__ import absolute_import
 
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.collections import PolyCollection
 
 from mesh.utils import boundary
 
@@ -18,6 +19,20 @@ class Mesh():
             for i in range(len(simplex)):
                 edges.add(tuple(sorted([simplex[i], simplex[(i+1)%len(simplex)]])))
         self.edges = np.array(list(edges))
+
+    def get_simplices(self, simplices_vector, opts=1):
+        if simplices_vector.dtype != int:
+            simplices_vector = simplices_vector.astype(int)
+        # All simplices despite their orientations
+        if opts == 1:
+            simplices = self.simplices[simplices_vector.nonzero()[0]]
+        # Counter clockwise simplices
+        elif opts == 2:
+            simplices = self.simplices[np.where(simplices_vector == 1)[0]] 
+        # Clockwise simplices
+        elif opts == 3:
+            simplices = self.simplices[np.where(simplices_vector == -1)[0]]
+        return simplices 
 
     def orient_simplices_2D(self):
         for i, simplex in enumerate(self.simplices):
@@ -35,6 +50,7 @@ class Mesh():
         return direction
 
     def to_string(self):
+        print "Mesh info: %d points, %d triangles and %d edges"% (len(self.points), len(self.simplices), len(self.edges))
         print "Mesh Points:"
         for i, p in enumerate(self.points):
                 print i, p
@@ -49,12 +65,19 @@ class Mesh():
         plt.triplot(self.points[:,0], self.points[:,1], self.simplices.copy())
         #plt.scatter(self.points[:,0], self.points[:,1])
 
-    def plot_curve(self, func_path, title=None, color="black"):
-        func_path = func_path.astype(int)
+    def plot_curve(self, func_path, title=None, color="black", marker=None):
+        if func_path.dtype != int:
+            func_path = func_path.astype(int)
         for i, orient in enumerate(func_path):
             if orient != 0:
                 edge = self.edges[i]
                 points = self.points[edge]
-                plt.plot(points[:,0], points[:,1], color, linewidth=2)
+                plt.plot(points[:,0], points[:,1], color, linewidth=2, marker=marker)
         if title:
             plt.title(title)
+
+    def plot_simplices(self, simplices, title=None, color="y"):
+        simplices = self.points[self.get_simplices(simplices)]
+        for s in simplices:
+            simplex = plt.Polygon(s, closed=True, fill=True, fc=color)
+            plt.gca().add_patch(simplex)

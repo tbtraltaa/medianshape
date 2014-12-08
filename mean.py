@@ -36,7 +36,7 @@ def print_cons(sub_cons, cons, c):
     print "\n"
     print 'c', c
 
-def mean(points, simplices, subsimplices, input_currents, lambda_, opts=options['default'], v=[], w=[], cons=[]):
+def mean(points, simplices, subsimplices, input_currents, lambda_, opt=options['default'], v=[], w=[], cons=[]):
     input_currents = np.array(input_currents)
     m_edges = subsimplices.shape[0]
     n_simplices = simplices.shape[0]
@@ -52,11 +52,11 @@ def mean(points, simplices, subsimplices, input_currents, lambda_, opts=options[
         sub_cons_count = k_currents
         c = np.zeros((2*m_edges,1))
         # Msfn option
-        if opts == options['msfn']:
+        if opt == options['msfn']:
             sub_cons_count += 1
             input_currents = np.vstack((input_currents, np.zeros((m_edges,1))))
         # Mass option
-        elif opts == options['mass']:
+        elif opt == options['mass']:
             c = np.vstack((abs(w),abs(w)))
 
         b_matrix = boundary_matrix(simplices, subsimplices)
@@ -96,10 +96,14 @@ def mean(points, simplices, subsimplices, input_currents, lambda_, opts=options[
     args = np.array(sol['x'])
     norm = sol['primal objective']
     x = args[0:m_edges] - args[m_edges:2*m_edges]
-    q1 = args[2*m_edges:3*m_edges] - args[3*m_edges:4*m_edges]
-    r1 = args[4*m_edges:4*m_edges+n_simplices] - args[4*m_edges+n_simplices:4*m_edges+2*n_simplices]
-
-    q2 = args[4*m_edges+2*n_simplices:5*m_edges+2*n_simplices] - args[5*m_edges+2*n_simplices:6*m_edges+2*n_simplices]
-    r2 = args[6*m_edges+2*n_simplices:6*m_edges+3*n_simplices] - args[6*m_edges+3*n_simplices:6*m_edges+4*n_simplices]
-    
-    return x,q1,r1,q2,r2, norm
+    q = np.zeros((m_edges, k_currents))
+    r = np.zeros((n_simplices, k_currents))
+    qi_start = 2*m_edges
+    for i in range(k_currents):
+        qi_end = qi_start + 2*m_edges
+        q[:, i] = (args[qi_start: qi_start+m_edges] - args[qi_start+m_edges: qi_end]).reshape(m_edges)
+        ri_start = qi_end
+        ri_end = ri_start + 2*n_simplices
+        r[:, i] = (args[ri_start: ri_start+n_simplices] - args[ri_start+n_simplices: ri_end]).reshape(n_simplices)
+        qi_start = ri_end
+    return x, q, r, norm
