@@ -51,7 +51,7 @@ def simpvol(points, simplices):
         for i, simplex in enumerate(simplices):
             extended_simplex = points[simplex]
             extended_simplex = np.hstack((extended_simplex, np.ones((n,1))))
-            volume[i] = det(extended_simplex)/factorial(n)
+            volume[i] = det(extended_simplex)/factorial(dim)
     elif dim == 2 and n == 2:
         for i, simplex in enumerate(simplices):
             volume[i] = pdist(points[simplex])

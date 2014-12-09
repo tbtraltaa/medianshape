@@ -10,6 +10,9 @@ import glpk
 import pulp
 
 from cvxopt import matrix, solvers
+solvers.options['abstol'] = 1e-10
+solvers.options['reltol'] = 1e-9
+solvers.options['feastol'] = 1e-10
 
 options = {   'default': 1,
             'mass': 2,
@@ -85,6 +88,7 @@ def mean(points, simplices, subsimplices, input_currents, lambda_, opt=options['
 
     # Uncomment the line below to print sub_cons, cons and c
     #print_cons(sub_cons,cons, c)
+
     cons_col_count = 2*m_edges + sub_cons_count*(2*m_edges + 2*n_simplices)
     c = matrix(c) 
     G = matrix(-np.identity(cons_col_count))
@@ -92,14 +96,15 @@ def mean(points, simplices, subsimplices, input_currents, lambda_, opt=options['
     cons = matrix(cons)
     input_currents = matrix(input_currents)
 
+    
     sol = solvers.lp(c, G, h, cons, input_currents, solver='glpk')
     args = np.array(sol['x'])
     norm = sol['primal objective']
     x = args[0:m_edges] - args[m_edges:2*m_edges]
-    q = np.zeros((m_edges, k_currents))
-    r = np.zeros((n_simplices, k_currents))
+    q = np.zeros((m_edges, sub_cons_count))
+    r = np.zeros((n_simplices, sub_cons_count))
     qi_start = 2*m_edges
-    for i in range(k_currents):
+    for i in range(sub_cons_count):
         qi_end = qi_start + 2*m_edges
         q[:, i] = (args[qi_start: qi_start+m_edges] - args[qi_start+m_edges: qi_end]).reshape(m_edges)
         ri_start = qi_end
