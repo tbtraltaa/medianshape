@@ -46,11 +46,20 @@ def mean(points, simplices, subsimplices, input_currents, lambda_, opt=options['
     k_currents = len(input_currents)
     input_currents  = input_currents.reshape(k_currents*m_edges,1)
     if w == []:
-        w = simpvol(points, subsimplices)
-        #w[3] = 0.00001
-        #w[7] = 0.00001
+        #w = simpvol(points, subsimplices)
+        #w = np.ones(m_edges)
+        w = np.ndarray(shape=(m_edges,))
+        #w[0:] = 0.09
+        w[0:] = 1
+        #w[0:] = 0.09050288
+        print "w", w[0:10]
     if v == []:
-        v = simpvol(points, simplices)
+        #v = simpvol(points, simplices)
+        v =  np.ndarray(shape=(n_simplices,))
+        v[0:] = 0.433
+        #v[0:] = 0.003
+        #v[0:] = 0.00395007
+        print "v", v[0:10]
     if cons == []:
         sub_cons_count = k_currents
         c = np.zeros((2*m_edges,1))
@@ -88,6 +97,10 @@ def mean(points, simplices, subsimplices, input_currents, lambda_, opt=options['
 
     # Uncomment the line below to print sub_cons, cons and c
     #print_cons(sub_cons,cons, c)
+    
+    np.savetxt("/home/altaa/dump_shape_stats/cons-%s.txt"%opt, cons, fmt="%d", delimiter=" ")
+    np.savetxt("/home/altaa/dump_shape_stats/input_currents-%s.txt"%opt, input_currents, fmt="%d", delimiter=" ")
+    np.savetxt("/home/altaa/dump_shape_stats/c.txt-%s"%opt, c, delimiter=" ")
 
     cons_col_count = 2*m_edges + sub_cons_count*(2*m_edges + 2*n_simplices)
     c = matrix(c) 
@@ -95,8 +108,15 @@ def mean(points, simplices, subsimplices, input_currents, lambda_, opt=options['
     h = matrix(np.zeros(cons_col_count))
     cons = matrix(cons)
     input_currents = matrix(input_currents)
-
-    
+    np.savetxt("/home/altaa/dump_shape_stats/b_matrix.txt", b_matrix, fmt="%d", delimiter=" ")
+    #np.savetxt("/home/altaa/input_currents.txt", input_currents, fmt="%d", delimiter=" ")
+#    with open("/home/altaa/file.txt", "w") as f:
+#        for row in b_matrix:
+#            for i, entry in enumerate(row):
+#                f.write(("%d" % entry)
+#                if i != len(row)-1:
+#                    f.write(" ")
+#            f.write("\n")
     sol = solvers.lp(c, G, h, cons, input_currents, solver='glpk')
     args = np.array(sol['x'])
     norm = sol['primal objective']

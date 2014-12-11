@@ -51,15 +51,15 @@ class Mesh():
 
     def to_string(self):
         print "Mesh info: %d points, %d triangles and %d edges"% (len(self.points), len(self.simplices), len(self.edges))
-        print "Mesh Points:"
-        for i, p in enumerate(self.points):
-                print i, p
-        print "Point numbers in triangle:"
-        for i, t in enumerate(self.simplices):
-                print i, t
-        print "Edges in mesh:"
-        for i, edge in enumerate(self.edges):
-            print i, edge
+#        print "Mesh Points:"
+#        for i, p in enumerate(self.points):
+#                print i, p
+#        print "Point numbers in triangle:"
+#        for i, t in enumerate(self.simplices):
+#                print i, t
+#        print "Edges in mesh:"
+#        for i, edge in enumerate(self.edges):
+#            print i, edge
 
     def plot(self):
         plt.triplot(self.points[:,0], self.points[:,1], self.simplices.copy())

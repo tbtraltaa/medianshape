@@ -21,8 +21,10 @@ from mesh.utils import boundary_matrix, simpvol
 
 import mean
 from cvxopt import matrix, solvers
+from matplotlib.backends.backend_pdf import PdfPages
 
-options = {   'default': 1,
+options = {   
+            'default': 1,
             'mass': 2,
             'msfn': 3
         }
@@ -33,8 +35,12 @@ if __name__ == "__main__":
     # change it to 1 for big traingles
     mesh.points, mesh.simplices = distmesh2d("square", (0,0,1,1),[(0,0), (0,1), (1,0), (1,1)])
     mesh.set_edges()
+    np.savetxt("/home/altaa/dump_shape_stats/points.txt", mesh.points, delimiter=" ")
+    np.savetxt("/home/altaa/dump_shape_stats/edges.txt", mesh.edges, fmt="%d", delimiter=" ")
+    np.savetxt("/home/altaa/dump_shape_stats/simplices.txt", mesh.simplices, fmt="%d", delimiter=" ")
 #    mesh.points = np.array([[0,0], [0,0.5],[0,1],[0.5,1],[1,1],[1,0.5],[1,0],[0.5,0], [0.5, 0.5]])
 #    mesh.simplices = np.array([[0,8,1],
+        #w[0:] = 0.09
 #                                [1,8,2],
 #                                [2,8,3],
 #                                [3,8,4],
@@ -63,8 +69,9 @@ if __name__ == "__main__":
     mesh.orient_simplices_2D()
     #functions = ['sin1pi', 'sin1pi1']
     #functions = ['x', 'x2', 'x5']
-    function_sets = [['x','x2','x5'], ['sin1pi', 'half_sin1pi'], ['sin1pi', 'small_sin1pi']]
-    fig_count = 1
+    pdf_file = PdfPages("/home/altaa/figures1.pdf")
+    function_sets = [['x', 'x2', 'x5']]
+    figcount = 1
     for j, functions in enumerate(function_sets):
         if len(functions) == 2:
             color_set = 'gr'
@@ -80,18 +87,22 @@ if __name__ == "__main__":
         mesh.plot()
         for i, f in enumerate(functions):
             input_current = fa.generate_curve(f)
+            np.savetxt("/home/altaa/dump_shape_stats/%s.txt"%f, input_current.reshape(len(input_current),1), fmt="%d", delimiter=" ")
             csr_path = csr_matrix(input_current)
             print "Path vector:\n", csr_path
             fa.plot_curve(color=colors.next())
             input_currents.append(input_current)
         k_currents = len(functions)
         plt.title("Functions")
-        plt.savefig("/home/altaa/%d-%s.png"%(fig_count, "-".join(functions)), dpi=fig.dpi)
-        fig_count += 1
+        figname = "/home/altaa/%d-%s.png"%(figcount, "-".join(functions))
+        plt.savefig(figname, dpi=fig.dpi)
+        figcount += 1
+        pdf_file.savefig(fig)
         input_currents = np.array(input_currents)
         for opt in options:
-            lambdas = [0.01, 1, 5, 50]
+            lambdas = [0.01]
             for l in lambdas:
+
 #            input_currents = list()
 #            current1 = np.zeros(shape=(len(mesh.edges),1))
 #            current1[0] = 1
@@ -136,9 +147,12 @@ if __name__ == "__main__":
                     mesh.plot_curve(x)
                     mesh.plot_simplices(r[:,i], color=color)
                     mesh.plot_curve(q[:,i], title=title + ", Q%d&R%d"%(i+1,i+1), color="m", marker='*')
-                plt.savefig("/home/altaa/%d-%s-%s-%.02f.png"%(fig_count, "-".join(functions),opt,l), dpi=fig.dpi)
-                fig_count += 1
+                figname = "/home/altaa/%d-%s-%s-%.02f.png"%(figcount, "-".join(functions),opt,l)
+                plt.savefig(figname, dpi=fig.dpi)
+                figcount += 1
+                pdf_file.savefig(fig)
                     #print "q1", q1
                     #print "r1", r1
                     #print "q2", q2
                     #print "r2", r2
+    pdf_file.close()
