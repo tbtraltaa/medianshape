@@ -23,11 +23,7 @@ import mean
 from cvxopt import matrix, solvers
 from matplotlib.backends.backend_pdf import PdfPages
 
-options = {   
-            'default': 1,
-            'mass': 2,
-            'msfn': 3
-        }
+options = ['default', 'mass', 'msfn']
 
 if __name__ == "__main__":
     mesh = Mesh()
@@ -35,9 +31,9 @@ if __name__ == "__main__":
     # change it to 1 for big traingles
     mesh.points, mesh.simplices = distmesh2d("square", (0,0,1,1),[(0,0), (0,1), (1,0), (1,1)])
     mesh.set_edges()
-    np.savetxt("/home/altaa/dump_shape_stats/points.txt", mesh.points, delimiter=" ")
-    np.savetxt("/home/altaa/dump_shape_stats/edges.txt", mesh.edges, fmt="%d", delimiter=" ")
-    np.savetxt("/home/altaa/dump_shape_stats/simplices.txt", mesh.simplices, fmt="%d", delimiter=" ")
+    #np.savetxt("/home/altaa/dumps1/points.txt", mesh.points, delimiter=" ")
+    #np.savetxt("/home/altaa/dumps1/edges.txt", mesh.edges, fmt="%d", delimiter=" ")
+    #np.savetxt("/home/altaa/dumps1/simplices.txt", mesh.simplices, fmt="%d", delimiter=" ")
 #    mesh.points = np.array([[0,0], [0,0.5],[0,1],[0.5,1],[1,1],[1,0.5],[1,0],[0.5,0], [0.5, 0.5]])
 #    mesh.simplices = np.array([[0,8,1],
         #w[0:] = 0.09
@@ -70,7 +66,8 @@ if __name__ == "__main__":
     #functions = ['sin1pi', 'sin1pi1']
     #functions = ['x', 'x2', 'x5']
     pdf_file = PdfPages("/home/altaa/figures1.pdf")
-    function_sets = [['x', 'x2', 'x5']]
+    #function_sets = [['sin1pi','half_sin1pi'], ['x', 'x2', 'x5']]
+    function_sets = [['sin1pi','half_sin1pi'], ['x', 'x2', 'x5']]
     figcount = 1
     for j, functions in enumerate(function_sets):
         if len(functions) == 2:
@@ -85,9 +82,19 @@ if __name__ == "__main__":
         plt.ylim([-0.2, 1.2])
         plt.xlim([-0.2, 1.2])
         mesh.plot()
+        #w = simpvol(mesh.points, mesh.edges)
+        #v = simpvol(mesh.points, mesh.simplices)
+        w = np.ndarray(shape=(len(mesh.edges),))
+        w[0:] = 1
+
+        v =  np.ndarray(shape=(len(mesh.simplices),))
+        v[0:] = 0.433
+
+        #np.savetxt("/home/altaa/dumps1/w.txt", w, delimiter=" ")
+        #np.savetxt("/home/altaa/dumps1/v.txt", v, delimiter=" ")
         for i, f in enumerate(functions):
             input_current = fa.generate_curve(f)
-            np.savetxt("/home/altaa/dump_shape_stats/%s.txt"%f, input_current.reshape(len(input_current),1), fmt="%d", delimiter=" ")
+            #np.savetxt("/home/altaa/dumps1/%s.txt"%f, input_current.reshape(len(input_current),1), fmt="%d", delimiter=" ")
             csr_path = csr_matrix(input_current)
             print "Path vector:\n", csr_path
             fa.plot_curve(color=colors.next())
@@ -100,7 +107,11 @@ if __name__ == "__main__":
         pdf_file.savefig(fig)
         input_currents = np.array(input_currents)
         for opt in options:
-            lambdas = [0.01]
+            w, v, cons, b_matrix = mean.get_lp_inputs(mesh.points, mesh.simplices, mesh.edges, k_currents,
+            opt, w, v)
+            #np.savetxt("/home/altaa/dumps1/cons-%s.txt"%opt, cons, fmt="%d", delimiter=" ")
+            #np.savetxt("/home/altaa/dumps1/b_matrix.txt", b_matrix, fmt="%d", delimiter=" ")
+            lambdas = [0.01, 1, 5, 50]
             for l in lambdas:
 
 #            input_currents = list()
@@ -118,7 +129,7 @@ if __name__ == "__main__":
 #            input_currents.append(current2)
 #            input_currents = np.array(input_currents)
 #            k_currents = 2
-                x, q, r, norm = mean.mean(mesh.points, mesh.simplices, mesh.edges, input_currents, l, options[opt])
+                x, q, r, norm = mean.mean(mesh.points, mesh.simplices, mesh.edges, input_currents, l, opt, w, v,cons)
                 fig = plt.figure(figsize=(10,10))
                 plt.gca().set_aspect('equal')
                 #plt.ylim([-0.2, 1.2])
