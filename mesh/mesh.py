@@ -12,6 +12,7 @@ class Mesh():
         self.points = None
         self.simplices = None
         self.edges = None
+        self.boundary_box = None
 
     def set_edges(self):
         edges = set()

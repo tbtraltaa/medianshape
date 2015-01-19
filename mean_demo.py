@@ -29,6 +29,7 @@ if __name__ == "__main__":
     mesh = Mesh()
     # l - initial length of triangle sides 
     # change it to 1 for big traingles
+    mesh.boundary_box = (0,0,1,1)
     mesh.points, mesh.simplices = distmesh2d("square", (0,0,1,1),[(0,0), (0,1), (1,0), (1,1)])
     mesh.set_edges()
     #np.savetxt("/home/altaa/dumps1/points.txt", mesh.points, delimiter=" ")
