@@ -16,14 +16,15 @@ from scipy.sparse import csr_matrix
 
 from mesh.distmesh import distmesh2d
 from mesh.mesh import Mesh
-from shape_gen.curve_gen import FunctionApprox2d
+from shape_gen.curve_gen import generate_curve_on_mesh, plot_curve
+from shape_gen.point_gen import sample_function_mesh
 from mesh.utils import boundary_matrix, simpvol
 
 import mean
 from cvxopt import matrix, solvers
 from matplotlib.backends.backend_pdf import PdfPages
 
-options = ['default', 'mass', 'msfn']
+options = ['default']
 
 if __name__ == "__main__":
     mesh = Mesh()
@@ -68,7 +69,7 @@ if __name__ == "__main__":
     #functions = ['x', 'x2', 'x5']
     pdf_file = PdfPages("/home/altaa/figures1.pdf")
     #function_sets = [['sin1pi','half_sin1pi'], ['x', 'x2', 'x5']]
-    function_sets = [['sin1pi','half_sin1pi'], ['x', 'x2', 'x5']]
+    function_sets = [['x']]
     figcount = 1
     for j, functions in enumerate(function_sets):
         if len(functions) == 2:
@@ -76,7 +77,6 @@ if __name__ == "__main__":
         else:
             color_set = 'gry'
         colors = itertools.cycle(color_set)
-        fa = FunctionApprox2d(mesh)
         input_currents = list()
         fig = plt.figure(figsize=(10,10))
         plt.gca().set_aspect('equal')
@@ -94,11 +94,12 @@ if __name__ == "__main__":
         #np.savetxt("/home/altaa/dumps1/w.txt", w, delimiter=" ")
         #np.savetxt("/home/altaa/dumps1/v.txt", v, delimiter=" ")
         for i, f in enumerate(functions):
-            input_current = fa.generate_curve(f)
+            points = sample_function_mesh(f, mesh)
+            input_current = generate_curve_on_mesh(points, mesh, func_str=f) 
             #np.savetxt("/home/altaa/dumps1/%s.txt"%f, input_current.reshape(len(input_current),1), fmt="%d", delimiter=" ")
             csr_path = csr_matrix(input_current)
             print "Path vector:\n", csr_path
-            fa.plot_curve(color=colors.next())
+            #plot_curve(color=colors.next())
             input_currents.append(input_current)
         k_currents = len(functions)
         plt.title("Functions")
@@ -112,7 +113,7 @@ if __name__ == "__main__":
             opt, w, v)
             #np.savetxt("/home/altaa/dumps1/cons-%s.txt"%opt, cons, fmt="%d", delimiter=" ")
             #np.savetxt("/home/altaa/dumps1/b_matrix.txt", b_matrix, fmt="%d", delimiter=" ")
-            lambdas = [0.01, 1, 5, 50]
+            lambdas = [1]
             for l in lambdas:
 
 #            input_currents = list()
@@ -146,7 +147,7 @@ if __name__ == "__main__":
                 for i, c in enumerate(input_currents):
                     mesh.plot_curve(c, color=colors.next())
                 title = "%s, lambda=%.02f"%(opt, l)
-                mesh.plot_curve(x, title)
+                #mesh.plot_curve(x, title)
                 colors = itertools.cycle(color_set)
                 for i in range(r.shape[1]):
                     plt.subplot(cols, 2, 2+i)
