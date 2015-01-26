@@ -32,6 +32,12 @@ def sample_function_mesh(func_str, mesh, sample_size=None):
         utils.vectorize(func_str, sample_X).reshape(len(sample_X),1)))
         return func_points
 
+def sample_ellipse(a, b, sample_size=None):
+    return np.array([(a * math.cos(theta) +0.5 , b * math.sin(theta)+0.5)\
+            for theta in (math.pi*2 * i/sample_size for i in range(sample_size))])
+
+    
+
 
 if __name__ == "__main__":
     print sample_function_on_boundary("x5", (0,0,1,1), 20);

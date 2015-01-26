@@ -13,7 +13,7 @@ from scipy.spatial.distance import pdist, cdist
 
 import utils
 
-def generate_curve_on_mesh(points, mesh, interval_size=5, is_closed=False, func_str=None):
+def generate_curve_on_mesh(points, mesh, interval_size=30, is_closed=False, func_str=None):
         nearest_points = find_nearest_points(points, mesh, interval_size)
         print "Nearest_points:\n", nearest_points
         print "Function points:\n", points
@@ -29,7 +29,7 @@ def find_nearest_points(points, mesh, interval_size=1, func_str=None):
         nearest_points.append(nearest_point)
     return  np.array(nearest_points)
 
-def find_nearest_point(point, mesh, selected_points, interval_size=1, func_str=None):
+def find_nearest_point(point, mesh, selected_points, interval_size=5, func_str=None):
     ordered_X = np.sort(np.unique(mesh.points[:,0]))
     interval_X = find_interval_X(point, ordered_X, interval_size)
     min_dist = 1000
@@ -58,8 +58,13 @@ def find_nearest_point(point, mesh, selected_points, interval_size=1, func_str=N
     return nearest_point
 
 
-def find_interval_X(point, ordered_X, interval_size=1):
-    x_idx = ordered_X.tolist().index(point[0])
+def find_interval_X(point, ordered_X, interval_size=5):
+    x_idx = np.where(ordered_X==point[0])
+    if x_idx [0]:
+        x_idx = ordered_X.tolist().index(point[0])
+    else:
+        next_x = [x for x in ordered_X if x >= point[0]][0]
+        x_idx = ordered_X.tolist().index(next_x)
     interval_X = []      
     i = 0
     start_idx = 0
@@ -92,6 +97,8 @@ def find_path(path_points, mesh, is_closed=False):
     graph = adjacency_matrix
     #print "Adjacent matrix \n", adjacency_matrix
     #print graph.data
+
+    # Finding path vertices in reverse order from the end to the start
     path_vertices = list()
     for i, point in reversed(list(enumerate(path_points))): 
         if i-1 >= 0:
@@ -115,12 +122,13 @@ def find_path(path_points, mesh, is_closed=False):
                 j = predecessors[j]
             path_vertices.append(i1)
     path = list()
-    path_vertices = np.array(path_vertices)
     print "Path", path_vertices
-    for i, point in reversed(list(enumerate(path_vertices))):
+    # Generating path made of edges based on the path edges
+    # The path edges are not reverse order
+    for i, point in enumerate(path_vertices):
         if i+1 < len(path_vertices):
             edge = list([path_vertices[i+1], point])
-            path.append(edge)
+            path.insert(0, edge)
     return  np.array(path, dtype=int)
 
 #    def find_neighbors(self, point_idx):
