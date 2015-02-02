@@ -93,16 +93,16 @@ if __name__ == "__main__":
         #np.savetxt("/home/altaa/dumps1/w.txt", w, delimiter=" ")
         #np.savetxt("/home/altaa/dumps1/v.txt", v, delimiter=" ")
         for i, shape in enumerate(shapes):
-            input_current = curve_gen.generate_curve_on_mesh(shape, mesh, is_closed=True) 
+            input_current, path, closest_vertices = curve_gen.generate_curve_on_mesh(shape, mesh, is_closed=True) 
             #np.savetxt("/home/altaa/dumps1/%s.txt"%f, input_current.reshape(len(input_current),1), fmt="%d", delimiter=" ")
             csr_path = csr_matrix(input_current)
             print "Path vector:\n", csr_path
-            #curve_gen.plot_curve(color=colors.next())
+            curve_gen.plot_curve(mesh, shape, closest_vertices, path, color=colors.next())
             input_currents.append(input_current)
         k_currents = len(shapes)
         plt.title("Functions")
         figname = "/home/altaa/%d-%s.png"%(figcount, "-".join(shape_names[j]))
-        plt.savefig(figname, dpi=fig.dpi)
+        #plt.savefig(figname, dpi=fig.dpi)
         figcount += 1
         pdf_file.savefig(fig)
         input_currents = np.array(input_currents)
@@ -111,7 +111,7 @@ if __name__ == "__main__":
             opt, w, v)
             #np.savetxt("/home/altaa/dumps1/cons-%s.txt"%opt, cons, fmt="%d", delimiter=" ")
             #np.savetxt("/home/altaa/dumps1/b_matrix.txt", b_matrix, fmt="%d", delimiter=" ")
-            lambdas = [1]
+            lambdas = [0.01, 1, 20]
             for l in lambdas:
 
 #            input_currents = list()
@@ -155,11 +155,11 @@ if __name__ == "__main__":
                     plt.ylim([-0.2, 1.2])
                     plt.xlim([-0.2, 1.2])
                     mesh.plot()
-                    mesh.plot_curve(x)
+                    #mesh.plot_curve(x)
                     mesh.plot_simplices(r[:,i], color=color)
                     mesh.plot_curve(q[:,i], title=title + ", Q%d&R%d"%(i+1,i+1), color="m", marker='*')
                 figname = "/home/altaa/%d-%s-%s-%.02f.png"%(figcount, "-".join(shape_names[j]),opt,l)
-                plt.savefig(figname, dpi=fig.dpi)
+                #plt.savefig(figname, dpi=fig.dpi)
                 figcount += 1
                 pdf_file.savefig(fig)
                     #print "q1", q1

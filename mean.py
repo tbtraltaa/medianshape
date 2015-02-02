@@ -3,13 +3,14 @@
 from __future__ import absolute_import
 
 import numpy as np
+from scipy.sparse import csr_matrix
 
 from mesh.utils import boundary_matrix, simpvol
 
 import glpk
 import pulp
 
-from cvxopt import matrix, solvers
+from cvxopt import matrix, sparse, solvers
 solvers.options['abstol'] = 1e-10
 solvers.options['reltol'] = 1e-9
 solvers.options['feastol'] = 1e-10
@@ -67,8 +68,8 @@ def mean(points, simplices, subsimplices, input_currents, lambda_, opt='default'
             sub_cons_count += 1
         # Mass option
         b_matrix = boundary_matrix(simplices, subsimplices)
-        identity_cons = np.hstack((np.identity(m_edges), -np.identity(m_edges)))
-        sub_cons = np.hstack((-np.identity(m_edges), np.identity(m_edges), -b_matrix, b_matrix))
+        identity_cons = np.hstack((np.identity(m_edges, dtype=int), -np.identity(m_edges, dtype=int)))
+        sub_cons = np.hstack((-np.identity(m_edges, dtype=int), np.identity(m_edges, dtype=int), -b_matrix, b_matrix))
         sub_cons_col_count = 2*m_edges + 2*n_simplices
         k_identity_cons = np.tile(identity_cons,(sub_cons_count,1))
 
@@ -83,6 +84,7 @@ def mean(points, simplices, subsimplices, input_currents, lambda_, opt='default'
                 cons = np.vstack((cons, cons_row))
 
         cons = np.hstack((k_identity_cons, cons))
+        cons = cons.astype(int)
         
     c = np.zeros((2*m_edges,1))
     if opt == 'mass':
@@ -97,15 +99,21 @@ def mean(points, simplices, subsimplices, input_currents, lambda_, opt='default'
     # Uncomment the line below to print sub_cons, cons and c
     #print_cons(sub_cons,cons, c)
     
-    #np.savetxt("/home/altaa/dumps1/b-%s.txt"%opt, input_currents, fmt="%d", delimiter=" ")
-    #np.savetxt("/home/altaa/dumps1/c-%s.txt"%opt, c, delimiter=" ")
-    G = matrix(-np.identity(len(c)))
+    np.savetxt("/home/altaa/dumps1/b-%s.txt"%opt, input_currents, fmt="%d", delimiter=" ")
+    np.savetxt("/home/altaa/dumps1/c-%s.txt"%opt, c, delimiter=" ")
+    print "Size of c: ", len(c)
+#    G = matrix(csr_matrix(-np.identity(len(c))))
+#    h = matrix(csr_matrix(np.zeros(len(c))))
+#    c = matrix(csr_matrix(c)) 
+#    cons = matrix(csr_matrix(cons))
+#    b = matrix(csr_matrix(b))
+
+    g = -np.identity(len(c), dtype=int)
+    G = sparse(matrix(g), tc='d')
     h = matrix(np.zeros(len(c)))
-    c = matrix(c) 
-    cons = matrix(cons)
+    c = matrix(c)
+    cons = sparse(matrix(cons))
     b = matrix(b)
-    print "w", w[0:10]
-    print "v", v[0:10]
 
     sol = solvers.lp(c, G, h, cons, b, solver='glpk')
     args = np.array(sol['x'])
@@ -123,7 +131,7 @@ def mean(points, simplices, subsimplices, input_currents, lambda_, opt='default'
         qi_start = ri_end
     return x, q, r, norm
 
-def get_lp_inputs(points, simplices, subsimplices, k_currents, opt='default', w=[], v=[], cons=[]):
+def get_lp_inputs(points, simplices, subsimplices, k_currents, opt='default', w=[], v=[], b_matrix=[], cons=[]):
     m_edges = subsimplices.shape[0]
     n_simplices = simplices.shape[0]
     if w == []:
@@ -141,13 +149,14 @@ def get_lp_inputs(points, simplices, subsimplices, k_currents, opt='default', w=
         #v[0:] = 0.003
         #v[0:] = 0.00395007
         print "v", v[0:10]
+    if b_matrix == []:
+        b_matrix = boundary_matrix(simplices, subsimplices)
     if cons == []:
         sub_cons_count = k_currents
         # Msfn option
         if opt == 'msfn':
             sub_cons_count += 1
         # Mass option
-        b_matrix = boundary_matrix(simplices, subsimplices)
         identity_cons = np.hstack((np.identity(m_edges), -np.identity(m_edges)))
         sub_cons = np.hstack((-np.identity(m_edges), np.identity(m_edges), -b_matrix, b_matrix))
         sub_cons_col_count = 2*m_edges + 2*n_simplices
@@ -165,4 +174,5 @@ def get_lp_inputs(points, simplices, subsimplices, k_currents, opt='default', w=
                 cons = np.vstack((cons, cons_row))
 
         cons = np.hstack((k_identity_cons, cons))
-    return w, v, cons, b_matrix
+        cons = cons.astype(int)
+    return w, v, b_matrix, cons

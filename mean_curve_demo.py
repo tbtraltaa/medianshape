@@ -6,6 +6,7 @@ import math
 import importlib
 import random
 import itertools
+import time
 
 
 import numpy as np
@@ -26,15 +27,16 @@ from matplotlib.backends.backend_pdf import PdfPages
 options = ['default', 'mass', 'msfn']
 
 if __name__ == "__main__":
+    start = time.time()
     mesh = Mesh()
     # l - initial length of triangle sides 
     # change it to 1 for big traingles
-    mesh.boundary_box = (0,0,1,1)
-    mesh.points, mesh.simplices = distmesh2d("square", (0,0,1,1),[(0,0), (0,1), (1,0), (1,1)])
+    mesh.boundary_box = (0,0,200,50)
+    mesh.points, mesh.simplices = distmesh2d("square", mesh.boundary_box, [(0,0), (200,0,), (0,50), (200,50)], l=6)
     mesh.set_edges()
-    #np.savetxt("/home/altaa/dumps1/points.txt", mesh.points, delimiter=" ")
-    #np.savetxt("/home/altaa/dumps1/edges.txt", mesh.edges, fmt="%d", delimiter=" ")
-    #np.savetxt("/home/altaa/dumps1/simplices.txt", mesh.simplices, fmt="%d", delimiter=" ")
+    np.savetxt("/home/altaa/dumps1/points.txt", mesh.points, delimiter=" ")
+    np.savetxt("/home/altaa/dumps1/edges.txt", mesh.edges, fmt="%d", delimiter=" ")
+    np.savetxt("/home/altaa/dumps1/simplices.txt", mesh.simplices, fmt="%d", delimiter=" ")
 #    mesh.points = np.array([[0,0], [0,0.5],[0,1],[0.5,1],[1,1],[1,0.5],[1,0],[0.5,0], [0.5, 0.5]])
 #    mesh.simplices = np.array([[0,8,1],
         #w[0:] = 0.09
@@ -62,57 +64,62 @@ if __name__ == "__main__":
 #                            [6,7],
 #                            [6,8],
 #                            [7,8]])
-    mesh.to_string()
+    print mesh.to_string()
     mesh.orient_simplices_2D()
     pdf_file = PdfPages("/home/altaa/figures1.pdf")
     #function_sets = [['sin1pi','half_sin1pi'], ['x', 'x2', 'x5']]
-    function_sets = [['sin1pi','half_sin1pi']]
+    #function_sets = [['curve1', 'curve2','curve3', 'curve4', 'curve5']]
+    function_sets = [['curve2','curve3', 'curve5']]
     figcount = 1
     for j, functions in enumerate(function_sets):
         if len(functions) == 2:
             color_set = 'gr'
-        else:
+        elif len(functions) == 3:
             color_set = 'gry'
+        elif len(functions) == 5:
+            color_set = 'grcym' 
         colors = itertools.cycle(color_set)
         input_currents = list()
-        fig = plt.figure(figsize=(10,10))
+        fig = plt.figure(figsize=(19,8))
         plt.gca().set_aspect('equal')
-        plt.ylim([-0.2, 1.2])
-        plt.xlim([-0.2, 1.2])
+        #plt.ylim([-0.2, 1.2])
+        #plt.xlim([-0.2, 1.2])
+        plt.ylim([mesh.boundary_box[1]-5, mesh.boundary_box[3]+5])
+        plt.xlim([mesh.boundary_box[0]-5, mesh.boundary_box[2]+5])
         mesh.plot()
-        #w = simpvol(mesh.points, mesh.edges)
-        #v = simpvol(mesh.points, mesh.simplices)
-        w = np.ndarray(shape=(len(mesh.edges),))
-        w[0:] = 1
+        #w = np.ndarray(shape=(len(mesh.edges),))
+        #w[0:] = 1
 
-        v =  np.ndarray(shape=(len(mesh.simplices),))
-        v[0:] = 0.433
+        #v =  np.ndarray(shape=(len(mesh.simplices),))
+        #v[0:] = 0.433
 
-        #np.savetxt("/home/altaa/dumps1/w.txt", w, delimiter=" ")
-        #np.savetxt("/home/altaa/dumps1/v.txt", v, delimiter=" ")
         for i, f in enumerate(functions):
             points = point_gen.sample_function_mesh(f, mesh)
-            input_current = curve_gen.generate_curve_on_mesh(points, mesh, func_str=f) 
-            #np.savetxt("/home/altaa/dumps1/%s.txt"%f, input_current.reshape(len(input_current),1), fmt="%d", delimiter=" ")
+            input_current, path, closest_vertices = curve_gen.generate_curve_on_mesh(points, mesh, func_str=f) 
+            np.savetxt("/home/altaa/dumps1/%s.txt"%f, input_current.reshape(len(input_current),1), fmt="%d", delimiter=" ")
             csr_path = csr_matrix(input_current)
             print "Path vector:\n", csr_path
-            #curve_gen.plot_curve(color=colors.next())
+            curve_gen.plot_curve(mesh, points, closest_vertices, path, color=colors.next())
             input_currents.append(input_current)
         k_currents = len(functions)
-        plt.title("Functions")
+        plt.title("Functions - %s" % mesh.to_string(), fontsize=20)
         figname = "/home/altaa/%d-%s.png"%(figcount, "-".join(functions))
         plt.savefig(figname, dpi=fig.dpi)
         figcount += 1
         pdf_file.savefig(fig)
         input_currents = np.array(input_currents)
+        w = simpvol(mesh.points, mesh.edges)
+        v = simpvol(mesh.points, mesh.simplices)
+        b_matrix = boundary_matrix(mesh.simplices, mesh.edges)
+        np.savetxt("/home/altaa/dumps1/w.txt", w, delimiter=" ")
+        np.savetxt("/home/altaa/dumps1/v.txt", v, delimiter=" ")
+        np.savetxt("/home/altaa/dumps1/b_matrix.txt", b_matrix, fmt="%d", delimiter=" ")
         for opt in options:
-            w, v, cons, b_matrix = mean.get_lp_inputs(mesh.points, mesh.simplices, mesh.edges, k_currents,
-            opt, w, v)
-            #np.savetxt("/home/altaa/dumps1/cons-%s.txt"%opt, cons, fmt="%d", delimiter=" ")
-            #np.savetxt("/home/altaa/dumps1/b_matrix.txt", b_matrix, fmt="%d", delimiter=" ")
-            lambdas = [0.01, 1, 20]
+            w, v, b_matrix, cons = mean.get_lp_inputs(mesh.points, mesh.simplices, mesh.edges, k_currents,
+            opt, w, v, b_matrix)
+            np.savetxt("/home/altaa/dumps1/cons-%s.txt"%opt, cons, fmt="%d", delimiter=" ")
+            lambdas = [0.0001, 0.001]
             for l in lambdas:
-
 #            input_currents = list()
 #            current1 = np.zeros(shape=(len(mesh.edges),1))
 #            current1[0] = 1
@@ -128,41 +135,70 @@ if __name__ == "__main__":
 #            input_currents.append(current2)
 #            input_currents = np.array(input_currents)
 #            k_currents = 2
-                x, q, r, norm = mean.mean(mesh.points, mesh.simplices, mesh.edges, input_currents, l, opt, w, v,cons)
-                fig = plt.figure(figsize=(10,10))
+                x, q, r, norm = mean.mean(mesh.points, mesh.simplices, mesh.edges, input_currents, l, opt, w, v, cons)
+                fig.clf()
                 plt.gca().set_aspect('equal')
                 #plt.ylim([-0.2, 1.2])
                 #plt.xlim([-0.2, 1.2])
                 #plt.axes([-0.2,-0.2, 1.4,1.4])
-                cols = 2
+                rows = 2
                 if opt == 'msfn' and len(functions) == 3:
-                    cols = 3
-                plt.subplot(cols, 2, 1)
-                plt.ylim([-0.2, 1.2])
-                plt.xlim([-0.2, 1.2])
+                    rows = 3
+                elif len(functions) == 6:
+                    rows = 4
+                #plt.subplot(rows, 2, 1)
+                #plt.ylim([-0.2, 1.2])
+                #plt.xlim([-0.2, 1.2])
                 mesh.plot()
                 for i, c in enumerate(input_currents):
                     mesh.plot_curve(c, color=colors.next())
-                title = "%s, lambda=%.02f"%(opt, l)
-                mesh.plot_curve(x, title)
+                title = "%s, lambda=%.04f"%(opt, l)
+                mesh.plot_curve(x, title )
                 colors = itertools.cycle(color_set)
+                figname = "/home/altaa/%d-%s-%s-%.04f.png"%(figcount, "-".join(functions),opt,l)
+                plt.savefig(figname, dpi=fig.dpi)
+                pdf_file.savefig(fig)
+                figcount += 1
+                for i, c in enumerate(input_currents):
+                    fig.clf()                    
+                    plt.gca().set_aspect('equal')
+                    mesh.plot()
+                    mesh.plot_curve(c, color=colors.next(), linewidth=5)
+                    title = "%s, lambda=%.04f"%(opt, l)
+                    mesh.plot_curve(x, title)
+                    figname = "/home/altaa/%d-%s-%s-%.04f.png"%(figcount, "-".join(functions),opt,l)
+                    plt.savefig(figname, dpi=fig.dpi)
+                    pdf_file.savefig(fig)
+                    figcount += 1
                 for i in range(r.shape[1]):
-                    plt.subplot(cols, 2, 2+i)
+                    #plt.subplot(rows, 2, 2+i)
                     color = colors.next()
                     #plt.figure(figsize=(10,15))
                     #plt.gca().set_aspect('equal')
-                    plt.ylim([-0.2, 1.2])
-                    plt.xlim([-0.2, 1.2])
+                    #plt.ylim([-0.2, 1.2])
+                    #plt.xlim([-0.2, 1.2])
+                    fig.clf()
+                    plt.gca().set_aspect('equal')
                     mesh.plot()
-                    mesh.plot_curve(x)
                     mesh.plot_simplices(r[:,i], color=color)
-                    mesh.plot_curve(q[:,i], title=title + ", Q%d&R%d"%(i+1,i+1), color="m", marker='*')
-                figname = "/home/altaa/%d-%s-%s-%.02f.png"%(figcount, "-".join(functions),opt,l)
-                plt.savefig(figname, dpi=fig.dpi)
-                figcount += 1
-                pdf_file.savefig(fig)
+                    mesh.plot_curve(q[:,i], title=title + ", Q%d&R%d"%(i+1,i+1), color="m", marker='*', linewidth=6)
+                    mesh.plot_curve(x)
+                    if opt =='msfn' and i== r.shape[1]-1:
+                        pass
+                    else:
+                        mesh.plot_curve(input_currents[i], color='r', ls="--")
+                    figname = "/home/altaa/%d-%s-%s-%.04f.png"%(figcount, "-".join(functions),opt,l)
+                    plt.savefig(figname, dpi=fig.dpi)
+                    pdf_file.savefig(fig)
+                    figcount += 1
+
+                #figname = "/home/altaa/%d-%s-%s-%.04f.png"%(figcount, "-".join(functions),opt,l)
+                #plt.savefig(figname, dpi=fig.dpi)
+                #figcount += 1
                     #print "q1", q1
                     #print "r1", r1
                     #print "q2", q2
                     #print "r2", r2
     pdf_file.close()
+    elapsed = time.time() - start
+    print "Elapsed time %f mins." % (elapsed/60)

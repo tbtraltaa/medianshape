@@ -51,7 +51,7 @@ class Mesh():
         return direction
 
     def to_string(self):
-        print "Mesh info: %d points, %d triangles and %d edges"% (len(self.points), len(self.simplices), len(self.edges))
+        return "Mesh info: %d points, %d triangles and %d edges"% (len(self.points), len(self.simplices), len(self.edges))
 #        print "Mesh Points:"
 #        for i, p in enumerate(self.points):
 #                print i, p
@@ -66,16 +66,16 @@ class Mesh():
         plt.triplot(self.points[:,0], self.points[:,1], self.simplices.copy())
         #plt.scatter(self.points[:,0], self.points[:,1])
 
-    def plot_curve(self, func_path, title=None, color="black", marker=None):
+    def plot_curve(self, func_path, title=None, color="black", marker=None, linewidth=3, ls='-'):
         if func_path.dtype != int:
             func_path = func_path.astype(int)
         for i, orient in enumerate(func_path):
             if orient != 0:
                 edge = self.edges[i]
                 points = self.points[edge]
-                plt.plot(points[:,0], points[:,1], color, linewidth=2, marker=marker)
+                plt.plot(points[:,0], points[:,1], color, linewidth=linewidth, marker=marker, ls=ls)
         if title:
-            plt.title(title)
+            plt.title(title, fontsize=20)
 
     def plot_simplices(self, simplices, title=None, color="y"):
         simplices = self.points[self.get_simplices(simplices)]

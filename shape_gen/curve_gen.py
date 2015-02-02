@@ -14,26 +14,26 @@ from scipy.spatial.distance import pdist, cdist
 import utils
 
 def generate_curve_on_mesh(points, mesh, interval_size=30, is_closed=False, func_str=None):
-        nearest_points = find_nearest_points(points, mesh, interval_size)
-        print "Nearest_points:\n", nearest_points
+        closest_vertices = find_closest_vertices(points, mesh, interval_size)
+        print "closest_vertices:\n", closest_vertices
         print "Function points:\n", points
-        curve_path = find_path(nearest_points, mesh, is_closed)
+        curve_path = find_path(closest_vertices, mesh, is_closed)
         #Mesh.disp_edges(func_path, "Function edges")
         edge_vector = get_edge_vector(curve_path, mesh)
-        return edge_vector
+        return edge_vector, curve_path, closest_vertices
 
-def find_nearest_points(points, mesh, interval_size=1, func_str=None):
-    nearest_points = list()
+def find_closest_vertices(points, mesh, interval_size=1, func_str=None):
+    closest_vertices = list()
     for point in points:
-        nearest_point = find_nearest_point(point, mesh, nearest_points, interval_size, func_str)
-        nearest_points.append(nearest_point)
-    return  np.array(nearest_points)
+        closest_vertex = find_closest_vertex(point, mesh, closest_vertices, interval_size, func_str)
+        closest_vertices.append(closest_vertex)
+    return  np.array(closest_vertices)
 
-def find_nearest_point(point, mesh, selected_points, interval_size=5, func_str=None):
+def find_closest_vertex(point, mesh, selected_points, interval_size=5, func_str=None):
     ordered_X = np.sort(np.unique(mesh.points[:,0]))
     interval_X = find_interval_X(point, ordered_X, interval_size)
     min_dist = 1000
-    nearest_point = -1
+    closest_vertex = -1
     min_idx = 0
     if func_str:
         func_values = utils.vectorize(func_str, interval_X)
@@ -54,8 +54,8 @@ def find_nearest_point(point, mesh, selected_points, interval_size=5, func_str=N
                 min_idx = random.sample(min_idx, 1)
             if dist < min_dist:
                 min_dist = dist
-                nearest_point = candidate_idx[min_idx]
-    return nearest_point
+                closest_vertex = candidate_idx[min_idx]
+    return closest_vertex
 
 
 def find_interval_X(point, ordered_X, interval_size=5):
@@ -147,11 +147,11 @@ def get_edge_vector(path, mesh):
                 break
     return edge_vector
 
-def plot_curve(points, path, mesh, title=None, color="red"):
-    plt.plot(points[:,0], points[:,1], c=color, ls="--")
+def plot_curve(mesh, input_points, closest_vertices, path, title=None, color="red", linewidth=3):
+    plt.plot(input_points[:,0], input_points[:,1], c=color, ls="--")
     plt.title(title)
     for i, edge in enumerate(path):
-        edge_points = mesh.points[edge]
-        plt.plot(edge_points[:,0], edge_points[:,1], color, linewidth=2)
-    plt.scatter(mesh.points[points][:,0], mesh.points[points][:,1], s=100)
-    plt.scatter(self.func_points[:,0], self.func_points[:,1], c=color)
+        points = mesh.points[edge]
+        plt.plot(points[:,0], points[:,1], color, linewidth=linewidth)
+    plt.scatter(mesh.points[closest_vertices][:,0], mesh.points[closest_vertices][:,1], s=100)
+    plt.scatter(input_points[:,0], input_points[:,1], c=color)

@@ -69,8 +69,10 @@ def boundary1(simplex):
             boundary.append(face)
     return boundary
 
+# Builds a boundary matrix of given simplices. The format of a boundary matrix is as follows.
+# boundary_matrix = (number of edges) x (number of simplices)
 def boundary_matrix(simplices, edges):
-    boundary_matrix = np.zeros((len(edges), len(simplices))) 
+    boundary_matrix = np.zeros((len(edges), len(simplices)), dtype=int) 
     for i, edge in enumerate(edges):
         for j, simplex in enumerate(simplices):
             simplex_boundary = boundary(simplex)
@@ -83,6 +85,8 @@ def boundary_matrix(simplices, edges):
                     break
     return boundary_matrix
 
+# Returns simplex boundary as faces.
+# if an index given, returns n-1 simplex by removing the element at the index.
 def boundary(simplex, idx=None):
     boundary = list()
     if idx == None:
