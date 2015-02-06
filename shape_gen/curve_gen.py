@@ -141,17 +141,15 @@ def get_edge_vector(path, mesh):
         for path_edge in path:
             if all((path_edge - edge) == 0):
                 edge_vector[i] = 1
-                break
             elif all((path_edge - np.array(list(reversed(edge)))) == 0):
                 edge_vector[i] = -1
-                break
     return edge_vector
 
-def plot_curve(mesh, input_points, closest_vertices, path, title=None, color="red", linewidth=3):
+def plot_curve(mesh, input_points, closest_vertices, path, title=None, color="red", linewidth=3, label=""):
     plt.plot(input_points[:,0], input_points[:,1], c=color, ls="--")
     plt.title(title)
     for i, edge in enumerate(path):
         points = mesh.points[edge]
-        plt.plot(points[:,0], points[:,1], color, linewidth=linewidth)
+        plt.plot(points[:,0], points[:,1], color, linewidth=linewidth, label=label)
     plt.scatter(mesh.points[closest_vertices][:,0], mesh.points[closest_vertices][:,1], s=100)
     plt.scatter(input_points[:,0], input_points[:,1], c=color)

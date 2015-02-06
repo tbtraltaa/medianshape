@@ -25,6 +25,7 @@ from cvxopt import matrix, solvers
 from matplotlib.backends.backend_pdf import PdfPages
 
 options = ['default', 'mass', 'msfn']
+options = ['default']
 
 if __name__ == "__main__":
     start = time.time()
@@ -32,14 +33,14 @@ if __name__ == "__main__":
     # l - initial length of triangle sides 
     # change it to 1 for big traingles
     mesh.boundary_box = (0,0,200,50)
-    mesh.points, mesh.simplices = distmesh2d("square", mesh.boundary_box, [(0,0), (200,0,), (0,50), (200,50)], l=6)
+    mesh.points, mesh.simplices = distmesh2d("square", mesh.boundary_box, [(0,0), (200,0,), (0,50), (200,50)], l=10)
     mesh.set_edges()
     np.savetxt("/home/altaa/dumps1/points.txt", mesh.points, delimiter=" ")
     np.savetxt("/home/altaa/dumps1/edges.txt", mesh.edges, fmt="%d", delimiter=" ")
     np.savetxt("/home/altaa/dumps1/simplices.txt", mesh.simplices, fmt="%d", delimiter=" ")
+
 #    mesh.points = np.array([[0,0], [0,0.5],[0,1],[0.5,1],[1,1],[1,0.5],[1,0],[0.5,0], [0.5, 0.5]])
 #    mesh.simplices = np.array([[0,8,1],
-        #w[0:] = 0.09
 #                                [1,8,2],
 #                                [2,8,3],
 #                                [3,8,4],
@@ -64,12 +65,14 @@ if __name__ == "__main__":
 #                            [6,7],
 #                            [6,8],
 #                            [7,8]])
-    print mesh.to_string()
+
     mesh.orient_simplices_2D()
+    mesh.print_detail()
+
     pdf_file = PdfPages("/home/altaa/figures1.pdf")
     #function_sets = [['sin1pi','half_sin1pi'], ['x', 'x2', 'x5']]
-    #function_sets = [['curve1', 'curve2','curve3', 'curve4', 'curve5']]
-    function_sets = [['curve2','curve3', 'curve5']]
+    #function_sets = [[['curve1', 1], ['curve2', 1],['curve3', -1], ['curve4', -1], ['curve5', 1]]]
+    function_sets = [[['curve2', 1],['curve3', -1], ['curve5', 1]]]
     figcount = 1
     for j, functions in enumerate(function_sets):
         if len(functions) == 2:
@@ -93,17 +96,17 @@ if __name__ == "__main__":
         #v =  np.ndarray(shape=(len(mesh.simplices),))
         #v[0:] = 0.433
 
-        for i, f in enumerate(functions):
+        for f, orient in functions:
             points = point_gen.sample_function_mesh(f, mesh)
             input_current, path, closest_vertices = curve_gen.generate_curve_on_mesh(points, mesh, func_str=f) 
             np.savetxt("/home/altaa/dumps1/%s.txt"%f, input_current.reshape(len(input_current),1), fmt="%d", delimiter=" ")
             csr_path = csr_matrix(input_current)
             print "Path vector:\n", csr_path
             curve_gen.plot_curve(mesh, points, closest_vertices, path, color=colors.next())
-            input_currents.append(input_current)
+            input_currents.append([orient*val for val in input_current])
         k_currents = len(functions)
-        plt.title("Functions - %s" % mesh.to_string(), fontsize=20)
-        figname = "/home/altaa/%d-%s.png"%(figcount, "-".join(functions))
+        plt.title("Functions - %s - %s" % (mesh.get_info(), ",".join(["(%s,%d)" % (f[0], f[1]) for f in functions])), fontsize=20)
+        figname = "/home/altaa/%d.png"%(figcount)
         plt.savefig(figname, dpi=fig.dpi)
         figcount += 1
         pdf_file.savefig(fig)
@@ -153,9 +156,9 @@ if __name__ == "__main__":
                 for i, c in enumerate(input_currents):
                     mesh.plot_curve(c, color=colors.next())
                 title = "%s, lambda=%.04f"%(opt, l)
-                mesh.plot_curve(x, title )
+                mesh.plot_curve(x, title)
                 colors = itertools.cycle(color_set)
-                figname = "/home/altaa/%d-%s-%s-%.04f.png"%(figcount, "-".join(functions),opt,l)
+                figname = "/home/altaa/%d-%s-%.04f.png"%(figcount, opt, l)
                 plt.savefig(figname, dpi=fig.dpi)
                 pdf_file.savefig(fig)
                 figcount += 1
@@ -163,10 +166,11 @@ if __name__ == "__main__":
                     fig.clf()                    
                     plt.gca().set_aspect('equal')
                     mesh.plot()
-                    mesh.plot_curve(c, color=colors.next(), linewidth=5)
+                    mesh.plot_curve(c, color=colors.next(), linewidth=5, label=functions[i][0])
                     title = "%s, lambda=%.04f"%(opt, l)
-                    mesh.plot_curve(x, title)
-                    figname = "/home/altaa/%d-%s-%s-%.04f.png"%(figcount, "-".join(functions),opt,l)
+                    mesh.plot_curve(x, title, label="Mean")
+                    plt.legend(loc='upper right')
+                    figname = "/home/altaa/%d-%s-%.04f.png"%(figcount, opt, l)
                     plt.savefig(figname, dpi=fig.dpi)
                     pdf_file.savefig(fig)
                     figcount += 1
@@ -181,13 +185,14 @@ if __name__ == "__main__":
                     plt.gca().set_aspect('equal')
                     mesh.plot()
                     mesh.plot_simplices(r[:,i], color=color)
-                    mesh.plot_curve(q[:,i], title=title + ", Q%d&R%d"%(i+1,i+1), color="m", marker='*', linewidth=6)
+                    mesh.plot_curve(q[:,i], title=title + ", Q%d&R%d"%(i+1,i+1), color="b", marker='*', linewidth=6, label="Q%d"%i)
                     mesh.plot_curve(x)
                     if opt =='msfn' and i== r.shape[1]-1:
                         pass
                     else:
-                        mesh.plot_curve(input_currents[i], color='r', ls="--")
-                    figname = "/home/altaa/%d-%s-%s-%.04f.png"%(figcount, "-".join(functions),opt,l)
+                        mesh.plot_curve(input_currents[i], color='r', ls="--", label=functions[i][0])
+                    plt.legend(loc='upper right')
+                    figname = "/home/altaa/%d-%s-%.04f.png"%(figcount,opt,l)
                     plt.savefig(figname, dpi=fig.dpi)
                     pdf_file.savefig(fig)
                     figcount += 1
