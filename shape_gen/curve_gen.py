@@ -153,3 +153,6 @@ def plot_curve(mesh, input_points, closest_vertices, path, title=None, color="re
         plt.plot(points[:,0], points[:,1], color, linewidth=linewidth, label=label)
     plt.scatter(mesh.points[closest_vertices][:,0], mesh.points[closest_vertices][:,1], s=100)
     plt.scatter(input_points[:,0], input_points[:,1], c=color)
+
+if __name__ == '__main__':
+    pass

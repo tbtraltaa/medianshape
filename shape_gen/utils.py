@@ -9,6 +9,21 @@ import math
 import numpy as np
 import matplotlib.pyplot as plt
 
+def get_combination(n, vals=[1,-1]):
+    if n > 1:
+        comb = np.array([])
+        successors = get_combination(n-1, vals)
+        for val in vals:
+            for s in successors:
+                row = np.append(val, s)
+                if comb.size == 0:
+                    comb = row
+                else:
+                    comb = np.vstack((comb,row))
+        return comb
+    elif n==1:
+        return vals
+
 def vectorize(func_str, X):
     func_points = []
     if func_str.find(".") != -1:
@@ -53,24 +68,27 @@ def func2(x):
 #    interval_number = [i for i, interval in enumerate(intervals) if x >= interval[0] and x < interval[1]]
 #    j = interval_number[0]
 #    return heights[j]*math.sin(phases[j]*math.pi*x) + offsets[j]
-def curve1(x):
-    return 10*math.sin(1/30* math.pi * x) * np.exp(-1/200 * x) + 10
 # green
-def curve2(x):
+def curve1(x):
     return 10*math.sin(1/100* math.pi * x) * np.exp(1/180 * x)  + 25
 # red
-def curve3(x):
+def curve2(x):
     return -10*math.sin(1/50* math.pi * x) * np.exp(1/200 * x) + 25
+# violate
+def curve3(x):
+    return 30*math.sin(1/50* math.pi * x) * np.exp(-1/150 * x) + 20
+
 def curve4(x):
     return -40*math.sin(1/200* math.pi * x) + 45
-# violate
+
 def curve5(x):
-    return 30*math.sin(1/50* math.pi * x) * np.exp(-1/150 * x) + 20
+    return 10*math.sin(1/30* math.pi * x) * np.exp(-1/200 * x) + 10
 def curve6(x):
     return 10*math.sin(1/30* math.pi * x) * np.exp(-1/200 * x) + 40
 
     
 if __name__ == "__main__":
+    print  get_combination(3)
     Xs = np.linspace(0, 200, 20)
     Ys = list()
     Ys2 = list()
@@ -94,8 +112,4 @@ if __name__ == "__main__":
     plt.plot(Xs, Ys4, '-', label="4")
     plt.plot(Xs, Ys5, '-', label="5")
     plt.plot(Xs, Ys6, '-', label="6")
-    plt.show()
-
-#def random_curve1(x):
-    
-
+    #plt.show()
