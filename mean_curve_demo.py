@@ -28,7 +28,8 @@ options = ['default', 'mass', 'msfn']
 #options = ['default']
 
 if __name__ == '__main__':
-    start = time.time()
+    #start = time.time()
+    lp_times = list()
     mesh = Mesh()
     # l - initial length of triangle sides 
     # change it to 1 for big traingles
@@ -66,7 +67,6 @@ if __name__ == '__main__':
 #                            [6,7],
 #                            [6,8],
 #                            [7,8]])
-
     mesh.orient_simplices_2D()
     mesh.print_detail()
 
@@ -78,6 +78,7 @@ if __name__ == '__main__':
     figcount = 1
     for j, functions in enumerate(function_sets):
         combinations = utils.get_combination(len(functions))
+        #combinations = np.array([[1,1,1]])
         if len(functions) == 2:
             color_set = 'gr'
         elif len(functions) == 3:
@@ -140,7 +141,7 @@ if __name__ == '__main__':
 #            input_currents.append(current2)
 #            input_currents = np.array(input_currents)
 #            k_currents = 2
-                for comb in combinations[:-1,:]:
+                for comb in combinations:
                     input_currents = currents*comb.reshape(comb.size,1) 
                     x, q, r, norm = mean.mean(mesh.points, mesh.simplices, mesh.edges, input_currents, l, opt, w, v, cons)
                     fig.clf()
@@ -163,42 +164,42 @@ if __name__ == '__main__':
                     plt.savefig(figname, dpi=fig.dpi)
                     pdf_file.savefig(fig)
                     figcount += 1
-#                    colors = itertools.cycle(color_set)
-#                    for i, c in enumerate(input_currents):
-#                        fig.clf()                    
-#                        plt.gca().set_aspect('equal')
-#                        plt.ylim([mesh.boundary_box[1]-5, mesh.boundary_box[3]+15])
-#                        plt.xlim([mesh.boundary_box[0]-5, mesh.boundary_box[2]+5])
-#                        mesh.plot()
-#                        mesh.plot_curve(c, color=colors.next(), linewidth=5, \
-#                        label='%s, %d'%(functions[i], comb[i]))
-#                        #title = '%s, lambda=%.04f, (%s,%d)' % (opt, l, functions[i], comb[i])
-#                        mesh.plot_curve(x, title, label='Mean')
-#                        plt.legend(loc='upper right')
-#                        figname = '/home/altaa/fig_dump/%d-%s-%.04f.png'%(figcount, opt, l)
-#                        plt.savefig(figname, dpi=fig.dpi)
-#                        pdf_file.savefig(fig)
-#                        figcount += 1
-#                    for i in range(r.shape[1]):
-#                        color = colors.next()
-#                        fig.clf()
-#                        plt.gca().set_aspect('equal')
-#                        plt.ylim([mesh.boundary_box[1]-5, mesh.boundary_box[3]+20])
-#                        plt.xlim([mesh.boundary_box[0]-5, mesh.boundary_box[2]+5])
-#                        mesh.plot()
-#                        mesh.plot_simplices(r[:,i], color=color)
-#                        mesh.plot_curve(q[:,i], title=title + ', Q%d&R%d'%(i+1,i+1), color='m', marker='*', linewidth=6, label='Q%d'%(i+1))
-#                        mesh.plot_curve(x, linewidth=4, label="Mean")
-#                        if opt =='msfn' and i== r.shape[1]-1:
-#                            pass
-#                        else:
-#                            mesh.plot_curve(input_currents[i], color='r', ls='--', \
-#                            label='%s, %d'%(functions[i], comb[i]))
-#                        plt.legend(loc='upper right')
-#                        figname = '/home/altaa/fig_dump/%d-%s-%.04f.png'%(figcount,opt,l)
-#                        plt.savefig(figname, dpi=fig.dpi)
-#                        pdf_file.savefig(fig)
-#                        figcount += 1
+                    colors = itertools.cycle(color_set)
+                    for i, c in enumerate(input_currents):
+                        fig.clf()                    
+                        plt.gca().set_aspect('equal')
+                        plt.ylim([mesh.boundary_box[1]-5, mesh.boundary_box[3]+15])
+                        plt.xlim([mesh.boundary_box[0]-5, mesh.boundary_box[2]+5])
+                        mesh.plot()
+                        mesh.plot_curve(c, color=colors.next(), linewidth=5, \
+                        label='%s, %d'%(functions[i], comb[i]))
+                        title = '%s, lambda=%.04f, (%s,%d)' % (opt, l, functions[i], comb[i])
+                        mesh.plot_curve(x, title, label='Mean')
+                        plt.legend(loc='upper right')
+                        figname = '/home/altaa/fig_dump/%d-%s-%.04f.png'%(figcount, opt, l)
+                        plt.savefig(figname, dpi=fig.dpi)
+                        pdf_file.savefig(fig)
+                        figcount += 1
+                    for i, r_i in enumerate(r):
+                        color = colors.next()
+                        fig.clf()
+                        plt.gca().set_aspect('equal')
+                        plt.ylim([mesh.boundary_box[1]-5, mesh.boundary_box[3]+20])
+                        plt.xlim([mesh.boundary_box[0]-5, mesh.boundary_box[2]+5])
+                        mesh.plot()
+                        mesh.plot_simplices(r_i, color=color)
+                        mesh.plot_curve(q[i], title=title + ', Q%d&R%d'%(i+1,i+1), color='m', marker='*', linewidth=6, label='Q%d'%(i+1))
+                        mesh.plot_curve(x, linewidth=4, label="Mean")
+                        if opt =='msfn' and i== r.shape[0]-1:
+                            pass
+                        else:
+                            mesh.plot_curve(input_currents[i], color='r', ls='--', \
+                            label='%s, %d'%(functions[i], comb[i]))
+                        plt.legend(loc='upper right')
+                        figname = '/home/altaa/fig_dump/%d-%s-%.04f.png'%(figcount,opt,l)
+                        plt.savefig(figname, dpi=fig.dpi)
+                        pdf_file.savefig(fig)
+                        figcount += 1
 
                     #figname = '/home/altaa/fig_dump/%d-%s-%s-%.04f.png'%(figcount, '-'.join(functions),opt,l)
                     #plt.savefig(figname, dpi=fig.dpi)
@@ -208,5 +209,4 @@ if __name__ == '__main__':
                         #print 'q2', q2
                         #print 'r2', r2
     pdf_file.close()
-    elapsed = time.time() - start
-    print 'Elapsed time %f mins.' % (elapsed/60)
+    print lp_times
