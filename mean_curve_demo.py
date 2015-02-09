@@ -121,6 +121,8 @@ if __name__ == '__main__':
         figcount += 1
         pdf_file.savefig(fig)
         for opt in options:
+            norms = list()
+            min_norm = 1000
             w, v, b_matrix, cons = mean.get_lp_inputs(mesh.points, mesh.simplices, mesh.edges, k_currents,
             opt, w, v, b_matrix)
             np.savetxt('/home/altaa/dumps1/cons-%s.txt'%opt, cons, fmt='%d', delimiter=' ')
@@ -141,9 +143,17 @@ if __name__ == '__main__':
 #            input_currents.append(current2)
 #            input_currents = np.array(input_currents)
 #            k_currents = 2
-                for comb in combinations:
+                for comb in combinations[:-1,:]:
                     input_currents = currents*comb.reshape(comb.size,1) 
                     x, q, r, norm = mean.mean(mesh.points, mesh.simplices, mesh.edges, input_currents, l, opt, w, v, cons)
+                    norms.append(norm)
+                    if norm < min_norm:
+                        min_norm = norm
+                        min_comb = comb
+                        min_x = x
+                        min_q = q
+                        min_r = r
+                        min_currents = input_currents
                     fig.clf()
                     plt.gca().set_aspect('equal')
                     plt.ylim([mesh.boundary_box[1]-5, mesh.boundary_box[3]+20])
@@ -165,21 +175,20 @@ if __name__ == '__main__':
                     pdf_file.savefig(fig)
                     figcount += 1
                     colors = itertools.cycle(color_set)
-                    for i, c in enumerate(input_currents):
-                        fig.clf()                    
-                        plt.gca().set_aspect('equal')
-                        plt.ylim([mesh.boundary_box[1]-5, mesh.boundary_box[3]+15])
-                        plt.xlim([mesh.boundary_box[0]-5, mesh.boundary_box[2]+5])
-                        mesh.plot()
-                        mesh.plot_curve(c, color=colors.next(), linewidth=5, \
-                        label='%s, %d'%(functions[i], comb[i]))
-                        title = '%s, lambda=%.04f, (%s,%d)' % (opt, l, functions[i], comb[i])
-                        mesh.plot_curve(x, title, label='Mean')
-                        plt.legend(loc='upper right')
-                        figname = '/home/altaa/fig_dump/%d-%s-%.04f.png'%(figcount, opt, l)
-                        plt.savefig(figname, dpi=fig.dpi)
-                        pdf_file.savefig(fig)
-                        figcount += 1
+#                    for i, c in enumerate(input_currents):
+#                        fig.clf()                    
+#                        plt.gca().set_aspect('equal')
+#                        plt.ylim([mesh.boundary_box[1]-5, mesh.boundary_box[3]+15])
+#                        plt.xlim([mesh.boundary_box[0]-5, mesh.boundary_box[2]+5])
+#                        mesh.plot()
+#                        mesh.plot_curve(c, color=colors.next(), linewidth=5, \
+#                        label='%s, %d'%(functions[i], comb[i]))
+#                        mesh.plot_curve(x, title, label='Mean')
+#                        plt.legend(loc='upper right')
+#                        figname = '/home/altaa/fig_dump/%d-%s-%.04f.png'%(figcount, opt, l)
+#                        plt.savefig(figname, dpi=fig.dpi)
+#                        pdf_file.savefig(fig)
+#                        figcount += 1
                     for i, r_i in enumerate(r):
                         color = colors.next()
                         fig.clf()
@@ -201,6 +210,7 @@ if __name__ == '__main__':
                         pdf_file.savefig(fig)
                         figcount += 1
 
+                    
                     #figname = '/home/altaa/fig_dump/%d-%s-%s-%.04f.png'%(figcount, '-'.join(functions),opt,l)
                     #plt.savefig(figname, dpi=fig.dpi)
                     #figcount += 1
