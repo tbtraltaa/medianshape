@@ -154,7 +154,7 @@ def plot_curve(mesh, input_points, closest_vertices, path, title=None, color="re
     plt.scatter(mesh.points[closest_vertices][:,0], mesh.points[closest_vertices][:,1], s=100)
     plt.scatter(input_points[:,0], input_points[:,1], c=color)
 
-def generate_curves_on_mesh(mesh, functions)
+def generate_curves_on_mesh(mesh, functions):
         input_currents = list()
         paths = list()
         vertices = list()

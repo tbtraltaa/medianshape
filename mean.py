@@ -1,6 +1,7 @@
 # encoding: utf-8
 
 from __future__ import absolute_import
+import time
 
 import numpy as np
 from scipy.sparse import csr_matrix
@@ -8,7 +9,6 @@ from scipy.sparse import csr_matrix
 from mesh.utils import boundary_matrix, simpvol
 
 import glpk
-import pulp
 
 from cvxopt import matrix, sparse, solvers
 solvers.options['abstol'] = 1e-10
@@ -44,7 +44,7 @@ def mean(points, simplices, subsimplices, input_currents, lambda_, opt='default'
     input_currents  = input_currents.reshape(k_currents*m_edges,1)
     if opt == 'msfn':
         input_currents = np.vstack((input_currents, np.zeros((m_edges,1))))
-        sub_cons_count = k_currents + 1 
+        sub_cons_count += 1 
     b = input_currents
     print "b", b.shape
     if w == []:
@@ -112,22 +112,27 @@ def mean(points, simplices, subsimplices, input_currents, lambda_, opt='default'
     G = sparse(matrix(g), tc='d')
     h = matrix(np.zeros(len(c)))
     c = matrix(c)
-    cons = sparse(matrix(cons))
+    cons = sparse(matrix(cons, tc='i'))
     b = matrix(b)
 
+    start = time.time()
     sol = solvers.lp(c, G, h, cons, b, solver='glpk')
-    args = np.array(sol['x'])
+    elapsed = time.time() - start
+    print 'Elapsed time %f mins.' % (elapsed/60)
+
+    args = np.rint(sol['x'])
     norm = sol['primal objective']
+    np.savetxt("/home/altaa/dumps1/x-%s.txt"%opt, args, fmt="%d", delimiter=" ")
     x = args[0:m_edges] - args[m_edges:2*m_edges]
-    q = np.zeros((m_edges, sub_cons_count))
-    r = np.zeros((n_simplices, sub_cons_count))
+    q = np.zeros((sub_cons_count, m_edges), dtype=int)
+    r = np.zeros((sub_cons_count, n_simplices), dtype=int)
     qi_start = 2*m_edges
     for i in range(sub_cons_count):
         qi_end = qi_start + 2*m_edges
-        q[:, i] = (args[qi_start: qi_start+m_edges] - args[qi_start+m_edges: qi_end]).reshape(m_edges)
+        q[i] = (args[qi_start: qi_start+m_edges] - args[qi_start+m_edges: qi_end]).reshape(m_edges,)
         ri_start = qi_end
         ri_end = ri_start + 2*n_simplices
-        r[:, i] = (args[ri_start: ri_start+n_simplices] - args[ri_start+n_simplices: ri_end]).reshape(n_simplices)
+        r[i] = (args[ri_start: ri_start+n_simplices] - args[ri_start+n_simplices: ri_end]).reshape(n_simplices, )
         qi_start = ri_end
     return x, q, r, norm
 

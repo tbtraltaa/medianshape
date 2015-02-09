@@ -73,6 +73,13 @@ class Mesh():
         plt.triplot(self.points[:,0], self.points[:,1], self.simplices.copy())
         #plt.scatter(self.points[:,0], self.points[:,1])
 
+    def test(self):
+        for e in self.edges:
+            print e
+            points = self.points[e]
+            print points
+            plt.plot(points[:,0], points[:,1], color='r')
+
     def plot_curve(self, func_path, title=None, color="black", marker=None, linewidth=3, ls='-', label=""):
         if type(func_path) == list:
             func_path = np.array(func_path)
