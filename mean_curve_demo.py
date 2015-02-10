@@ -2,27 +2,25 @@
 
 from __future__ import absolute_import
 
-import math
 import importlib
 import random
-import itertools
 import time
 
 
 import numpy as np
-import matplotlib.pyplot as plt
-from matplotlib.figure import Figure
-
 from scipy.sparse import csr_matrix
+
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_pdf import PdfPages
 
 from mesh.distmesh import distmesh2d
 from mesh.mesh import Mesh
-from shape_gen import point_gen, curve_gen, utils
 from mesh.utils import boundary_matrix, simpvol
-
+from shape_gen import point_gen, curve_gen, utils
 import mean
+import plotting
+
 from cvxopt import matrix, solvers
-from matplotlib.backends.backend_pdf import PdfPages
 
 options = ['default', 'mass', 'msfn']
 #options = ['default']
@@ -69,43 +67,27 @@ if __name__ == '__main__':
 #                            [7,8]])
     mesh.orient_simplices_2D()
     mesh.print_detail()
-
     pdf_file = PdfPages('/home/altaa/figures1.pdf')
     #function_sets = [['sin1pi','half_sin1pi'], ['x', 'x2', 'x5']]
     #function_sets = [['curve1', 'curve2', 'curve3', 'curve4', 'curve5']]
     function_sets = [['curve1', 'curve2', 'curve3']]
-
     figcount = 1
     for j, functions in enumerate(function_sets):
         combinations = utils.get_combination(len(functions))
-        #combinations = np.array([[1,1,1]])
-        if len(functions) == 2:
-            color_set = 'gr'
-        elif len(functions) == 3:
-            color_set = 'gry'
-        elif len(functions) == 5:
-            color_set = 'grcym' 
-        colors = itertools.cycle(color_set)
-        input_currents = list()
+        combinations = np.array([[1,1,1]])
         fig = plt.figure(figsize=(19,8))
-        plt.gca().set_aspect('equal')
-        plt.ylim([mesh.boundary_box[1]-5, mesh.boundary_box[3]+5])
-        plt.xlim([mesh.boundary_box[0]-5, mesh.boundary_box[2]+5])
-        mesh.plot()
+        #combinations = np.array([[1,1,1]])
         #w = np.ndarray(shape=(len(mesh.edges),))
         #w[0:] = 1
-
         #v =  np.ndarray(shape=(len(mesh.simplices),))
         #v[0:] = 0.433
+        points, vertices, paths, input_currents = curve_gen.push_curves_on_mesh(mesh, functions)
 
-        for i, f in enumerate(functions):
-            points = point_gen.sample_function_mesh(f, mesh)
-            input_current, path, closest_vertices = curve_gen.generate_curve_on_mesh(points, mesh, func_str=f) 
-            np.savetxt('/home/altaa/dumps1/%s.txt'%f, input_current.reshape(len(input_current),1), fmt='%d', delimiter=' ')
-            csr_path = csr_matrix(input_current)
-            print 'Path vector:\n', csr_path
-            curve_gen.plot_curve(mesh, points, closest_vertices, path, color=colors.next())
-            input_currents.append(input_current)
+        figname = '/home/altaa/fig_dump/%d.png'%(figcount)
+        title = 'Functions - %s - (%s)' % (mesh.get_info(), ','.join(functions))
+        plotting.plot_curves_approx(mesh, points, vertices, paths, title, figname, pdf_file)
+        figcount += 1
+
         k_currents = len(functions)
         currents = np.array(input_currents).reshape(k_currents, mesh.edges.shape[0])
         w = simpvol(mesh.points, mesh.edges)
@@ -114,20 +96,6 @@ if __name__ == '__main__':
         np.savetxt('/home/altaa/dumps1/w.txt', w, delimiter=' ')
         np.savetxt('/home/altaa/dumps1/v.txt', v, delimiter=' ')
         np.savetxt('/home/altaa/dumps1/b_matrix.txt', b_matrix, fmt='%d', delimiter=' ')
-        
-        plt.title('Functions - %s - (%s)' % (mesh.get_info(), ','.join(functions)), fontsize=20)
-        figname = '/home/altaa/fig_dump/%d.png'%(figcount)
-        plt.savefig(figname, dpi=fig.dpi)
-        figcount += 1
-        pdf_file.savefig(fig)
-        for opt in options:
-            norms = list()
-            min_norm = 1000
-            w, v, b_matrix, cons = mean.get_lp_inputs(mesh.points, mesh.simplices, mesh.edges, k_currents,
-            opt, w, v, b_matrix)
-            np.savetxt('/home/altaa/dumps1/cons-%s.txt'%opt, cons, fmt='%d', delimiter=' ')
-            lambdas = [0.0001, 0.001]
-            for l in lambdas:
 #            input_currents = list()
 #            current1 = np.zeros(shape=(len(mesh.edges),1))
 #            current1[0] = 1
@@ -143,46 +111,62 @@ if __name__ == '__main__':
 #            input_currents.append(current2)
 #            input_currents = np.array(input_currents)
 #            k_currents = 2
-                for comb in combinations[:-1,:]:
+        
+        for opt in options:
+            min_norm = 1000
+            average_len = np.average(np.array([c.nonzero()[0].shape[0] for c in input_currents]))
+            w, v, b_matrix, cons = mean.get_lp_inputs(mesh.points, mesh.simplices, mesh.edges, k_currents,
+            opt, w, v, b_matrix)
+            np.savetxt('/home/altaa/dumps1/cons-%s.txt'%opt, cons, fmt='%d', delimiter=' ')
+            lambdas = [0.0001, 0.001, 1, 20]
+            for l in lambdas:
+                norms = list()
+                t_lens = list()
+                #for comb in combinations[:-1,:]:
+                for comb in combinations:
                     input_currents = currents*comb.reshape(comb.size,1) 
-                    t, q, r, norm = mean.mean(mesh.points, mesh.simplices, mesh.edges, input_currents, l, opt, w, v, cons)
+                    t, q, r, norm = mean.mean(mesh.points, mesh.simplices, mesh.edges, input_currents, \
+                    l, opt, w, v, cons, len_cons=True)
                     norms.append(norm)
+                    t_len = len(t.nonzero()[0])
+                    t_lens.append(t_len)
                     if norm < min_norm:
                         min_norm = norm
                         min_comb = comb
-                        min_x = x
+                        min_t = t
                         min_q = q
                         min_r = r
                         min_currents = input_currents
-                    fig.clf()
-                    plotting.plot_mean(mesh, input_currents, t)
-                    figname = '/home/altaa/fig_dump/%d-%s-%.04f.png'%(figcount, opt, l)
-                    plt.savefig(figname, dpi=fig.dpi)
-                    pdf_file.savefig(fig)
+                    title = '%s, lambda=%.04f, %s, T_len=%d, T_i_len_ave=%d' % \
+                    (opt, l, str(comb), t_len, average_len)
+                    figname = '/home/altaa/fig_dump/%d-%s-%.04f'%(figcount, opt, l)
+                    plotting.plot_mean(mesh, functions, input_currents, comb, t, title, figname, pdf_file)
                     figcount += 1
-                    colors = itertools.cycle(color_set)
-#                    for i, c in enumerate(input_currents):
-#                        fig.clf()                    
-#                        plt.gca().set_aspect('equal')
-#                        plt.ylim([mesh.boundary_box[1]-5, mesh.boundary_box[3]+15])
-#                        plt.xlim([mesh.boundary_box[0]-5, mesh.boundary_box[2]+5])
-#                        mesh.plot()
-#                        mesh.plot_curve(c, color=colors.next(), linewidth=5, \
-#                        label='%s, %d'%(functions[i], comb[i]))
-#                        mesh.plot_curve(t, title, label='Mean')
-#                        plt.legend(loc='upper right')
-#                        figname = '/home/altaa/fig_dump/%d-%s-%.04f.png'%(figcount, opt, l)
-#                        plt.savefig(figname, dpi=fig.dpi)
-#                        pdf_file.savefig(fig)
-#                        figcount += 1
 
-                    
-                    #figname = '/home/altaa/fig_dump/%d-%s-%s-%.04f.png'%(figcount, '-'.join(functions),opt,l)
-                    #plt.savefig(figname, dpi=fig.dpi)
-                    #figcount += 1
-                        #print 'q1', q1
-                        #print 'r1', r1
-                        #print 'q2', q2
-                        #print 'r2', r2
+                    figname = '/home/altaa/fig_dump/%d-%s-%.04f'%(figcount, opt, l)
+                    plotting.plot_curve_and_mean(mesh, functions, input_currents, comb, t, title, \
+                    figname, pdf_file)
+                    figcount += input_currents.shape[0]
+
+                    figname = '/home/altaa/fig_dump/%d-%s-%.04f'%(figcount,opt,l)
+                    plotting.plot_decomposition(mesh, functions, input_currents, comb, t, q, r, title, \
+                    figname, pdf_file)
+                    figcount += input_currents.shape[0]
+                
+                print "Norms", norms
+                print "t_lens", t_lens
+                print "Average len", average_len
+                # Plotting the combination with minimum flatnorm difference
+                title = 'Minimum flatnorm difference, %s, lambda=%.04f, %s' % (opt, l, str(comb))
+                figname = '/home/altaa/fig_dump/%d-%s-%.04f'%(figcount, opt, l)
+                plotting.plot_mean(mesh, functions, min_currents, min_comb, min_t, title, \
+                figname, pdf_file)
+                figcount += 1
+
+                figname = '/home/altaa/fig_dump/%d-%s-%.04f'%(figcount,opt,l)
+                plotting.plot_decomposition(mesh, functions, min_currents, comb, min_t, min_q, min_r, \
+                title, figname, pdf_file)
+                figcount += input_currents.shape[0]
+
     pdf_file.close()
     print lp_times

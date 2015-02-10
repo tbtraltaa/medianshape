@@ -12,8 +12,9 @@ from scipy.sparse import csr_matrix
 from scipy.spatial.distance import pdist, cdist
 
 import utils
+import point_gen
 
-def generate_curve_on_mesh(points, mesh, interval_size=30, is_closed=False, func_str=None):
+def push_curve_on_mesh(points, mesh, interval_size=30, is_closed=False, func_str=None):
         closest_vertices = find_closest_vertices(points, mesh, interval_size)
         print "closest_vertices:\n", closest_vertices
         print "Function points:\n", points
@@ -145,35 +146,23 @@ def get_edge_vector(path, mesh):
                 edge_vector[i] = -1
     return edge_vector
 
-def plot_curve(mesh, input_points, closest_vertices, path, title=None, color="red", linewidth=3, label=""):
-    plt.plot(input_points[:,0], input_points[:,1], c=color, ls="--")
-    plt.title(title)
-    for i, edge in enumerate(path):
-        points = mesh.points[edge]
-        plt.plot(points[:,0], points[:,1], color, linewidth=linewidth, label=label)
-    plt.scatter(mesh.points[closest_vertices][:,0], mesh.points[closest_vertices][:,1], s=100)
-    plt.scatter(input_points[:,0], input_points[:,1], c=color)
-
-def generate_curves_on_mesh(mesh, functions):
+def push_curves_on_mesh(mesh, functions):
         input_currents = list()
         paths = list()
         vertices = list()
         points = list()
-        k_currents = len(functions)
         for i, f in enumerate(functions):
             input_points = point_gen.sample_function_mesh(f, mesh)
-            input_current, path, closest_vertices = curve_gen.generate_curve_on_mesh(input_points, mesh, func_str=f) 
+            input_current, path, closest_vertices = push_curve_on_mesh(input_points, mesh, func_str=f) 
             np.savetxt('/home/altaa/dumps1/%s.txt'%f, input_current.reshape(len(input_current),1), fmt='%d', delimiter=' ')
-            csr_path = csr_matrix(input_current)
-            print 'Path vector:\n', csr_path
-            curve_gen.plot_curve(mesh, input_points, closest_vertices, path, color=colors.next())
+            #csr_path = csr_matrix(input_current)
+            #print 'Path vector:\n', csr_path
             points.append(input_points)
             vertices.append(closest_vertices)
             paths.append(path)
             input_currents.append(input_current)
-        input_currents = np.array(input_currents).reshape(k_currents, mesh.edges.shape[0])
+        input_currents = np.array(input_currents).reshape(len(functions), mesh.edges.shape[0])
         return points, vertices, paths, input_currents
             
-
 if __name__ == '__main__':
     pass

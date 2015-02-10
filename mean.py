@@ -35,8 +35,10 @@ def print_cons(sub_cons, cons, c):
     print "\n"
     print 'c', c
 
-def mean(points, simplices, subsimplices, input_currents, lambda_, opt='default', w=[], v=[], cons=[]):
-    input_currents = np.array(input_currents)
+def mean(points, simplices, subsimplices, input_currents, lambda_, opt='default', w=[], v=[], cons=[], len_cons=False):
+    if not isinstance(input_currents, np.ndarray):
+        input_currents = np.array(input_currents)
+    average_len = np.average(np.array([c.nonzero()[0].shape[0] for c in input_currents]))
     m_edges = subsimplices.shape[0]
     n_simplices = simplices.shape[0]
     k_currents = len(input_currents)
@@ -85,6 +87,7 @@ def mean(points, simplices, subsimplices, input_currents, lambda_, opt='default'
 
         cons = np.hstack((k_identity_cons, cons))
         cons = cons.astype(int)
+
         
     c = np.zeros((2*m_edges,1))
     if opt == 'mass':
@@ -109,8 +112,15 @@ def mean(points, simplices, subsimplices, input_currents, lambda_, opt='default'
 #    b = matrix(csr_matrix(b))
 
     g = -np.identity(len(c), dtype=int)
+    h = np.zeros(len(c))
+    if len_cons:
+        len_cons_row = np.zeros(g.shape[1], dtype=int)
+        len_cons_row[0:m_edges] = -1
+        len_cons_row[m_edges:2*m_edges] = +1
+        g = np.vstack((g, len_cons_row))
+        h = np.append(h, -average_len)
     G = sparse(matrix(g), tc='d')
-    h = matrix(np.zeros(len(c)))
+    h = matrix(h)
     c = matrix(c)
     cons = sparse(matrix(cons, tc='i'))
     b = matrix(b)
