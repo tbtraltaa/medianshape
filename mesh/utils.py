@@ -7,6 +7,7 @@ import numpy as np
 from scipy.linalg import det
 from scipy.misc import factorial
 from scipy.spatial.distance import cdist, pdist
+from scipy.sparse import dok_matrix
 
 def extract_edges(simplices):
     edges = set()
@@ -33,7 +34,6 @@ def orient_simplices(simplices):
                     if all((np.array(subsimplex) - np.array(n_face)) == 0):
                         simplices[n_simplex_idx] = n_simplex[::-1]
                 simplices = np.delete(simplices, np.where(simplices==n_simplex_idx))
-    print right_hand_rule(simplices[0])
     return simplices
 
 def simpvol(points, simplices):
@@ -71,19 +71,25 @@ def boundary1(simplex):
 
 # Builds a boundary matrix of given simplices. The format of a boundary matrix is as follows.
 # boundary_matrix = (number of edges) x (number of simplices)
-def boundary_matrix(simplices, edges):
-    boundary_matrix = np.zeros((len(edges), len(simplices)), dtype=int) 
-    for i, edge in enumerate(edges):
-        for j, simplex in enumerate(simplices):
-            simplex_boundary = boundary(simplex)
-            for s_edge in simplex_boundary:
-                if all((s_edge - edge) == 0):
-                    boundary_matrix[i,j] = 1
-                    break
-                elif all((s_edge - np.array(list(reversed(edge)))) == 0):
-                    boundary_matrix[i,j] = -1
-                    break
-    return boundary_matrix
+def boundary_matrix(simplices, edges, sparse=True, format=None):
+    if not sparse:
+        boundary_matrix = np.array((len(edges), len(simplices)), dtype=np.int8) 
+    else:
+        boundary_matrix = dok_matrix((len(edges), len(simplices)), dtype=np.int8) 
+    temp_edges = [ tuple(edge) for edge in edges]
+    for j, simplex in enumerate(simplices):
+        simplex_boundary = boundary(simplex)
+        for s_edge in simplex_boundary:
+            sorted_s_edge = np.sort(s_edge)
+            i = temp_edges.index(tuple(sorted_s_edge)) 
+            if s_edge[0] <= s_edge[1]:
+                boundary_matrix[i,j] = 1
+            else:
+                boundary_matrix[i,j] = -1
+    if sparse and format:
+        return boundary_matrix.asformat(format)
+    else:
+        return boundary_matrix
 
 # Returns simplex boundary as faces.
 # if an index given, returns n-1 simplex by removing the element at the index.

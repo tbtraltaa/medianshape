@@ -4,13 +4,13 @@ from __future__ import absolute_import
 import time
 
 import numpy as np
-from scipy.sparse import csr_matrix
+from scipy import sparse
 
 from mesh.utils import boundary_matrix, simpvol
 
 import glpk
 
-from cvxopt import matrix, sparse, solvers
+from cvxopt import matrix, spmatrix, solvers
 solvers.options['abstol'] = 1e-10
 solvers.options['reltol'] = 1e-9
 solvers.options['feastol'] = 1e-10
@@ -35,60 +35,22 @@ def print_cons(sub_cons, cons, c):
     print "\n"
     print 'c', c
 
-def mean(points, simplices, subsimplices, input_currents, lambda_, opt='default', w=[], v=[], cons=[], len_cons=False):
+def mean(mesh, input_currents, lambda_, opt='default', w=[], v=[], cons=[], len_cons=False):
     if not isinstance(input_currents, np.ndarray):
         input_currents = np.array(input_currents)
-    average_len = np.average(np.array([c.nonzero()[0].shape[0] for c in input_currents]))
-    m_edges = subsimplices.shape[0]
-    n_simplices = simplices.shape[0]
+    average_len = np.rint(np.average(np.array([c.nonzero()[0].shape[0] for c in input_currents])))
+    print "Average len", average_len
+    m_edges = mesh.edges.shape[0]
+    n_simplices = mesh.simplices.shape[0]
     k_currents = len(input_currents)
     sub_cons_count = k_currents 
     input_currents  = input_currents.reshape(k_currents*m_edges,1)
+    w, v, b_matrix, cons = get_lp_inputs(mesh, k_currents, opt, w, v, [], cons)
     if opt == 'msfn':
         input_currents = np.vstack((input_currents, np.zeros((m_edges,1))))
         sub_cons_count += 1 
     b = input_currents
     print "b", b.shape
-    if w == []:
-        #w = simpvol(points, subsimplices)
-        #w = np.ones(m_edges)
-        w = np.ndarray(shape=(m_edges,))
-        #w[0:] = 0.09
-        w[0:] = 1
-        #w[0:] = 0.09050288
-        print "w", w[0:10]
-    if v == []:
-        #v = simpvol(points, simplices)
-        v =  np.ndarray(shape=(n_simplices,))
-        v[0:] = 0.433
-        #v[0:] = 0.003
-        #v[0:] = 0.00395007
-        print "v", v[0:10]
-    if cons == []:
-        # Msfn option
-        if opt == 'msfn':
-            sub_cons_count += 1
-        # Mass option
-        b_matrix = boundary_matrix(simplices, subsimplices)
-        identity_cons = np.hstack((np.identity(m_edges, dtype=int), -np.identity(m_edges, dtype=int)))
-        sub_cons = np.hstack((-np.identity(m_edges, dtype=int), np.identity(m_edges, dtype=int), -b_matrix, b_matrix))
-        sub_cons_col_count = 2*m_edges + 2*n_simplices
-        k_identity_cons = np.tile(identity_cons,(sub_cons_count,1))
-
-        for i in range(0,sub_cons_count):
-            cons_row = np.zeros((m_edges, sub_cons_count*(2*m_edges + 2*n_simplices)))
-            sub_cons_start = i*sub_cons_col_count
-            sub_cons_end = sub_cons_start + sub_cons_col_count
-            cons_row[:, sub_cons_start:sub_cons_end] = sub_cons
-            if i == 0:
-                cons = cons_row
-            else:
-                cons = np.vstack((cons, cons_row))
-
-        cons = np.hstack((k_identity_cons, cons))
-        cons = cons.astype(int)
-
-        
     c = np.zeros((2*m_edges,1))
     if opt == 'mass':
         c = np.vstack((abs(w),abs(w)))
@@ -98,31 +60,24 @@ def mean(points, simplices, subsimplices, input_currents, lambda_, opt='default'
     c = np.append(c, k_sub_c)
     c = c/k_currents
 
-
-    # Uncomment the line below to print sub_cons, cons and c
-    #print_cons(sub_cons,cons, c)
     
-    np.savetxt("/home/altaa/dumps1/b-%s.txt"%opt, input_currents, fmt="%d", delimiter=" ")
-    np.savetxt("/home/altaa/dumps1/c-%s.txt"%opt, c, delimiter=" ")
+    #np.savetxt("/home/altaa/dumps1/b-%s.txt"%opt, input_currents, fmt="%d", delimiter=" ")
+    #np.savetxt("/home/altaa/dumps1/c-%s.txt"%opt, c, delimiter=" ")
     print "Size of c: ", len(c)
-#    G = matrix(csr_matrix(-np.identity(len(c))))
-#    h = matrix(csr_matrix(np.zeros(len(c))))
-#    c = matrix(csr_matrix(c)) 
-#    cons = matrix(csr_matrix(cons))
-#    b = matrix(csr_matrix(b))
+    print "Average len", np.rint(average_len)
 
-    g = -np.identity(len(c), dtype=int)
+    g = -sparse.identity(len(c), dtype=np.int8)
     h = np.zeros(len(c))
     if len_cons:
-        len_cons_row = np.zeros(g.shape[1], dtype=int)
+        len_cons_row = np.zeros(g.shape[1], dtype=np.int8)
         len_cons_row[0:m_edges] = -1
-        len_cons_row[m_edges:2*m_edges] = +1
-        g = np.vstack((g, len_cons_row))
-        h = np.append(h, -average_len)
-    G = sparse(matrix(g), tc='d')
+        len_cons_row[m_edges:2*m_edges] = -1
+        g = sparse.vstack((g, len_cons_row))
+        h = np.append(h, np.rint(-average_len))
+    G = spmatrix(g, g.row, g.col, g.shape,  tc='d')
     h = matrix(h)
     c = matrix(c)
-    cons = sparse(matrix(cons, tc='i'))
+    cons = spmatrix(cons, cons.row, cons.col, cols.shape, tc='i')
     b = matrix(b)
 
     start = time.time()
@@ -130,9 +85,13 @@ def mean(points, simplices, subsimplices, input_currents, lambda_, opt='default'
     elapsed = time.time() - start
     print 'Elapsed time %f mins.' % (elapsed/60)
 
+    args = np.array(sol['x'])
+    args1 = args[np.where(args >=1e-5)]
+    args2 = args1[np.where(args1 <= 0.99999)]
+    nonint = args2.shape[0]
     args = np.rint(sol['x'])
     norm = sol['primal objective']
-    np.savetxt("/home/altaa/dumps1/x-%s.txt"%opt, args, fmt="%d", delimiter=" ")
+    np.savetxt("/home/altaa/dumps1/x-%s-lambda-%s.txt"%(opt, lambda_), args, fmt="%d", delimiter=" ")
     x = args[0:m_edges] - args[m_edges:2*m_edges]
     q = np.zeros((sub_cons_count, m_edges), dtype=int)
     r = np.zeros((sub_cons_count, n_simplices), dtype=int)
@@ -144,50 +103,42 @@ def mean(points, simplices, subsimplices, input_currents, lambda_, opt='default'
         ri_end = ri_start + 2*n_simplices
         r[i] = (args[ri_start: ri_start+n_simplices] - args[ri_start+n_simplices: ri_end]).reshape(n_simplices, )
         qi_start = ri_end
-    return x, q, r, norm
+    return x, q, r, norm, nonint
 
-def get_lp_inputs(points, simplices, subsimplices, k_currents, opt='default', w=[], v=[], b_matrix=[], cons=[]):
-    m_edges = subsimplices.shape[0]
-    n_simplices = simplices.shape[0]
+def get_lp_inputs(mesh, k_currents, opt='default', w=[], v=[], b_matrix=[], cons=[]):
+    m_edges = mesh.edges.shape[0]
+    n_simplices = mesh.simplices.shape[0]
     if w == []:
-        #w = simpvol(points, subsimplices)
-        #w = np.ones(m_edges)
-        w = np.ndarray(shape=(m_edges,))
-        #w[0:] = 0.09
-        w[0:] = 1
-        #w[0:] = 0.09050288
-        print "w", w[0:10]
+        w = simpvol(mesh.points, mesh.simplices)
     if v == []:
-        #v = simpvol(points, simplices)
-        v =  np.ndarray(shape=(n_simplices,))
-        v[0:] = 0.433
-        #v[0:] = 0.003
-        #v[0:] = 0.00395007
-        print "v", v[0:10]
+        v = simpvol(mesh.points, mesh.simplices)
     if b_matrix == []:
-        b_matrix = boundary_matrix(simplices, subsimplices)
+        b_matrix = boundary_matrix(mesh.simplices, mesh.edges)
     if cons == []:
         sub_cons_count = k_currents
         # Msfn option
         if opt == 'msfn':
             sub_cons_count += 1
-        # Mass option
-        identity_cons = np.hstack((np.identity(m_edges), -np.identity(m_edges)))
-        sub_cons = np.hstack((-np.identity(m_edges), np.identity(m_edges), -b_matrix, b_matrix))
+        m_edges_identity = sparse.identity(m_edges, dtype=np.int8, format='dok')
+        identity_cons = sparse.hstack((m_edges_identity, -m_edges_identity))
+        sub_cons = sparse.hstack((-m_edges_identity, m_edges_identity, -b_matrix, b_matrix))
         sub_cons_col_count = 2*m_edges + 2*n_simplices
-        k_identity_cons = np.tile(identity_cons,(sub_cons_count,1))
-
-
+        for i in range(sub_cons_count):
+            if i == 0:
+                k_identity_cons = identity_cons
+            else:
+                k_identity_cons = sparse.vstack((k_identity_cons, identity_cons))
+        
         for i in range(0,sub_cons_count):
-            cons_row = np.zeros((m_edges, sub_cons_count*(2*m_edges + 2*n_simplices)))
+            cons_row = sparse.dok_matrix((m_edges, sub_cons_count*(2*m_edges + 2*n_simplices)), dtype=np.int8)
             sub_cons_start = i*sub_cons_col_count
             sub_cons_end = sub_cons_start + sub_cons_col_count
             cons_row[:, sub_cons_start:sub_cons_end] = sub_cons
             if i == 0:
                 cons = cons_row
             else:
-                cons = np.vstack((cons, cons_row))
-
-        cons = np.hstack((k_identity_cons, cons))
-        cons = cons.astype(int)
+                cons = sparse.vstack((cons, cons_row))
+        cons = sparse.hstack((k_identity_cons, cons.asformat('coo')))
+    # Uncomment the line below to print sub_cons, cons and c
+    #print_cons(sub_cons.toarray(), cons.toarray(), c)
     return w, v, b_matrix, cons

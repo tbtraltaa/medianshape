@@ -70,7 +70,7 @@ def plot_curve_and_mean(mesh, functions, input_currents, comb, t, title=None, sa
     colors = itertools.cycle(color_set)
     fig = plt.gca().figure
     for i, c in enumerate(input_currents):
-        plt.clf()                    
+        fig.clf()                    
         plt.gca().set_aspect('equal')
         plt.ylim([mesh.boundary_box[1]-5, mesh.boundary_box[3]+15])
         plt.xlim([mesh.boundary_box[0]-5, mesh.boundary_box[2]+5])

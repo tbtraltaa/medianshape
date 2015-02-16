@@ -7,7 +7,17 @@ import importlib
 import math
 
 import numpy as np
+from scipy.sparse import coo_matrix
 import matplotlib.pyplot as plt
+
+def sparse_savetxt(fname, matrix, fmt='%d', delimiter=' ', is_sparse=True):
+    if not is_sparse:
+        matrix = coo_matrix(matrix)
+    else:
+        matrix = matrix.asformat('coo')
+    with open(fname, 'w') as f:
+        for i in range(len(matrix.row)):
+            f.write("%d %d %d\n" % (matrix.row[i], matrix.col[i], matrix.data[i]))
 
 def get_combination(n, vals=[1,-1]):
     if n > 1:
