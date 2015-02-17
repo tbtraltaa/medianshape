@@ -14,6 +14,7 @@ from cvxopt import matrix, spmatrix, solvers
 solvers.options['abstol'] = 1e-10
 solvers.options['reltol'] = 1e-9
 solvers.options['feastol'] = 1e-10
+solvers.options['show_progress'] = False
 
 def print_cons(sub_cons, cons, c):
     string = ""
@@ -66,7 +67,7 @@ def mean(mesh, input_currents, lambda_, opt='default', w=[], v=[], cons=[], len_
     print "Size of c: ", len(c)
     print "Average len", np.rint(average_len)
 
-    g = -sparse.identity(len(c), dtype=np.int8)
+    g = -sparse.identity(len(c), dtype=np.int8, format='coo')
     h = np.zeros(len(c))
     if len_cons:
         len_cons_row = np.zeros(g.shape[1], dtype=np.int8)
@@ -74,16 +75,16 @@ def mean(mesh, input_currents, lambda_, opt='default', w=[], v=[], cons=[], len_
         len_cons_row[m_edges:2*m_edges] = -1
         g = sparse.vstack((g, len_cons_row))
         h = np.append(h, np.rint(-average_len))
-    G = spmatrix(g, g.row, g.col, g.shape,  tc='d')
+    G = spmatrix(g.data.tolist(), g.row, g.col, g.shape,  tc='d')
     h = matrix(h)
     c = matrix(c)
-    cons = spmatrix(cons, cons.row, cons.col, cols.shape, tc='i')
+    cons = spmatrix(cons.data.tolist(), cons.row, cons.col, cons.shape, tc='d')
     b = matrix(b)
 
     start = time.time()
     sol = solvers.lp(c, G, h, cons, b, solver='glpk')
     elapsed = time.time() - start
-    print 'Elapsed time %f mins.' % (elapsed/60)
+    print 'LP time %f mins.' % (elapsed/60)
 
     args = np.array(sol['x'])
     args1 = args[np.where(args >=1e-5)]
@@ -91,7 +92,7 @@ def mean(mesh, input_currents, lambda_, opt='default', w=[], v=[], cons=[], len_
     nonint = args2.shape[0]
     args = np.rint(sol['x'])
     norm = sol['primal objective']
-    np.savetxt("/home/altaa/dumps1/x-%s-lambda-%s.txt"%(opt, lambda_), args, fmt="%d", delimiter=" ")
+    np.savetxt("/home/altaa/dumps2/x-%s-lambda-%s.txt"%(opt, lambda_), args, fmt="%d", delimiter=" ")
     x = args[0:m_edges] - args[m_edges:2*m_edges]
     q = np.zeros((sub_cons_count, m_edges), dtype=int)
     r = np.zeros((sub_cons_count, n_simplices), dtype=int)
@@ -113,16 +114,17 @@ def get_lp_inputs(mesh, k_currents, opt='default', w=[], v=[], b_matrix=[], cons
     if v == []:
         v = simpvol(mesh.points, mesh.simplices)
     if b_matrix == []:
-        b_matrix = boundary_matrix(mesh.simplices, mesh.edges)
+        b_matrix = boundary_matrix(mesh.simplices, mesh.edges, format='coo')
     if cons == []:
         sub_cons_count = k_currents
         # Msfn option
         if opt == 'msfn':
             sub_cons_count += 1
-        m_edges_identity = sparse.identity(m_edges, dtype=np.int8, format='dok')
+        m_edges_identity = sparse.identity(m_edges, dtype=np.int8, format='coo')
         identity_cons = sparse.hstack((m_edges_identity, -m_edges_identity))
         sub_cons = sparse.hstack((-m_edges_identity, m_edges_identity, -b_matrix, b_matrix))
         sub_cons_col_count = 2*m_edges + 2*n_simplices
+        zero_sub_cons = sparse.coo_matrix((m_edges, sub_cons_col_count), dtype=np.int8)
         for i in range(sub_cons_count):
             if i == 0:
                 k_identity_cons = identity_cons
@@ -130,15 +132,20 @@ def get_lp_inputs(mesh, k_currents, opt='default', w=[], v=[], b_matrix=[], cons
                 k_identity_cons = sparse.vstack((k_identity_cons, identity_cons))
         
         for i in range(0,sub_cons_count):
-            cons_row = sparse.dok_matrix((m_edges, sub_cons_count*(2*m_edges + 2*n_simplices)), dtype=np.int8)
-            sub_cons_start = i*sub_cons_col_count
-            sub_cons_end = sub_cons_start + sub_cons_col_count
-            cons_row[:, sub_cons_start:sub_cons_end] = sub_cons
+            for j in range(sub_cons_count):
+                if j == i and i == 0:
+                    cons_row = sub_cons
+                elif j == 0:
+                    cons_row = zero_sub_cons 
+                elif j == i:
+                    cons_row = sparse.hstack((cons_row, sub_cons))
+                else:
+                    cons_row = sparse.hstack((cons_row, zero_sub_cons))
             if i == 0:
                 cons = cons_row
             else:
                 cons = sparse.vstack((cons, cons_row))
-        cons = sparse.hstack((k_identity_cons, cons.asformat('coo')))
+        cons = sparse.hstack((k_identity_cons, cons))
     # Uncomment the line below to print sub_cons, cons and c
     #print_cons(sub_cons.toarray(), cons.toarray(), c)
     return w, v, b_matrix, cons

@@ -60,7 +60,7 @@ def plot_mean(mesh, functions, input_currents, comb, t, title, figname="", file_
     if save and file_doc:
         file_doc.savefig(fig)
 
-def plot_curve_and_mean(mesh, functions, input_currents, comb, t, title=None, save=True, figname=None, file_doc=None):
+def plot_curve_and_mean(mesh, functions, input_currents, comb, t, title=None, figname=None, file_doc=None, save=True):
     if len(functions) == 2:
         color_set = 'gr'
     elif len(functions) == 3:
