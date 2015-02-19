@@ -41,7 +41,7 @@ def mean_curve_demo(load_data=False, save_data=True):
         # l - initial length of triangle sides. Change it to vary traingle size
         mesh.boundary_box = (0,0,200,50)
         mesh.fixed_points = [(0,0),(200,0),(0,50),(200,50)]
-        mesh.points, mesh.simplices = distmesh2d('square', mesh.boundary_box, mesh.fixed_points, l=7)
+        mesh.points, mesh.simplices = distmesh2d('square', mesh.boundary_box, mesh.fixed_points, l=6)
         mesh.set_edges()
         mesh.orient_simplices_2D()
 
@@ -105,7 +105,8 @@ def mean_curve_demo(load_data=False, save_data=True):
         #np.savetxt('/home/altaa/dumps1/cons-%s.txt'%opt, cons, fmt='%d', delimiter=' ')
         lambdas = [0.0001]
         mus = [0.0001]
-        alpha1 = np.linspace(0, 1, 10)
+        alpha1 = np.linspace(0, 1,3)
+        alpha1 = np.array([0, 0.01, 0.1, 0.5, 0.501, 0.6, 1])
         alpha1 = alpha1.reshape(alpha1.size, 1) 
         alpha2 = (1-alpha1).reshape(alpha1.size, 1)
         alphas = np.hstack((alpha1, alpha2))
