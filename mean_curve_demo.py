@@ -19,55 +19,31 @@ from shape_gen import point_gen, curve_gen, utils
 import mean
 import plotting
 
-from utils import sparse_savetxt
+from utils import sparse_savetxt, load, save
 from mesh.utils import boundary_matrix, simpvol
 
 from cvxopt import matrix, solvers
 
-options = ['default', 'mass', 'msfn']
-#options = ['default']
+#options = ['default', 'mass', 'msfn']
+options = ['mass']
 
-def load(dirname):
-    mesh = Mesh()
-    mesh.points = np.loadtxt("%s/points.txt"%dirname) 
-    mesh.simplices = np.loadtxt("%s/points.txt"%dirname)
-    mesh.edges = np.loadtxt("%s/edges.txt"%dirname)
-    v = np.loadtxt("%s/v.txt"%dirname)
-    w = np.loadtxt("%s/w.txt"%dirname)
-    b_matrix = sparse.dok_matrix((len(mesh.edges), len(mesh.simplices)), dtype=np.int8)
-    with open("%s/b_matrix.txt"%dirname, 'r') as f:
-        for line in f.readLines():
-            data = line.split()
-            b_matrix[int(data[0]), int(data[1])] = data[2]
-    
-    input_currents = []
-    for i in range(1,4):
-        curve = np.zero((len(mesh.edges), 1), dtype=np.int8)
-        with open("%s/curve%d.txt"%(dirname,i), 'r') as f:
-            for line in f.readLines():
-                data = line.split()
-                curve[int(data[0]), int(data[1])] = data[2]
-            if input_currents:
-                input_currents = np.vstack(input_currents, curve)
-            else:
-                input_currents = curve
-    return mesh, input_currents, b_matrix, w, v
-if __name__ == '__main__':
+def mean_curve_demo(load_data=False, save_data=True):
     #start = time.time()
     lp_times = list()
     start = time.time()
-    mesh = Mesh()
-    #mesh, input_currents, b_matrix, w,v =  load('/home/altaa/dumps1')
-    # l - initial length of triangle sides 
-    # change it to 1 for big traingles
-    mesh.boundary_box = (0,0,200,50)
-    mesh.fixed_points = [(0,0),(200,0),(0,50),(200,50)]
-    mesh.points, mesh.simplices = distmesh2d('square', mesh.boundary_box, mesh.fixed_points, l=5)
-    mesh.set_edges()
-    mesh.orient_simplices_2D()
-    np.savetxt('/home/altaa/dumps2/points.txt', mesh.points, delimiter=' ')
-    np.savetxt('/home/altaa/dumps2/edges.txt', mesh.edges, fmt='%d', delimiter=' ')
-    np.savetxt('/home/altaa/dumps2/simplices.txt', mesh.simplices, fmt='%d', delimiter=' ')
+    pdf_file = PdfPages('/home/altaa/figures.pdf')
+    fig = plt.figure(figsize=(19,8))
+    figcount = 1
+    if load_data:
+        mesh, input_currents, b_matrix, w, v = load()
+    else:
+        mesh = Mesh()
+        # l - initial length of triangle sides. Change it to vary traingle size
+        mesh.boundary_box = (0,0,200,50)
+        mesh.fixed_points = [(0,0),(200,0),(0,50),(200,50)]
+        mesh.points, mesh.simplices = distmesh2d('square', mesh.boundary_box, mesh.fixed_points, l=7)
+        mesh.set_edges()
+        mesh.orient_simplices_2D()
 
 #    mesh.points = np.array([[0,0], [0,0.5],[0,1],[0.5,1],[1,1],[1,0.5],[1,0],[0.5,0], [0.5, 0.5]])
 #    mesh.simplices = np.array([[0,8,1],
@@ -94,18 +70,11 @@ if __name__ == '__main__':
 #                            [5,8],
 #                            [6,7],
 #                            [6,8],
-#                            [7,8]])
-    print mesh.get_info()
-    #mesh.print_detail()
-    pdf_file = PdfPages('/home/altaa/figures2.pdf')
-    #function_sets = [['sin1pi','half_sin1pi'], ['x', 'x2', 'x5']]
-    #function_sets = [['curve1', 'curve2', 'curve3', 'curve4', 'curve5']]
-    function_sets = [['curve1', 'curve2', 'curve3']]
-    figcount = 1
-    for j, functions in enumerate(function_sets):
+        #function_sets = [['sin1pi','half_sin1pi'], ['x', 'x2', 'x5']]
+        #function_sets = [['curve1', 'curve2', 'curve3', 'curve4', 'curve5']]
+        functions= ['curve4', 'curve5']
         combinations = utils.get_combination(len(functions))
         combinations = np.array([[1,1,1]])
-        fig = plt.figure(figsize=(19,8))
         #combinations = np.array([[1,1,1]])
         #w = np.ndarray(shape=(len(mesh.edges),))
         #w[0:] = 1
@@ -118,75 +87,62 @@ if __name__ == '__main__':
         plotting.plot_curves_approx(mesh, points, vertices, paths, title, figname, pdf_file)
         figcount += 1
 
-        k_currents = len(functions)
-        currents = np.array(input_currents).reshape(k_currents, mesh.edges.shape[0])
         w = simpvol(mesh.points, mesh.edges)
         v = simpvol(mesh.points, mesh.simplices)
         b_matrix = boundary_matrix(mesh.simplices, mesh.edges)
-        np.savetxt('/home/altaa/dumps2/w.txt', w, delimiter=' ')
-        np.savetxt('/home/altaa/dumps2/v.txt', v, delimiter=' ')
-        sparse_savetxt('/home/altaa/dumps2/b_matrix.txt', b_matrix)
-        #np.savetxt('/home/altaa/dumps1/b_matrix.txt', b_matrix, fmt='%d', delimiter=' ')
 
-#            input_currents = list()
-#            current1 = np.zeros(shape=(len(mesh.edges),1))
-#            current1[0] = 1
-#            current1[3] = 1
-#            current1[5] = 1 
-#            current1[7] = 1
-#            current2 = np.zeros(shape=(len(mesh.edges),1))
-#            current2[1] = 1
-#            current2[13] = -1
-#            current2[11] = -1
-#            current2[9] = -1
-#            input_currents.append(current1)
-#            input_currents.append(current2)
-#            input_currents = np.array(input_currents)
-#            k_currents = 2
-        
-        nonints = list()
-        norms = list()
-        t_lens = list()
-        for opt in options:
-            min_norm = 1000
-            average_len = np.average(np.array([c.nonzero()[0].shape[0] for c in input_currents]))
-            w, v, b_matrix, cons = mean.get_lp_inputs(mesh,  k_currents, opt, w, v, b_matrix)
-            #np.savetxt('/home/altaa/dumps1/cons-%s.txt'%opt, cons, fmt='%d', delimiter=' ')
-            lambdas = [0.0001, 0.001, 1]
-            for l in lambdas:
-                #for comb in combinations[:-1,:]:
-                for comb in combinations:
-                    input_currents = currents*comb.reshape(comb.size,1) 
-                    t, q, r, norm, nonint = mean.mean(mesh, input_currents, l, opt, w, v, cons)
-                    nonints.append(nonint)
-                    norms.append(norm)
-                    t_len = len(t.nonzero()[0])
-                    t_lens.append(t_len)
-                    if norm < min_norm:
-                        min_norm = norm
-                        min_comb = comb
-                        min_t = t
-                        min_q = q
-                        min_r = r
-                        min_currents = input_currents
-                    title = '%s, lambda=%.04f, %s, T_len=%d, T_i_len_ave=%d' % \
-                    (opt, l, str(comb), t_len, average_len)
-                    figname = '/home/altaa/fig_dump/%d-%s-%.04f'%(figcount, opt, l)
-                    plotting.plot_mean(mesh, functions, input_currents, comb, t, title, figname, pdf_file)
-                    figcount += 1
+    print mesh.get_info()
+    #mesh.print_detail()
+    k_currents = len(input_currents)
+    input_currents = np.array(input_currents).reshape(k_currents, mesh.edges.shape[0])
+    nonints = list()
+    norms = list()
+    t_lens = list()
+    for opt in options:
+        min_norm = 1000
+        average_len = np.average(np.array([c.nonzero()[0].shape[0] for c in input_currents]))
+        w, v, b_matrix, cons = mean.get_lp_inputs(mesh,  k_currents, opt, w, v, b_matrix)
+        #np.savetxt('/home/altaa/dumps1/cons-%s.txt'%opt, cons, fmt='%d', delimiter=' ')
+        lambdas = [0.0001]
+        mus = [0.0001, 1]
+        for l in lambdas:
+            #for comb in combinations[:-1,:]:
+            #for comb in combinations:
+                #input_currents = currents*comb.reshape(comb.size,1) 
+            for mu in mus:
+                t, q, r, norm, nonint = mean.mean(mesh, input_currents, l, opt, w, v, cons, mu=mu)
+                if save_data:
+                    save(t=t, opt=opt, lambda_=l)
+                nonints.append(nonint)
+                norms.append(norm)
+                t_len = len(t.nonzero()[0])
+                t_lens.append(t_len)
+                if norm < min_norm:
+                    min_norm = norm
+                    min_comb = comb
+                    min_t = t
+                    min_q = q
+                    min_r = r
+                    min_currents = input_currents
 
-                    figname = '/home/altaa/fig_dump/%d-%s-%.04f'%(figcount, opt, l)
-                    plotting.plot_curve_and_mean(mesh, functions, input_currents, comb, t, title, \
-                    figname, pdf_file)
-                    figcount += input_currents.shape[0]
+                title = '%s, lambda=%.04f, mu=%.04f, %s, T_len=%d, T_i_len_ave=%d' % \
+                (opt, l, mu, str(comb), t_len, average_len)
+                figname = '/home/altaa/fig_dump/%d-%s-%.04f-%.04f'%(figcount, opt, l, mu)
+                plotting.plot_mean(mesh, functions, input_currents, comb, t, title, figname, pdf_file)
+                figcount += 1
 
-                    figname = '/home/altaa/fig_dump/%d-%s-%.04f'%(figcount,opt,l)
-                    plotting.plot_decomposition(mesh, functions, input_currents, comb, t, q, r, title, \
-                    figname, pdf_file)
-                    figcount += input_currents.shape[0]
+                #figname = '/home/altaa/fig_dump/%d-%s-%.04f-%.04f'%(figcount, opt, l, mu)
+                #plotting.plot_curve_and_mean(mesh, functions, input_currents, comb, t, title, \
+                #figname, pdf_file)
+                #figcount += input_currents.shape[0]
+
+                figname = '/home/altaa/fig_dump/%d-%s-%.04f-%.04f'%(figcount,opt,l, mu)
+                plotting.plot_decomposition(mesh, functions, input_currents, comb, t, q, r, title, \
+                figname, pdf_file)
+                figcount += input_currents.shape[0]
                 
                 # Plotting the combination with minimum flatnorm difference
-                #title = 'Minimum flatnorm difference, %s, lambda=%.04f, %s' % (opt, l, str(comb))
+            #title = 'Minimum flatnorm difference, %s, lambda=%.04f, %s' % (opt, l, str(comb))
 #                figname = '/home/altaa/fig_dump/%d-%s-%.04f'%(figcount, opt, l)
 #                plotting.plot_mean(mesh, functions, min_currents, min_comb, min_t, title, \
 #                figname, pdf_file)
@@ -196,6 +152,8 @@ if __name__ == '__main__':
 #                plotting.plot_decomposition(mesh, functions, min_currents, comb, min_t, min_q, min_r, \
 #                title, figname, pdf_file)
 #                figcount += input_currents.shape[0]
+    if save_data:
+        save(mesh, input_currents, b_matrix, w, v)
 
     print "non ints", nonints
     print "Norms", norms
@@ -204,3 +162,6 @@ if __name__ == '__main__':
     pdf_file.close()
     elapsed = time.time() - start
     print 'Elapsed time %f mins.' % (elapsed/60)
+    
+if __name__ == '__main__':
+    mean_curve_demo()

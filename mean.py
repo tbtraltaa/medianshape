@@ -36,7 +36,7 @@ def print_cons(sub_cons, cons, c):
     print "\n"
     print 'c', c
 
-def mean(mesh, input_currents, lambda_, opt='default', w=[], v=[], cons=[], len_cons=False):
+def mean(mesh, input_currents, lambda_, opt='default', w=[], v=[], cons=[], mu=0.001, len_cons=False):
     if not isinstance(input_currents, np.ndarray):
         input_currents = np.array(input_currents)
     average_len = np.rint(np.average(np.array([c.nonzero()[0].shape[0] for c in input_currents])))
@@ -55,6 +55,7 @@ def mean(mesh, input_currents, lambda_, opt='default', w=[], v=[], cons=[], len_
     c = np.zeros((2*m_edges,1))
     if opt == 'mass':
         c = np.vstack((abs(w),abs(w)))
+        c = c*mu
     sub_c = np.hstack((abs(w), abs(w), lambda_*abs(v), lambda_*abs(v)))
     sub_c = sub_c.reshape(len(sub_c),1)
     k_sub_c = np.tile(sub_c, (sub_cons_count,1))
@@ -92,7 +93,6 @@ def mean(mesh, input_currents, lambda_, opt='default', w=[], v=[], cons=[], len_
     nonint = args2.shape[0]
     args = np.rint(sol['x'])
     norm = sol['primal objective']
-    np.savetxt("/home/altaa/dumps2/x-%s-lambda-%s.txt"%(opt, lambda_), args, fmt="%d", delimiter=" ")
     x = args[0:m_edges] - args[m_edges:2*m_edges]
     q = np.zeros((sub_cons_count, m_edges), dtype=int)
     r = np.zeros((sub_cons_count, n_simplices), dtype=int)

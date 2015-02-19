@@ -26,7 +26,6 @@ def push_curves_on_mesh(mesh, functions):
         for i, f in enumerate(functions):
             input_points = point_gen.sample_function_mesh(f, mesh)
             input_current, path, closest_vertices = push_curve_on_mesh(input_points, mesh, func_str=f) 
-            sparse_savetxt('/home/altaa/dumps2/%s.txt'%f, input_current.reshape((len(input_current),1)), is_sparse=False)
             #csr_path = csr_matrix(input_current)
             #print 'Path vector:\n', csr_path
             points.append(input_points)
@@ -36,7 +35,7 @@ def push_curves_on_mesh(mesh, functions):
         input_currents = np.array(input_currents).reshape(len(functions), mesh.edges.shape[0])
         return points, vertices, paths, input_currents
 
-def push_curve_on_mesh(points, mesh, interval_size=10, is_closed=False, func_str=None):
+def push_curve_on_mesh(points, mesh, interval_size=30, is_closed=False, func_str=None):
         closest_vertices = find_closest_vertices(points, mesh, interval_size)
         print "Closest_vertices:\n", len(closest_vertices)
         print "Function points:\n", len(points)
