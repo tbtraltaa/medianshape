@@ -41,7 +41,7 @@ def mean_curve_demo(load_data=False, save_data=True):
         # l - initial length of triangle sides. Change it to vary traingle size
         mesh.boundary_box = (0,0,200,50)
         mesh.fixed_points = [(0,0),(200,0),(0,50),(200,50)]
-        mesh.points, mesh.simplices = distmesh2d('square', mesh.boundary_box, mesh.fixed_points, l=7)
+        mesh.points, mesh.simplices = distmesh2d('square', mesh.boundary_box, mesh.fixed_points, l=5)
         mesh.set_edges()
         mesh.orient_simplices_2D()
 
@@ -106,6 +106,7 @@ def mean_curve_demo(load_data=False, save_data=True):
         lambdas = [0.0001]
         mus = [0.0001, 1]
         for l in lambdas:
+            comb= [1,1,1]
             #for comb in combinations[:-1,:]:
             #for comb in combinations:
                 #input_currents = currents*comb.reshape(comb.size,1) 
@@ -117,16 +118,9 @@ def mean_curve_demo(load_data=False, save_data=True):
                 norms.append(norm)
                 t_len = len(t.nonzero()[0])
                 t_lens.append(t_len)
-                if norm < min_norm:
-                    min_norm = norm
-                    min_comb = comb
-                    min_t = t
-                    min_q = q
-                    min_r = r
-                    min_currents = input_currents
 
-                title = '%s, lambda=%.04f, mu=%.04f, %s, T_len=%d, T_i_len_ave=%d' % \
-                (opt, l, mu, str(comb), t_len, average_len)
+                title = '%s, lambda=%.04f, mu=%.04f,' % \
+                (opt, l, mu)
                 figname = '/home/altaa/fig_dump/%d-%s-%.04f-%.04f'%(figcount, opt, l, mu)
                 plotting.plot_mean(mesh, functions, input_currents, comb, t, title, figname, pdf_file)
                 figcount += 1
