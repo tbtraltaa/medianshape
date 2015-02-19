@@ -36,7 +36,7 @@ def print_cons(sub_cons, cons, c):
     print "\n"
     print 'c', c
 
-def mean(mesh, input_currents, lambda_, opt='default', w=[], v=[], cons=[], mu=0.001, len_cons=False):
+def mean(mesh, input_currents, lambda_, opt='default', w=[], v=[], cons=[], mu=0.001, alpha=None, len_cons=False):
     if not isinstance(input_currents, np.ndarray):
         input_currents = np.array(input_currents)
     average_len = np.rint(np.average(np.array([c.nonzero()[0].shape[0] for c in input_currents])))
@@ -59,8 +59,14 @@ def mean(mesh, input_currents, lambda_, opt='default', w=[], v=[], cons=[], mu=0
     sub_c = np.hstack((abs(w), abs(w), lambda_*abs(v), lambda_*abs(v)))
     sub_c = sub_c.reshape(len(sub_c),1)
     k_sub_c = np.tile(sub_c, (sub_cons_count,1))
+    if alpha is not None:
+        for i in range(k_currents):
+            if i < k_currents+1:
+                k_sub_c[i*(2*m_edges+2*n_simplices):(i+1)*(2*m_edges+2*n_simplices)] = \
+                k_sub_c[i*(2*m_edges+2*n_simplices):(i+1)*(2*m_edges+2*n_simplices)]*alpha[i]
+                print "Alpha", i, alpha[i]
     c = np.append(c, k_sub_c)
-    c = c/k_currents
+    #c = c/k_currents
 
     
     #np.savetxt("/home/altaa/dumps1/b-%s.txt"%opt, input_currents, fmt="%d", delimiter=" ")

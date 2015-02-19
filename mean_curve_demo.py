@@ -104,42 +104,42 @@ def mean_curve_demo(load_data=False, save_data=True):
         w, v, b_matrix, cons = mean.get_lp_inputs(mesh,  k_currents, opt, w, v, b_matrix)
         #np.savetxt('/home/altaa/dumps1/cons-%s.txt'%opt, cons, fmt='%d', delimiter=' ')
         lambdas = [0.0001]
-        mus = [0.0001, 1]
+        mus = [0.0001]
+        alpha1 = np.linspace(0, 1, 10)
+        alpha1 = alpha1.reshape(alpha1.size, 1) 
+        alpha2 = (1-alpha1).reshape(alpha1.size, 1)
+        alphas = np.hstack((alpha1, alpha2))
+        print alphas
+        print alphas.shape
         for l in lambdas:
+            comb=[1,1,1]
             #for comb in combinations[:-1,:]:
             #for comb in combinations:
                 #input_currents = currents*comb.reshape(comb.size,1) 
             for mu in mus:
-                t, q, r, norm, nonint = mean.mean(mesh, input_currents, l, opt, w, v, cons, mu=mu)
-                if save_data:
-                    save(t=t, opt=opt, lambda_=l)
-                nonints.append(nonint)
-                norms.append(norm)
-                t_len = len(t.nonzero()[0])
-                t_lens.append(t_len)
-                if norm < min_norm:
-                    min_norm = norm
-                    min_comb = comb
-                    min_t = t
-                    min_q = q
-                    min_r = r
-                    min_currents = input_currents
+                for alpha in alphas:
+                    t, q, r, norm, nonint = mean.mean(mesh, input_currents, l, opt, w, v, cons, mu=mu, alpha=alpha)
+                    if save_data:
+                        save(t=t, opt=opt, lambda_=l)
+                    nonints.append(nonint)
+                    norms.append(norm)
+                    t_len = len(t.nonzero()[0])
+                    t_lens.append(t_len)
+                    title = '%s, lambda=%.04f, mu=%.04f, alpha=%s' % \
+                    (opt, l, mu, str(alpha))
+                    figname = '/home/altaa/fig_dump/%d-%s-%.04f-%.04f'%(figcount, opt, l, mu)
+                    plotting.plot_mean(mesh, functions, input_currents, comb, t, title, figname, pdf_file)
+                    figcount += 1
 
-                title = '%s, lambda=%.04f, mu=%.04f, %s, T_len=%d, T_i_len_ave=%d' % \
-                (opt, l, mu, str(comb), t_len, average_len)
-                figname = '/home/altaa/fig_dump/%d-%s-%.04f-%.04f'%(figcount, opt, l, mu)
-                plotting.plot_mean(mesh, functions, input_currents, comb, t, title, figname, pdf_file)
-                figcount += 1
+                    #figname = '/home/altaa/fig_dump/%d-%s-%.04f-%.04f'%(figcount, opt, l, mu)
+                    #plotting.plot_curve_and_mean(mesh, functions, input_currents, comb, t, title, \
+                    #figname, pdf_file)
+                    #figcount += input_currents.shape[0]
 
-                #figname = '/home/altaa/fig_dump/%d-%s-%.04f-%.04f'%(figcount, opt, l, mu)
-                #plotting.plot_curve_and_mean(mesh, functions, input_currents, comb, t, title, \
-                #figname, pdf_file)
-                #figcount += input_currents.shape[0]
-
-                figname = '/home/altaa/fig_dump/%d-%s-%.04f-%.04f'%(figcount,opt,l, mu)
-                plotting.plot_decomposition(mesh, functions, input_currents, comb, t, q, r, title, \
-                figname, pdf_file)
-                figcount += input_currents.shape[0]
+                    #figname = '/home/altaa/fig_dump/%d-%s-%.04f-%.04f'%(figcount,opt,l, mu)
+                    #plotting.plot_decomposition(mesh, functions, input_currents, comb, t, q, r, title, \
+                    #figname, pdf_file)
+                    #figcount += input_currents.shape[0]
                 
                 # Plotting the combination with minimum flatnorm difference
             #title = 'Minimum flatnorm difference, %s, lambda=%.04f, %s' % (opt, l, str(comb))
