@@ -72,7 +72,7 @@ def mean_curve_demo(load_data=False, save_data=True):
 #                            [6,8],
         #function_sets = [['sin1pi','half_sin1pi'], ['x', 'x2', 'x5']]
         #function_sets = [['curve1', 'curve2', 'curve3', 'curve4', 'curve5']]
-        functions= ['curve4', 'curve5']
+        functions= ['curve2', 'curve3']
         combinations = utils.get_combination(len(functions))
         combinations = np.array([[1,1,1]])
         #combinations = np.array([[1,1,1]])
@@ -104,7 +104,7 @@ def mean_curve_demo(load_data=False, save_data=True):
         w, v, b_matrix, cons = mean.get_lp_inputs(mesh,  k_currents, opt, w, v, b_matrix)
         #np.savetxt('/home/altaa/dumps1/cons-%s.txt'%opt, cons, fmt='%d', delimiter=' ')
         lambdas = [0.0001]
-        mus = [0.0001, 1]
+        mus = [0.0001]
         for l in lambdas:
             comb= [1,1,1]
             #for comb in combinations[:-1,:]:

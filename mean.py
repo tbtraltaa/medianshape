@@ -60,7 +60,8 @@ def mean(mesh, input_currents, lambda_, opt='default', w=[], v=[], cons=[], mu=0
     sub_c = sub_c.reshape(len(sub_c),1)
     k_sub_c = np.tile(sub_c, (sub_cons_count,1))
     c = np.append(c, k_sub_c)
-    c = c/k_currents
+    if opt !='mass':
+        c = c/k_currents
 
     
     #np.savetxt("/home/altaa/dumps1/b-%s.txt"%opt, input_currents, fmt="%d", delimiter=" ")
