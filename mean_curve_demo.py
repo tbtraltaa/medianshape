@@ -41,7 +41,7 @@ def mean_curve_demo(load_data=False, save_data=True):
         # l - initial length of triangle sides. Change it to vary traingle size
         mesh.boundary_box = (0,0,200,50)
         mesh.fixed_points = [(0,0),(200,0),(0,50),(200,50)]
-        mesh.points, mesh.simplices = distmesh2d('square', mesh.boundary_box, mesh.fixed_points, l=6)
+        mesh.points, mesh.simplices = distmesh2d('square', mesh.boundary_box, mesh.fixed_points, l=3)
         mesh.set_edges()
         mesh.orient_simplices_2D()
 
@@ -103,15 +103,16 @@ def mean_curve_demo(load_data=False, save_data=True):
         average_len = np.average(np.array([c.nonzero()[0].shape[0] for c in input_currents]))
         w, v, b_matrix, cons = mean.get_lp_inputs(mesh,  k_currents, opt, w, v, b_matrix)
         #np.savetxt('/home/altaa/dumps1/cons-%s.txt'%opt, cons, fmt='%d', delimiter=' ')
-        lambdas = [0.0001]
+        lambdas = [0.01]
         mus = [0.0001]
-        alpha1 = np.linspace(0, 1,3)
-        alpha1 = np.array([0, 0.01, 0.1, 0.5, 0.501, 0.6, 1])
+        alpha1 = np.array([0])
+        alpha1 = np.append(alpha1, np.linspace(0.4999, 0.5, 10))
+        alpha1 = np.append(alpha1, np.linspace(0.5, 0.5001, 10))
+        alpha1 = np.append(alpha1, np.array([1]))
         alpha1 = alpha1.reshape(alpha1.size, 1) 
         alpha2 = (1-alpha1).reshape(alpha1.size, 1)
         alphas = np.hstack((alpha1, alpha2))
         print alphas
-        print alphas.shape
         for l in lambdas:
             comb=[1,1,1]
             #for comb in combinations[:-1,:]:
@@ -156,7 +157,6 @@ def mean_curve_demo(load_data=False, save_data=True):
     if save_data:
         save(mesh, input_currents, b_matrix, w, v)
 
-    print "non ints", nonints
     print "Norms", norms
     print "t_lens", t_lens
     print "Average len", average_len

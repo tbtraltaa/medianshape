@@ -66,9 +66,8 @@ def mean(mesh, input_currents, lambda_, opt='default', w=[], v=[], cons=[], mu=0
                 k_sub_c[i*(2*m_edges+2*n_simplices):(i+1)*(2*m_edges+2*n_simplices)]*alpha[i]
                 print "Alpha", i, alpha[i]
     c = np.append(c, k_sub_c)
-    #c = c/k_currents
-
-    
+    if opt != 'mass':
+        c = c/k_currents
     #np.savetxt("/home/altaa/dumps1/b-%s.txt"%opt, input_currents, fmt="%d", delimiter=" ")
     #np.savetxt("/home/altaa/dumps1/c-%s.txt"%opt, c, delimiter=" ")
     print "Size of c: ", len(c)
