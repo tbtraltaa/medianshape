@@ -72,7 +72,7 @@ def mean_curve_demo(load_data=False, save_data=True):
 #                            [6,8],
         #function_sets = [['sin1pi','half_sin1pi'], ['x', 'x2', 'x5']]
         #function_sets = [['curve1', 'curve2', 'curve3', 'curve4', 'curve5']]
-        functions= ['curve2', 'curve3']
+        functions= ['curve1', 'curve2', 'curve3']
         combinations = utils.get_combination(len(functions))
         combinations = np.array([[1,1,1]])
         #combinations = np.array([[1,1,1]])
@@ -94,6 +94,7 @@ def mean_curve_demo(load_data=False, save_data=True):
     print mesh.get_info()
     #mesh.print_detail()
     k_currents = len(input_currents)
+    print "K", k_currents
     input_currents = np.array(input_currents).reshape(k_currents, mesh.edges.shape[0])
     nonints = list()
     norms = list()
@@ -104,7 +105,7 @@ def mean_curve_demo(load_data=False, save_data=True):
         w, v, b_matrix, cons = mean.get_lp_inputs(mesh,  k_currents, opt, w, v, b_matrix)
         #np.savetxt('/home/altaa/dumps1/cons-%s.txt'%opt, cons, fmt='%d', delimiter=' ')
         lambdas = [0.0001]
-        mus = [0.0001]
+        mus = [1./k_currents, 0.001, 0.0001, 1e-5]
         for l in lambdas:
             comb= [1,1,1]
             #for comb in combinations[:-1,:]:
@@ -119,9 +120,8 @@ def mean_curve_demo(load_data=False, save_data=True):
                 t_len = len(t.nonzero()[0])
                 t_lens.append(t_len)
 
-                title = '%s, lambda=%.04f, mu=%.04f,' % \
-                (opt, l, mu)
-                figname = '/home/altaa/fig_dump/%d-%s-%.04f-%.04f'%(figcount, opt, l, mu)
+                title = '%s, lambda=%.04f, mu=%.06f,' % (opt, l, mu)
+                figname = '/home/altaa/fig_dump/%d-%s-%.04f-%.06f'%(figcount, opt, l, mu)
                 plotting.plot_mean(mesh, functions, input_currents, comb, t, title, figname, pdf_file)
                 figcount += 1
 
@@ -130,7 +130,7 @@ def mean_curve_demo(load_data=False, save_data=True):
                 #figname, pdf_file)
                 #figcount += input_currents.shape[0]
 
-                figname = '/home/altaa/fig_dump/%d-%s-%.04f-%.04f'%(figcount,opt,l, mu)
+                figname = '/home/altaa/fig_dump/%d-%s-%.04f-%.06f'%(figcount,opt,l, mu)
                 plotting.plot_decomposition(mesh, functions, input_currents, comb, t, q, r, title, \
                 figname, pdf_file)
                 figcount += input_currents.shape[0]
