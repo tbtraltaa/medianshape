@@ -19,7 +19,7 @@ from shape_gen import point_gen, curve_gen, utils
 import mean
 import plotting
 
-from utils import sparse_savetxt, load, save
+from utils import sparse_savetxt, load, save, envelope
 from mesh.utils import boundary_matrix, simpvol
 
 from cvxopt import matrix, solvers
@@ -36,14 +36,16 @@ def mean_curve_demo(load_data=False, save_data=True):
     figcount = 1
     if load_data:
         mesh, input_currents, b_matrix, w, v = load()
+        print mesh.get_info()
     else:
         mesh = Mesh()
         # l - initial length of triangle sides. Change it to vary traingle size
         mesh.boundary_box = (0,0,200,50)
         mesh.fixed_points = [(0,0),(200,0),(0,50),(200,50)]
-        mesh.points, mesh.simplices = distmesh2d('square', mesh.boundary_box, mesh.fixed_points, l=3)
+        mesh.points, mesh.simplices = distmesh2d('square', mesh.boundary_box, mesh.fixed_points, l=6)
         mesh.set_edges()
         mesh.orient_simplices_2D()
+        print mesh.get_info()
 
 #    mesh.points = np.array([[0,0], [0,0.5],[0,1],[0.5,1],[1,1],[1,0.5],[1,0],[0.5,0], [0.5, 0.5]])
 #    mesh.simplices = np.array([[0,8,1],
@@ -85,13 +87,14 @@ def mean_curve_demo(load_data=False, save_data=True):
         figname = '/home/altaa/fig_dump/%d.png'%(figcount)
         title = 'Functions - %s - (%s)' % (mesh.get_info(), ','.join(functions))
         plotting.plot_curves_approx(mesh, points, vertices, paths, title, figname, pdf_file)
+        plt.show()
         figcount += 1
-
+        envelope(mesh, input_currents)
+        exit()
         w = simpvol(mesh.points, mesh.edges)
         v = simpvol(mesh.points, mesh.simplices)
         b_matrix = boundary_matrix(mesh.simplices, mesh.edges)
 
-    print mesh.get_info()
     #mesh.print_detail()
     k_currents = len(input_currents)
     input_currents = np.array(input_currents).reshape(k_currents, mesh.edges.shape[0])
@@ -99,7 +102,6 @@ def mean_curve_demo(load_data=False, save_data=True):
     norms = list()
     t_lens = list()
     for opt in options:
-        min_norm = 1000
         average_len = np.average(np.array([c.nonzero()[0].shape[0] for c in input_currents]))
         w, v, b_matrix, cons = mean.get_lp_inputs(mesh,  k_currents, opt, w, v, b_matrix)
         #np.savetxt('/home/altaa/dumps1/cons-%s.txt'%opt, cons, fmt='%d', delimiter=' ')

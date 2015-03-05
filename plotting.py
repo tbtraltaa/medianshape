@@ -7,6 +7,7 @@ import itertools
 import matplotlib.pyplot as plt
 
 def plot_curves_approx(mesh, points, vertices, paths, title="", figname=None, file_doc=None, save=True):
+    color_set = "r"
     if len(paths) == 2:
         color_set = 'gr'
     elif len(paths) == 3:
@@ -37,7 +38,8 @@ def plot_curve_approx(mesh, input_points, closest_vertices, path, title=None, co
     plt.scatter(mesh.points[closest_vertices][:,0], mesh.points[closest_vertices][:,1], s=100)
     plt.scatter(input_points[:,0], input_points[:,1], c=color)
 
-def plot_mean(mesh, functions, input_currents, comb, t, title, figname="", file_doc=None, save=True):
+def plot_mean(mesh, functions, input_currents, comb, t, title='', figname="", file_doc=None, save=True):
+    color_set = "r"
     if len(functions) == 2:
         color_set = 'gr'
     elif len(functions) == 3:
@@ -61,6 +63,7 @@ def plot_mean(mesh, functions, input_currents, comb, t, title, figname="", file_
         file_doc.savefig(fig)
 
 def plot_curve_and_mean(mesh, functions, input_currents, comb, t, title=None, figname=None, file_doc=None, save=True):
+    color_set = "r"
     if len(functions) == 2:
         color_set = 'gr'
     elif len(functions) == 3:
@@ -84,7 +87,8 @@ def plot_curve_and_mean(mesh, functions, input_currents, comb, t, title=None, fi
         if save and file_doc:
             file_doc.savefig(fig)
 
-def plot_decomposition(mesh, functions, input_currents, comb, t, q, r, title=None, figname=None, file_doc=None, save=True):
+def plot_decomposition(mesh, functions, input_currents, comb, t, q, r, title='', figname=None, file_doc=None, save=True):
+    color_set = "r"
     if len(functions) == 2:
         color_set = 'gr'
     elif len(functions) == 3:
@@ -102,7 +106,8 @@ def plot_decomposition(mesh, functions, input_currents, comb, t, q, r, title=Non
         mesh.plot()
         mesh.plot_simplices(r_i, color=color)
         mesh.plot_curve(q[i], title=title + ', Q%d&R%d'%(i+1,i+1), color='m', marker='*', linewidth=6, label='Q%d'%(i+1))
-        mesh.plot_curve(t, linewidth=4, label="Mean")
+        if t:
+            mesh.plot_curve(t, linewidth=4, label="Mean")
         if i < input_currents.shape[0]:
             mesh.plot_curve(input_currents[i], color='r', ls='--', \
             label='%s, %d'%(functions[i], comb[i]))

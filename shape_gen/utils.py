@@ -102,9 +102,6 @@ def curve7(x):
 
 def curve8(x):
     return 10*math.sin(1/55* math.pi * x) * np.exp(-1/200 * x) + 10
-
-
-
     
 if __name__ == "__main__":
     print  get_combination(3)
@@ -128,7 +125,7 @@ if __name__ == "__main__":
     #plt.plot(Xs, Ys, '-', label="1")
     #plt.plot(Xs, Ys2, '-', label="2")
     #plt.plot(Xs, Ys3, '-', label="3")
-    plt.plot(Xs, Ys4, '-', label="4")
-    plt.plot(Xs, Ys5, '-', label="5")
+    plt.plot(Xs, Ys4, '-', color='r', label="4")
+    plt.plot(Xs, Ys5, '-', color='b', label="5")
     #plt.plot(Xs, Ys6, '-', label="6")
     plt.show()

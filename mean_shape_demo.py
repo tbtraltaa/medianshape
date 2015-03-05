@@ -23,7 +23,7 @@ import mean
 from cvxopt import matrix, solvers
 from matplotlib.backends.backend_pdf import PdfPages
 
-options = ['default', 'mass', 'msfn']
+options = ['mass']
 
 if __name__ == "__main__":
     mesh = Mesh()

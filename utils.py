@@ -3,7 +3,22 @@ from __future__ import absolute_import
 import numpy as np
 
 from mesh.mesh import Mesh
+import msfn
+import plotting
 from scipy.sparse import dok_matrix, coo_matrix
+
+import matplotlib.pyplot as plt
+
+def envelope(mesh, input_currents):
+    for i, c in enumerate(input_currents):
+        comb=[1]
+        if i < input_currents.shape[0] -1:
+            diff = c - input_currents[i+1]
+            x, s, norm = msfn.msfn(mesh.points, mesh.simplices, mesh.edges, diff, 0)
+            plotting.plot_mean(mesh, ['curve1', 'curve2'], diff.reshape((1, len(c))), [1], [])
+            plt.show()
+            plotting.plot_decomposition(mesh, ['curve1', 'curve2'], input_currents, comb, None, x, s)
+            plt.show()
 
 def extract_edges(simplices):
     edges = set()

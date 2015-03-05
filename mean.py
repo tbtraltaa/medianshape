@@ -6,15 +6,13 @@ import time
 import numpy as np
 from scipy import sparse
 
-from mesh.utils import boundary_matrix, simpvol
-
-import glpk
-
 from cvxopt import matrix, spmatrix, solvers
 solvers.options['abstol'] = 1e-10
 solvers.options['reltol'] = 1e-9
 solvers.options['feastol'] = 1e-10
 solvers.options['show_progress'] = False
+
+from mesh.utils import boundary_matrix, simpvol
 
 def print_cons(sub_cons, cons, c):
     string = ""
