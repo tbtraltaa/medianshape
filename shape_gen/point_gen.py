@@ -18,7 +18,7 @@ def sample_function(func_str, boundary_box, sample_size):
         return func_points
 
 # Samples function based on the mesh given
-def sample_function_mesh(func_str, mesh, sample_size=None):
+def sample_function_mesh(mesh,  func_str, sample_size=None):
         sample_X = []
         ordered_X = np.sort(np.unique(mesh.points[:,0]))
         if not sample_size:
