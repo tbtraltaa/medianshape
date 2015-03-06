@@ -15,9 +15,9 @@ def envelope(mesh, input_currents):
         if i < input_currents.shape[0] -1:
             diff = c - input_currents[i+1]
             x, s, norm = msfn.msfn(mesh.points, mesh.simplices, mesh.edges, diff, 0)
-            plotting.plot_mean(mesh, ['curve1', 'curve2'], diff.reshape((1, len(c))), [1], [])
+            plotting.plot_mean(mesh, ['curve1', 'curve2'], diff.reshape((1, len(c))), [1], [], lim=0.1)
             plt.show()
-            plotting.plot_decomposition(mesh, ['curve1', 'curve2'], input_currents, comb, None, x, s)
+            plotting.plot_decomposition(mesh, ['curve1', 'curve2'], input_currents, comb, None, x, s, lim=0.1)
             plt.show()
 
 def extract_edges(simplices):

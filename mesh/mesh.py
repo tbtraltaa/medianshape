@@ -95,7 +95,7 @@ class Mesh():
                 plt.plot(points[:,0], points[:,1], color, linewidth=linewidth, marker=marker, ls=ls)
 
         if title:
-            plt.title(title, fontsize=20)
+            plt.title(title)
 
     # Plot simplices
     def plot_simplices(self, simplices, title=None, color="y"):
