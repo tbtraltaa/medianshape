@@ -23,7 +23,6 @@ def push_curves_on_mesh(mesh, curves, is_closed=False, functions=None):
         vertices = list()
         points = list()
         for i, curve_points in enumerate(curves):
-            print curve_points
             func_str = None
             if functions:
                 func_str = functions[i]
@@ -37,6 +36,7 @@ def push_curves_on_mesh(mesh, curves, is_closed=False, functions=None):
         return points, vertices, paths, input_currents
 
 def push_curve_on_mesh(mesh, points, interval_size=30, is_closed=False, func_str=None):
+        print points.shape
         closest_vertices = find_closest_vertices(mesh, points, interval_size, func_str)
         print "Closest_vertices:\n", closest_vertices
         print "Function points:\n", points
@@ -47,6 +47,8 @@ def push_curve_on_mesh(mesh, points, interval_size=30, is_closed=False, func_str
 def find_closest_vertices(mesh, points, interval_size=10, func_str=None):
     closest_vertices = list()
     for point in points:
+        print point.shape
+        exit()
         closest_vertex = find_closest_vertex(mesh, point, closest_vertices, interval_size, func_str)
         closest_vertices.append(closest_vertex)
     return  np.array(closest_vertices)
