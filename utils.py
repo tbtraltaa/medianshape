@@ -15,10 +15,30 @@ def envelope(mesh, input_currents):
         if i < input_currents.shape[0] -1:
             diff = c - input_currents[i+1]
             x, s, norm = msfn.msfn(mesh.points, mesh.simplices, mesh.edges, diff, 0)
-            plotting.plot_mean(mesh, ['curve1', 'curve2'], diff.reshape((1, len(c))), [1], [], lim=0.1)
+            plotting.plot_mean(mesh, diff.reshape((1, len(c))), [1], [], lim=0.1)
             plt.show()
-            plotting.plot_decomposition(mesh, ['curve1', 'curve2'], input_currents, comb, None, x, s, lim=0.1)
+            plotting.plot_decomposition(mesh, input_currents, comb, None, x, s, lim=0.1)
             plt.show()
+
+def adjust_alphas(mesh, input_currents, t, v):
+    alphas = list()
+    total_sum = 0
+    print input_currents.shape
+    for i, c in enumerate(input_currents):
+        comb=[1]
+        diff = c.reshape(-1,1) - t
+        x, s, norm = msfn.msfn(mesh.points, mesh.simplices, mesh.edges, diff, 0)
+        plotting.plot_mean(mesh, diff.reshape((1, len(c))), [1], [])
+        plt.show()
+        plotting.plot_decomposition(mesh, input_currents, comb, None, x, s)
+        plt.show()
+        area =  np.sum(s*v)
+        total_sum += area
+        alphas.append(area)
+    alphas = np.array(alphas).reshape(1,-1)
+    alphas = alphas *1.0/total_sum
+    return alphas
+
 
 def extract_edges(simplices):
     edges = set()
@@ -51,18 +71,18 @@ def load(dirname='/home/altaa/dumps1'):
             data = line.split()
             b_matrix[int(data[0]), int(data[1])] = np.int8(data[2])
     
-    input_currents = []
-    for i in range(1,4):
-        curve = np.zero((len(mesh.edges), 1), dtype=np.int8)
-        with open("%s/curve%d.txt"%(dirname,i), 'r') as f:
-            for line in f.readLines():
-                data = line.split()
-                curve[int(data[0]), int(data[1])] = np.int8(data[2])
-            if input_currents:
-                input_currents = np.vstack(input_currents, curve)
-            else:
-                input_currents = curve
-    return mesh, input_currents, b_matrix, w, v
+#    input_currents = []
+#    for i in range(1,4):
+#        curve = np.zero((len(mesh.edges), 1), dtype=np.int8)
+#        with open("%s/curve%d.txt"%(dirname,i), 'r') as f:
+#            for line in f.readLines():
+#                data = line.split()
+#                curve[int(data[0]), int(data[1])] = np.int8(data[2])
+#            if input_currents:
+#                input_currents = np.vstack(input_currents, curve)
+#            else:
+#                input_currents = curve
+    return mesh, w, v, b_matrix
 
 # Saves mesh, input currents, boundary matrix, w and v.
 def save(mesh=None, input_currents=None, b_matrix=None, w=None, v=None, t=None, dirname='/home/altaa/dumps1', **kwargs):
