@@ -3,15 +3,12 @@
 from __future__ import absolute_import
 
 import numpy as np
+from scipy import sparse
+from cvxopt import matrix, spmatrix, solvers
 
 from mesh.utils import boundary_matrix, simpvol
 
-import glpk
-import pulp
-
-from cvxopt import matrix, solvers
-
-def msfn(points, simplices, subsimplices, input_current, lambda_, v=[], w=[], cons=[]):
+def msfn(points, simplices, subsimplices, input_current, lambda_, w=[], v=[], cons=[]):
     m_edges = subsimplices.shape[0]
     n_simplices = simplices.shape[0]
     if w == []:
@@ -19,26 +16,22 @@ def msfn(points, simplices, subsimplices, input_current, lambda_, v=[], w=[], co
     if v == []:
         v = simpvol(points, simplices)
     if cons == []:
-        b_matrix = boundary_matrix(simplices, subsimplices)
-        cons = np.hstack((np.identity(m_edges), -np.identity(m_edges)))
-        cons = np.hstack((cons, b_matrix))
-        cons = np.hstack((cons, -b_matrix))
-
+        b_matrix = boundary_matrix(simplices, subsimplices, format='coo')
+        m_edges_identity = sparse.identity(m_edges, dtype=np.int8, format='coo')
+        cons = sparse.hstack((m_edges_identity, -m_edges_identity, b_matrix, -b_matrix))
     c = np.concatenate((abs(w), abs(w), lambda_*abs(v), lambda_*abs(v))) 
-    print "C", c
     c = c.reshape(len(c),1)
-    print c.shape
-    print cons.shape
-    print input_current.shape
     c = matrix(c) 
-    cons = matrix(cons)
+    cons = spmatrix(cons.data.tolist(), cons.row, cons.col, cons.shape, tc='d')
     input_current = matrix(input_current)
-    G = matrix(-np.identity(2*m_edges + 2*n_simplices))
-    h = matrix(np.zeros(2*m_edges + 2*n_simplices))
+    g = -sparse.identity(2*m_edges + 2*n_simplices, dtype=np.int8, format='coo')
+    h = np.zeros(2*m_edges + 2*n_simplices)
+    G = spmatrix(g.data.tolist(), g.row, g.col, g.shape,  tc='d')
+    h = matrix(h)
 
     sol = solvers.lp(c, G, h, cons, input_current, solver='glpk')
     args = np.array(sol['x'])
     norm = sol['primal objective']
-    x = args[0:m_edges] - args[m_edges:2*m_edges]
-    s = args[2*m_edges:2*m_edges+n_simplices] - args[2*m_edges+n_simplices:]
+    x = (args[0:m_edges] - args[m_edges:2*m_edges]).reshape((1,m_edges))
+    s = (args[2*m_edges:2*m_edges+n_simplices] - args[2*m_edges+n_simplices:]).reshape(1, n_simplices)
     return x, s, norm

@@ -6,15 +6,13 @@ import time
 import numpy as np
 from scipy import sparse
 
-from mesh.utils import boundary_matrix, simpvol
-
-import glpk
-
 from cvxopt import matrix, spmatrix, solvers
 solvers.options['abstol'] = 1e-10
 solvers.options['reltol'] = 1e-9
 solvers.options['feastol'] = 1e-10
 solvers.options['show_progress'] = False
+
+from mesh.utils import boundary_matrix, simpvol
 
 def print_cons(sub_cons, cons, c):
     string = ""
@@ -36,7 +34,7 @@ def print_cons(sub_cons, cons, c):
     print "\n"
     print 'c', c
 
-def mean(mesh, input_currents, lambda_, opt='default', w=[], v=[], cons=[], mu=0.001, len_cons=False):
+def mean(mesh, input_currents, lambda_, opt='default', w=[], v=[], cons=[], mu=0.001, alpha=None):
     if not isinstance(input_currents, np.ndarray):
         input_currents = np.array(input_currents)
     average_len = np.rint(np.average(np.array([c.nonzero()[0].shape[0] for c in input_currents])))
@@ -59,24 +57,23 @@ def mean(mesh, input_currents, lambda_, opt='default', w=[], v=[], cons=[], mu=0
     sub_c = np.hstack((abs(w), abs(w), lambda_*abs(v), lambda_*abs(v)))
     sub_c = sub_c.reshape(len(sub_c),1)
     k_sub_c = np.tile(sub_c, (sub_cons_count,1))
+    if alpha is not None:
+        for i in range(k_currents):
+            if i < k_currents+1:
+                k_sub_c[i*(2*m_edges+2*n_simplices):(i+1)*(2*m_edges+2*n_simplices)] = \
+                k_sub_c[i*(2*m_edges+2*n_simplices):(i+1)*(2*m_edges+2*n_simplices)]*alpha[i]
+                print "Alpha", i, alpha[i]
     c = np.append(c, k_sub_c)
     if opt !='mass':
         c = c/k_currents
-
-    
     #np.savetxt("/home/altaa/dumps1/b-%s.txt"%opt, input_currents, fmt="%d", delimiter=" ")
     #np.savetxt("/home/altaa/dumps1/c-%s.txt"%opt, c, delimiter=" ")
     print "Size of c: ", len(c)
     print "Average len", np.rint(average_len)
+    print cons.shape
 
     g = -sparse.identity(len(c), dtype=np.int8, format='coo')
     h = np.zeros(len(c))
-    if len_cons:
-        len_cons_row = np.zeros(g.shape[1], dtype=np.int8)
-        len_cons_row[0:m_edges] = -1
-        len_cons_row[m_edges:2*m_edges] = -1
-        g = sparse.vstack((g, len_cons_row))
-        h = np.append(h, np.rint(-average_len))
     G = spmatrix(g.data.tolist(), g.row, g.col, g.shape,  tc='d')
     h = matrix(h)
     c = matrix(c)
@@ -89,9 +86,9 @@ def mean(mesh, input_currents, lambda_, opt='default', w=[], v=[], cons=[], mu=0
     print 'LP time %f mins.' % (elapsed/60)
 
     args = np.array(sol['x'])
-    args1 = args[np.where(args >=1e-5)]
-    args2 = args1[np.where(args1 <= 0.99999)]
-    nonint = args2.shape[0]
+    #args1 = args[np.where(args >=1e-5)]
+    #args2 = args1[np.where(args1 <= 0.99999)]
+    #nonint = args2.shape[0]
     args = np.rint(sol['x'])
     norm = sol['primal objective']
     x = args[0:m_edges] - args[m_edges:2*m_edges]
@@ -105,7 +102,7 @@ def mean(mesh, input_currents, lambda_, opt='default', w=[], v=[], cons=[], mu=0
         ri_end = ri_start + 2*n_simplices
         r[i] = (args[ri_start: ri_start+n_simplices] - args[ri_start+n_simplices: ri_end]).reshape(n_simplices, )
         qi_start = ri_end
-    return x, q, r, norm, nonint
+    return x, q, r, norm
 
 def get_lp_inputs(mesh, k_currents, opt='default', w=[], v=[], b_matrix=[], cons=[]):
     m_edges = mesh.edges.shape[0]

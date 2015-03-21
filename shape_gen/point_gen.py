@@ -7,6 +7,7 @@ import importlib
 import math
 
 import numpy as np
+import matplotlib.pyplot as plt
 
 import utils
 
@@ -18,7 +19,7 @@ def sample_function(func_str, boundary_box, sample_size):
         return func_points
 
 # Samples function based on the mesh given
-def sample_function_mesh(func_str, mesh, sample_size=None):
+def sample_function_mesh(mesh,  func_str, sample_size=None):
         sample_X = []
         ordered_X = np.sort(np.unique(mesh.points[:,0]))
         if not sample_size:
@@ -35,6 +36,33 @@ def sample_function_mesh(func_str, mesh, sample_size=None):
 def sample_ellipse(a, b, sample_size=None):
     return np.array([(a * math.cos(theta) +0.5 , b * math.sin(theta)+0.5)\
             for theta in (math.pi*2 * i/sample_size for i in range(sample_size))])
+def sample_curve1():
+    x = np.linspace(0,30, 5)
+    x = np.append(x, np.linspace(30, 0, 5)[1:])
+    x = np.append(x, np.linspace(0, 35, 5)[1:])
+    x = np.append(x, np.linspace(35, 30, 5)[1:])
+    y = np.linspace(0,15, 5)
+    y = np.append(y, np.linspace(15, 20, 5)[1:])
+    y = np.append(y, np.linspace(20, 25, 5)[1:])
+    y = np.append(y, np.linspace(25, 0, 5)[1:])
+    x = x.reshape((x.shape[0], 1))
+    y = y.reshape((y.shape[0], 1))
+    points = np.hstack((x,y))
+    return points
+
+def sample_curve2():
+    x = np.linspace(0,15, 5)
+    x = np.append(x, np.linspace(15,20, 5)[1:])
+    x = np.append(x, np.linspace(20, 30, 5)[1:])
+    y = np.linspace(0,30, 5)
+    y = np.append(y, np.linspace(30, 5, 5)[1:])
+    y = np.append(y, np.linspace(5, 0, 5)[1:])
+    x = x.reshape((x.shape[0], 1))
+    y = y.reshape((y.shape[0], 1))
+    points = np.hstack((x,y))
+    return points
 
 if __name__ == "__main__":
-    print sample_function_on_boundary("x5", (0,0,1,1), 20);
+    #print sample_function_on_boundary("x5", (0,0,1,1), 20);
+    sample_curve1()
+    sample_curve2()

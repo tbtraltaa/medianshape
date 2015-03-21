@@ -110,3 +110,5 @@ def boundary(simplex, idx=None):
             face = face[::-1]
         boundary = face
     return boundary
+
+

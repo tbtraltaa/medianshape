@@ -89,13 +89,19 @@ def curve3(x):
     return 30*math.sin(1/50* math.pi * x) * np.exp(-1/150 * x) + 20
 
 def curve4(x):
-    return 20*math.sin(1/200* math.pi * x) + 25
+    return 20*math.sin(1/190* math.pi * x) + 25
 
 def curve5(x):
-    return 10*math.sin(1/55* math.pi * x) * np.exp(-1/200 * x) + 10
+    return -20*math.sin(1/190* math.pi * x) + 25
+
 def curve6(x):
     return 10*math.sin(1/30* math.pi * x) * np.exp(-1/200 * x) + 40
 
+def curve7(x):
+    return 20*math.sin(1/200* math.pi * x) + 25
+
+def curve8(x):
+    return 10*math.sin(1/55* math.pi * x) * np.exp(-1/200 * x) + 10
     
 if __name__ == "__main__":
     print  get_combination(3)
@@ -116,10 +122,10 @@ if __name__ == "__main__":
     #plt.ylim(0, 60)
     #plt.xlim(0, 210)
     plt.figure()
-    plt.plot(Xs, Ys, '-', label="1")
-    plt.plot(Xs, Ys2, '-', label="2")
-    plt.plot(Xs, Ys3, '-', label="3")
-    plt.plot(Xs, Ys4, '-', label="4")
-    plt.plot(Xs, Ys5, '-', label="5")
-    plt.plot(Xs, Ys6, '-', label="6")
+    #plt.plot(Xs, Ys, '-', label="1")
+    #plt.plot(Xs, Ys2, '-', label="2")
+    #plt.plot(Xs, Ys3, '-', label="3")
+    plt.plot(Xs, Ys4, '-', color='r', label="4")
+    plt.plot(Xs, Ys5, '-', color='b', label="5")
+    #plt.plot(Xs, Ys6, '-', label="6")
     plt.show()

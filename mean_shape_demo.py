@@ -18,12 +18,13 @@ from mesh.distmesh import distmesh2d
 from mesh.mesh import Mesh
 from shape_gen import point_gen, curve_gen
 from mesh.utils import boundary_matrix, simpvol
+import plotting
 
 import mean
 from cvxopt import matrix, solvers
 from matplotlib.backends.backend_pdf import PdfPages
 
-options = ['default', 'mass', 'msfn']
+options = ['mass']
 
 if __name__ == "__main__":
     mesh = Mesh()
@@ -62,7 +63,7 @@ if __name__ == "__main__":
 #                            [6,7],
 #                            [6,8],
 #                            [7,8]])
-    mesh.to_string()
+    mesh.print_detail()
     mesh.orient_simplices_2D()
     pdf_file = PdfPages("/home/altaa/figures2.pdf")
     ellipse1 = point_gen.sample_ellipse(0.4, 0.2, 10)
@@ -93,11 +94,12 @@ if __name__ == "__main__":
         #np.savetxt("/home/altaa/dumps1/w.txt", w, delimiter=" ")
         #np.savetxt("/home/altaa/dumps1/v.txt", v, delimiter=" ")
         for i, shape in enumerate(shapes):
-            input_current, path, closest_vertices = curve_gen.generate_curve_on_mesh(shape, mesh, is_closed=True) 
+            input_current, path, closest_vertices = curve_gen.push_curve_on_mesh(shape, mesh, is_closed=True) 
             #np.savetxt("/home/altaa/dumps1/%s.txt"%f, input_current.reshape(len(input_current),1), fmt="%d", delimiter=" ")
             csr_path = csr_matrix(input_current)
             print "Path vector:\n", csr_path
-            curve_gen.plot_curve(mesh, shape, closest_vertices, path, color=colors.next())
+            plotting.plot_curve_approx(mesh, shape, closest_vertices, path, color=colors.next())
+            plt.show()
             input_currents.append(input_current)
         k_currents = len(shapes)
         plt.title("Functions")
@@ -107,8 +109,7 @@ if __name__ == "__main__":
         pdf_file.savefig(fig)
         input_currents = np.array(input_currents)
         for opt in options:
-            w, v, cons, b_matrix = mean.get_lp_inputs(mesh.points, mesh.simplices, mesh.edges, k_currents,
-            opt, w, v)
+            w, v, b_matrix, cons = mean.get_lp_inputs(mesh, k_currents, opt, w, v)
             #np.savetxt("/home/altaa/dumps1/cons-%s.txt"%opt, cons, fmt="%d", delimiter=" ")
             #np.savetxt("/home/altaa/dumps1/b_matrix.txt", b_matrix, fmt="%d", delimiter=" ")
             lambdas = [0.01, 1, 20]
@@ -129,7 +130,7 @@ if __name__ == "__main__":
 #            input_currents.append(current2)
 #            input_currents = np.array(input_currents)
 #            k_currents = 2
-                x, q, r, norm = mean.mean(mesh.points, mesh.simplices, mesh.edges, input_currents, l, opt, w, v,cons)
+                x, q, r, norm = mean.mean(mesh, input_currents, l, opt, w, v, cons)
                 fig = plt.figure(figsize=(10,10))
                 plt.gca().set_aspect('equal')
                 #plt.ylim([-0.2, 1.2])
