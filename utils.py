@@ -36,7 +36,7 @@ def adjust_alphas(mesh, input_currents, t, v):
         total_sum += area
         alphas.append(area)
     alphas = np.array(alphas).reshape(1,-1)
-    alphas = alphas *1.0/total_sum
+    alphas = (alphas *1.0/total_sum)/10000
     return alphas
 
 

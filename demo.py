@@ -190,7 +190,7 @@ def mean_curve_demo(load_data=False, save_data=True):
     alphas = np.ndarray(shape=(1,2), buffer=np.array([0.5, 0.5]))
 
     t = run_demo(mesh, input_currents, options, lambdas, mus, alphas, w, v, b_matrix, pdf_file)
-    alphas = adjust_alphas(mesh, input_currents, t, v)
+    alphas = alphas + adjust_alphas(mesh, input_currents, t, v)
     t = run_demo(mesh, input_currents, options, lambdas, mus, alphas, w, v, b_matrix, pdf_file)
 
 
