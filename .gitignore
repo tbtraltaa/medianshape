@@ -1,5 +1,7 @@
 # Ignore build folder
 build/
+*draft/
+*backup.py
 *.csv
 *.vtk
 *.edge
