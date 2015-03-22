@@ -1,0 +1,13 @@
+Welcome to MedianShape!
+======================
+Installing
+----------
+Install **MedianShape** with
+``pip install MedianShape``
+
+Usage
+-----
+Find a route::
+
+    import medianshape
+

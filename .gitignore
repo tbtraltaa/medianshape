@@ -1,9 +1,14 @@
 # Ignore build folder
+docs/_build
 build/
-*draft/
-*backup.py
+medianshape/draft/
+medianshape/backup.py
 *.csv
 *.vtk
 *.edge
 *~
 *.pyc
+*.swp
+*.swo
+*.egg-info
+pip-log.txt
