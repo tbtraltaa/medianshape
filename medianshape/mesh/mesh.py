@@ -16,13 +16,14 @@ class Mesh():
         self.edges = None
         self.boundary_box = None
         self.fixed_points = None
+        self.diagonal = None
 
     def set_edges(self):
         edges = set()
         for simplex in self.simplices:
             for i in range(len(simplex)):
                 edges.add(tuple(sorted([simplex[i], simplex[(i+1)%len(simplex)]])))
-        self.edges = np.array(list(edges))
+        self.edges = np.array(list(edges), dtype=int)
 
     # get simplices based on simplices vector
     def get_simplices(self, simplices_vector, opts=None):

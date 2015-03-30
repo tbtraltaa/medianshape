@@ -49,7 +49,7 @@ def find_closest_vertices(mesh, points, interval_size=10, func_str=None):
     return  np.array(closest_vertices)
 
 def find_closest_vertex(mesh, point, selected_points, interval_size=5, func_str=None):
-    min_dist = 1e60
+    min_dist = mesh.diagonal
     closest_vertex = -1
     min_idx = 0
     if func_str:
@@ -135,12 +135,12 @@ def find_path(mesh, path_points, is_closed=False):
 
                 elif len(path_vertices) > 0 and path_vertices[-1]!= j:
                     path_vertices.append(j)
-                    adjacency_matrix[prev,j] = 1000
-                    adjacency_matrix[j,prev] = 1000
+                    adjacency_matrix[prev,j] = mesh.diagonal
+                    adjacency_matrix[j,prev] = mesh.diagonal
                 prev = j    
                 j = predecessors[j]
-            adjacency_matrix[prev,i1] = 1000
-            adjacency_matrix[i1,prev] = 1000
+            adjacency_matrix[prev,i1] = mesh.diagonal
+            adjacency_matrix[i1,prev] = mesh.diagonal
             prev = i1
             path_vertices.append(i1)
 

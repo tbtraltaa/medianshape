@@ -29,12 +29,14 @@ options = ['mass']
 
 def load_mesh(boundary_box=None, fixed_points=None, l=0.02, load_data=False):
     if load_data:
+        #TODO add mesh diagonal
         mesh, w, v, b_matrix = load()
     else:
         mesh = Mesh()
         # l - initial length of triangle sides. Change it to vary traingle size
         mesh.boundary_box = boundary_box
         mesh.fixed_points = fixed_points
+        mesh.diagonal = np.sqrt(mesh.boundary_box[2]**2 + mesh.boundary_box[3]**2)
         mesh.points, mesh.simplices = distmesh2d('square', mesh.boundary_box, mesh.fixed_points, l=l)
         mesh.set_edges()
         mesh.orient_simplices_2D()
