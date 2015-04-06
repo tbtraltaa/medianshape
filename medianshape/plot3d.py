@@ -6,6 +6,8 @@ import itertools
 
 import matplotlib.pyplot as plt
 
+def plot_mesh(mesh):
+   pass 
 def plot_curves_approx(mesh, points, vertices, paths, title="", figname=None, file_doc=None, save=True, lim=5):
     color_set = "r"
     if len(paths) == 2:
@@ -100,6 +102,7 @@ def plot_decomposition(mesh, input_currents, comb, t, q, r, title='', figname=No
         color_set = 'grcym' 
     colors = itertools.cycle(color_set)
     fig = plt.gca().figure
+    print r
     for i, r_i in enumerate(r):
         color = colors.next()
         fig.clf()

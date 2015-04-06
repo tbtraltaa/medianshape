@@ -17,23 +17,24 @@ def msfn(points, simplices, subsimplices, input_current, lambda_, w=[], v=[], co
         v = simpvol(points, simplices)
     if cons == []:
         b_matrix = boundary_matrix(simplices, subsimplices, format='coo')
-        m_edges_identity = sparse.identity(m_edges, dtype=np.int8, format='coo')
-        cons = sparse.hstack((m_edges_identity, -m_edges_identity, b_matrix, -b_matrix))
-    w = np.zeros(m_edges)
-    c = np.concatenate((abs(w), abs(w), lambda_*abs(v), lambda_*abs(v))) 
+        cons = sparse.hstack((b_matrix, -b_matrix))
+    c = np.concatenate((lambda_*abs(v), lambda_*abs(v))) 
     c = c.reshape(len(c),1)
     c = matrix(c) 
     cons = spmatrix(cons.data.tolist(), cons.row, cons.col, cons.shape, tc='d')
     input_current = matrix(input_current)
-    g = -sparse.identity(2*m_edges + 2*n_simplices, dtype=np.int8, format='coo')
-    h = np.zeros(2*m_edges + 2*n_simplices)
+    g = -sparse.identity(2*n_simplices, dtype=np.int8, format='coo')
+    h = np.zeros(2*n_simplices)
     G = spmatrix(g.data.tolist(), g.row, g.col, g.shape,  tc='d')
     h = matrix(h)
 
     sol = solvers.lp(c, G, h, cons, input_current, solver='glpk')
-    #args = np.array(sol['x'])
-    args = np.rint(sol['x'])
+    args = np.array(sol['x'])
+    print args
+    #args = np.rint(sol['x'])
     norm = sol['primal objective']
-    x = (args[0:m_edges] - args[m_edges:2*m_edges]).reshape((1,m_edges)).astype(int)
-    s = (args[2*m_edges:2*m_edges+n_simplices] - args[2*m_edges+n_simplices:]).reshape(1, n_simplices).astype(int)
-    return x, s, norm
+    s = (args[0:n_simplices] - args[n_simplices:]).reshape(1, n_simplices).astype(int)
+    print b_matrix
+    print x
+    print s
+    return [], s, norm

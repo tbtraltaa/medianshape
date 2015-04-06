@@ -2,7 +2,7 @@ from __future__ import absolute_import
 
 import numpy as np
 
-from mesh.mesh import Mesh
+from mesh.mesh import Mesh2D
 import msfn
 import plotting
 from scipy.sparse import dok_matrix, coo_matrix

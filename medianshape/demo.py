@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 
 from mesh.distmesh import distmesh2d
-from mesh.mesh import Mesh
+from mesh.mesh import Mesh2D
 from shape_gen import point_gen, curve_gen, utils
 import mean
 import plotting
@@ -23,6 +23,7 @@ from utils import sparse_savetxt, load, save, envelope, adjust_alphas
 from mesh.utils import boundary_matrix, simpvol
 
 from cvxopt import matrix, solvers
+import distmesh as dm
 
 #options = ['default', 'mass', 'msfn']
 options = ['mass']
@@ -32,13 +33,16 @@ def load_mesh(boundary_box=None, fixed_points=None, l=0.02, load_data=False):
         #TODO add mesh diagonal
         mesh, w, v, b_matrix = load()
     else:
-        mesh = Mesh()
+        mesh = Mesh2D()
         # l - initial length of triangle sides. Change it to vary traingle size
         mesh.boundary_box = boundary_box
         mesh.fixed_points = fixed_points
         mesh.diagonal = np.sqrt(mesh.boundary_box[2]**2 + mesh.boundary_box[3]**2)
         mesh.points, mesh.simplices = distmesh2d('square', mesh.boundary_box, mesh.fixed_points, l=l)
         mesh.set_edges()
+        #mesh.edges, temp = dm.mkt2t(mesh.simplices)
+        #print mesh.edges
+        #print temp
         mesh.orient_simplices_2D()
         w = simpvol(mesh.points, mesh.edges)
         v = simpvol(mesh.points, mesh.simplices)
