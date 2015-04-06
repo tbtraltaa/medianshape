@@ -11,6 +11,14 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
+.. autosummary::
+   :toctree: _autosummary
+   medianshape.mesh
+
+.. autoclass:: Mesh
+
+    Description of the class
+
 
 
 Indices and tables
@@ -19,4 +27,6 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
+
+
 
