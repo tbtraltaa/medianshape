@@ -2,6 +2,7 @@
 
 from __future__ import absolute_import
 
+import sys
 import numpy as np
 
 from scipy.linalg import det
@@ -15,6 +16,15 @@ def extract_edges(simplices):
         for i in range(len(simplex)):
             edges.add(tuple(sorted([simplex[i], simplex[(i+1)%len(simplex)]])))
     return np.array(list(edges))
+
+def get_subsimplices(simplices):
+    simplices = np.sort(simplices, axis=1)
+    subsimplices = set()
+    for j in np.arange(simplices.shape[1]):
+        idx = list(range(simplices.shape[1]))
+        idx.pop(j)
+        subsimplices = subsimplices.union(set(tuple(sub) for sub in simplices.take(idx, axis=1)))
+    return np.array([ sub for sub in subsimplices])
 
 def orient_simplices(simplices):
     direction = right_hand_rule(simplices[0])
@@ -108,37 +118,44 @@ def simpvol1(points, simplices):
 
 # Builds a boundary matrix of given simplices. The format of a boundary matrix is as follows.
 # boundary_matrix = (number of edges) x (number of simplices)
-def boundary_matrix_new(simplices, subsimplices, sparse=True, format=None):
-    if not sparse:
-        boundary_matrix = np.array((len(subsimplices), len(simplices)), dtype=np.int8) 
-    else:
-        boundary_matrix = dok_matrix((len(subsimplices), len(simplices)), dtype=np.int8) 
+def boundary_matrix(simplices, subsimplices, is_oriented=True, is_sparse=True, format='coo'):
+    subsimplex_dim  = simplices.shape[1] 
     n_simplices = simplices.shape[0]
     m_subsimplices = subsimplices.shape[0] 
-    sorted_simplices_idx = np.argsort(simplices)
-    sorted_subsimplices_idx = np.argsort(subsimplices)
-    simplices = np.sort(simplices)
-    subsimplices = np.sort(subsimplices)
-    boundary_matrix = np.array()
-    for j, simplex in enumerate(simplices):
-        if len(simplex) == 2:
-            boundary_matrix[simplex[0],j] = 1
-            boundary_matrix[simplex[1],j] = -1
-        else:
-            simplex_boundary = boundary(simplex)
-            for s_edge in simplex_boundary:
-                sorted_s_edge = np.sort(s_edge)
-                i = temp_edges.index(tuple(sorted_s_edge)) 
-                if s_edge[0] <= s_edge[1]:
-                    boundary_matrix[i,j] = 1
-                else:
-                    boundary_matrix[i,j] = -1
-    if sparse and format:
+    if is_sparse:
+        boundary_matrix = dok_matrix((m_subsimplices, n_simplices), dtype=np.int8) 
+    else:
+        boundary_matrix = np.array((m_subsimplices, n_simplices), dtype=np.int8) 
+    if is_oriented:
+        simplices_sort_idx = np.argsort(simplices)
+        subsimplices_sort_idx = np.argsort(subsimplices)
+        simplices_parity = permutationparity(simplices_sort_idx, 2)
+        subsimplices_parity = permutationparity(subsimplices_sort_idx, 2)
+    val = 1
+    simplices = np.sort(simplices, axis=1)
+    subsimplices = np.sort(subsimplices, axis=1)
+    for i, simplex in enumerate(simplices):
+        for j in np.arange(subsimplex_dim):
+            idx = list(range(subsimplex_dim))
+            idx.pop(j)
+            subsimplex = simplex.take(idx)
+            # to check the membership of subsimplex in subsimplices
+            subsimplex_idx = np.argwhere((subsimplices==subsimplex).all(axis=1) == True)
+            if subsimplex_idx.size == 0:
+                sys.stderr.write("Unable to find subsimplex! Make sure subsimplices contains \
+                all boundary subsimplices")
+                exit()
+            subsimplex_idx = subsimplex_idx[0][0]
+            if is_oriented:
+                val = (-1)**((j + 1) + 1 + simplices_parity[i] + subsimplices_parity[subsimplex_idx])
+            else:
+                boundary_matrix[subsimplex_idx, i] = val
+    if is_sparse:
         return boundary_matrix.asformat(format)
     else:
         return boundary_matrix
 
-def boundary_matrix(simplices, edges, sparse=True, format=None):
+def boundary_matrix_2d(simplices, edges, sparse=True, format=None):
     if not sparse:
         boundary_matrix = np.array((len(edges), len(simplices)), dtype=np.int8) 
     else:
@@ -182,33 +199,26 @@ def boundary(simplex, idx=None):
         boundary = face
     return boundary
 
-def permutationparity(P, dim=2):
+def permutationparity(P, dim=None):
     nRows, mCols = P.shape
-    if nRows == 1:
+    if nRows == 1 and dim is None:
         dim = 2
-    elif mCols == 1:
+    elif mCols == 1 and dim is None:
         dim = 1
     p = [0]
     if dim == 1:
         for i in np.arange(nRows):
-            p = np.sum(np.tile(P[i,:], (nRows-i+1, 1)) > P[i+1:,:], 0) + p
+            p = np.sum(np.tile(P[i,:].reshape(-1,1), (nRows-(i+1), 1)) > P[i+1:,:], 0) + p
     elif dim == 2:
         for j in np.arange(mCols):
-            print "P", P
-            print "j", j
-            print "p", p
-            print "1st", np.tile(P[:,j].reshape(-1,1), (1, mCols-(j+1)))
-            print  "2nd", P[:, j+1:]
-            print "sum", np.sum(np.tile(P[:, j].reshape(-1,1), (1, mCols-(j+1))) > P[:, j+1:], 1)
             p = np.sum(np.tile(P[:, j].reshape(-1,1), (1, mCols-(j+1))) > P[:, j+1:], 1) + p
     p = np.mod(p, 2)
-    print p
+    return p
 
 if __name__ == '__main__':
     points = np.array([[0, 0, 0],[0,1,1],[0,2,0], [2,2,0]])
     simplices = np.array([[0, 1, 2], [1,2,3], [2, 4, 3]])
     simplices = np.array([[2, 1, 0], [3,1,2], [3, 2, 4]])
-    print simplices.shape
     permutationparity(simplices)
     simpvol1(points, simplices)
 

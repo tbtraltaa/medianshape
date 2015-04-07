@@ -14,9 +14,9 @@ from scipy.sparse import csr_matrix
 
 from mesh.distmesh import distmesh3d
 from mesh.mesh import Mesh3D
-from mesh.utils import boundary_matrix, simpvol
+from mesh.utils import boundary_matrix, simpvol, get_subsimplices
 from shape_gen import point_gen, curve_gen, utils
-import plotting
+from plot3d import *
 
 import distmesh as dm
 
@@ -30,14 +30,11 @@ if __name__ == "__main__":
     mesh.bbox = (0,0,0, 50, 50, 50)
     mesh.set_fixed_points()
     mesh.set_diagonal()
-    mesh.points, mesh.simplices= distmesh3d("ball", mesh.bbox, None, l=10)
-    mesh.edges = dm.mkt2t(mesh.simplices)
-    print mesh.simplices
-    print mesh.simplices.shape
+    mesh.points, mesh.simplices= distmesh3d("ball", mesh.bbox, None, l=4)
+    mesh.triangles = get_subsimplices(mesh.simplices)
+    mesh.edges = get_subsimplices(mesh.triangles)
+    plotmesh3d(mesh)
     print mesh.get_info()
-    print mesh.edges
-    #mesh.set_edges()
-    #mesh.orient_simplices_2D()
     exit()
 
     functions = ['curve1']

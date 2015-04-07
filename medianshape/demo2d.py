@@ -20,7 +20,7 @@ import mean
 import plotting
 
 from utils import sparse_savetxt, load, save, envelope, adjust_alphas
-from mesh.utils import boundary_matrix, simpvol
+from mesh.utils import boundary_matrix, simpvol, get_subsimplices
 
 from cvxopt import matrix, solvers
 import distmesh as dm
@@ -39,39 +39,40 @@ def load_mesh(boundary_box=None, fixed_points=None, l=0.02, load_data=False):
         mesh.fixed_points = fixed_points
         mesh.diagonal = np.sqrt(mesh.boundary_box[2]**2 + mesh.boundary_box[3]**2)
         mesh.points, mesh.simplices = distmesh2d('square', mesh.boundary_box, mesh.fixed_points, l=l)
-        mesh.set_edges()
+        mesh.edges = get_subsimplices(mesh.simplices)
         #mesh.edges, temp = dm.mkt2t(mesh.simplices)
         #print mesh.edges
         #print temp
         mesh.orient_simplices_2D()
+#        mesh.points = np.array([[0,0], [0,0.5],[0,1],[0.5,1],[1,1],[1,0.5],[1,0],[0.5,0], [0.5, 0.5]])
+#        mesh.simplices = np.array([[0,8,1],
+#                                    [1,8,2],
+#                                    [2,8,3],
+#                                    [3,8,4],
+#                                    [4,8,5],
+#                                    [5,8,6],
+#                                    [6,8,7],
+#                                    [7,8,0]])
+#
+#        mesh.edges = np.array([[0,1],
+#                                [0,7],
+#                                [0,8],
+#                                [1,2],
+#                                [1,8],
+#                                [2,3],
+#                                [2,8],
+#                                [3,4],
+#                                [3,8],
+#                                [4,5],
+#                                [4,8],
+#                                [5,6],
+#                                [5,8],
+#                                [6,7],
+#                                [6,8],
+#                                [7,8]])
         w = simpvol(mesh.points, mesh.edges)
         v = simpvol(mesh.points, mesh.simplices)
         b_matrix = boundary_matrix(mesh.simplices, mesh.edges)
-#    mesh.points = np.array([[0,0], [0,0.5],[0,1],[0.5,1],[1,1],[1,0.5],[1,0],[0.5,0], [0.5, 0.5]])
-#    mesh.simplices = np.array([[0,8,1],
-#                                [1,8,2],
-#                                [2,8,3],
-#                                [3,8,4],
-#                                [4,8,5],
-#                                [5,8,6],
-#                                [6,8,7],
-#                                [7,8,0]])
-#
-#    mesh.edges = np.array([[0,1],
-#                            [0,7],
-#                            [0,8],
-#                            [1,2],
-#                            [1,8],
-#                            [2,3],
-#                            [2,8],
-#                            [3,4],
-#                            [3,8],
-#                            [4,5],
-#                            [4,8],
-#                            [5,6],
-#                            [5,8],
-#                            [6,7],
-#                            [6,8],
     return mesh, w, v, b_matrix
 
 def run_demo(mesh, input_currents, options, lambdas, mus, alphas, w=None, v=None, b_matrix=None, file_doc=None, save=True):

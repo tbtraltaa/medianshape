@@ -6,8 +6,33 @@ import itertools
 
 import matplotlib.pyplot as plt
 
-def plot_mesh(mesh):
-   pass 
+def plotmesh3d(mesh):
+    dim = mesh.points.shape[1]
+    if dim == 2:
+        from distmesh.plotting import SimplexCollection
+        ax = plt.gca()
+        c = SimplexCollection()
+        ax.add_collection(c)
+        ax.set_xlim(mesh.bbox[2])
+        ax.set_ylim(mesh.bbox[3])
+        ax.set_aspect('equal')
+        ax.set_axis_off()
+        c.set_simplices((mesh.points, mesh.simplices))
+        plt.show()
+    elif dim == 3:
+        import mpl_toolkits.mplot3d
+        from distmesh.plotting import axes_simpplot3d
+        ax = plt.gca(projection='3d')
+        ax.set_xlim(mesh.bbox[3])
+        ax.set_ylim(mesh.bbox[4])
+        ax.set_zlim(mesh.bbox[5])
+        ax.cla()
+        axes_simpplot3d(ax, mesh.points, mesh.simplices, mesh.points[:,1] > 0)
+        ax.set_title('Retriangulation')
+        plt.show()
+    else:
+        print "Plotting only supported in dimensions 2 and 3." 
+
 def plot_curves_approx(mesh, points, vertices, paths, title="", figname=None, file_doc=None, save=True, lim=5):
     color_set = "r"
     if len(paths) == 2:
