@@ -41,7 +41,7 @@ class Mesh2D():
                                         [self.bbox[2], self.bbox[1]],\
                                         [self.bbox[2], self.bbox[3]]]
     def set_diagonal(self):
-        self.diagonal = np.sqrt(self.bbox[2]**2 + mesh.bbox[3]**2)
+        self.diagonal = np.sqrt(self.bbox[2]**2 + self.bbox[3]**2)
 
     # get simplices based on simplices vector
     def get_simplices(self, simplices_vector, opts=None):

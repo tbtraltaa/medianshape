@@ -13,17 +13,18 @@ from scipy.sparse import csr_matrix
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 
-from mesh.distmesh import distmesh2d
-from mesh.mesh import Mesh2D
-from shape_gen import pointgen2d, curvegen2d, utils
+from mesh.distmesh import distmesh3d
+from mesh.mesh import Mesh3D
+from shape_gen import pointgen3d, curvegen2d, utils
 import mean
-import plot2d
+import plotting
 
 from utils import sparse_savetxt, load, save, envelope, adjust_alphas
-from mesh.utils import boundary_matrix, boundary_matrix_2d, simpvol, get_subsimplices
+from mesh.utils import boundary_matrix, simpvol, get_subsimplices
 
 from cvxopt import matrix, solvers
 import distmesh as dm
+import plot3d
 
 #options = ['default', 'mass', 'msfn']
 options = ['mass']
@@ -33,43 +34,19 @@ def load_mesh(boundary_box=None, fixed_points=None, l=0.02, load_data=False):
         #TODO add mesh diagonal
         mesh, w, v, b_matrix = load()
     else:
-        mesh = Mesh2D()
+        mesh = Mesh3D()
         # l - initial length of triangle sides. Change it to vary traingle size
         mesh.bbox = boundary_box
-        mesh.fixed_points = fixed_points
+        mesh.set_fixed_points()
+        if fixed_points is not None:
+            mesh.fixed_points = fixed_points
         mesh.set_diagonal()
-        mesh.points, mesh.simplices = distmesh2d('square', mesh.bbox, mesh.fixed_points, l=l)
-        mesh.edges = get_subsimplices(mesh.simplices)
-        mesh.orient_simplices_2D()
-#        mesh.points = np.array([[0,0], [0,0.5],[0,1],[0.5,1],[1,1],[1,0.5],[1,0],[0.5,0], [0.5, 0.5]])
-#        mesh.simplices = np.array([[0,8,1],
-#                                    [1,8,2],
-#                                    [2,8,3],
-#                                    [3,8,4],
-#                                    [4,8,5],
-#                                    [5,8,6],
-#                                    [6,8,7],
-#                                    [7,8,0]])
-#
-#        mesh.edges = np.array([[0,1],
-#                                [0,7],
-#                                [0,8],
-#                                [1,2],
-#                                [1,8],
-#                                [2,3],
-#                                [2,8],
-#                                [3,4],
-#                                [3,8],
-#                                [4,5],
-#                                [4,8],
-#                                [5,6],
-#                                [5,8],
-#                                [6,7],
-#                                [6,8],
-#                                [7,8]])
+        mesh.points, mesh.simplices= distmesh3d("ball", mesh.bbox, None, l=l)
+        mesh.triangles = get_subsimplices(mesh.simplices)
+        mesh.edges = get_subsimplices(mesh.triangles)
         w = simpvol(mesh.points, mesh.edges)
-        v = simpvol(mesh.points, mesh.simplices)
-        b_matrix = boundary_matrix(mesh.simplices, mesh.edges)
+        v = simpvol(mesh.points, mesh.triangles)
+        b_matrix = boundary_matrix(mesh.triangles, mesh.edges)
     return mesh, w, v, b_matrix
 
 def run_demo(mesh, input_currents, options, lambdas, mus, alphas, w=None, v=None, b_matrix=None, file_doc=None, save=True):
@@ -79,13 +56,13 @@ def run_demo(mesh, input_currents, options, lambdas, mus, alphas, w=None, v=None
     if w is None:
         w = simpvol(mesh.points, mesh.edges)
     if v is None:
-        v = simpvol(mesh.points, mesh.simplices)
+        v = simpvol(mesh.points, mesh.triangles)
     if b_matrix is None:
-        b_matrix = boundary_matrix(mesh.simplices, mesh.edges)
+        b_matrix = boundary_matrix(mesh.triangles, mesh.edges)
     k_currents = len(input_currents)
     for opt in options:
         average_len = np.average(np.array([c.nonzero()[0].shape[0] for c in input_currents]))
-        w, v, b_matrix, cons = mean.get_lp_inputs(mesh.points, mesh.simplices, mesh.edges,  k_currents, opt, w, v, b_matrix)
+        w, v, b_matrix, cons = mean.get_lp_inputs(mesh.points, mesh.triangles, mesh.edges,  k_currents, opt, w, v, b_matrix)
         #np.savetxt('/home/altaa/dumps1/cons-%s.txt'%opt, cons, fmt='%d', delimiter=' ')
         for l in lambdas:
             comb=[1,1,1]
@@ -94,8 +71,7 @@ def run_demo(mesh, input_currents, options, lambdas, mus, alphas, w=None, v=None
                 #input_currents = currents*comb.reshape(comb.size,1) 
             for mu in mus:
                 for alpha in alphas:
-                    t, q, r, norm = mean.mean(mesh.points, mesh.simplices, mesh.edges, \
-                    input_currents, l, opt, w, v, cons, mu=mu, alpha=alpha)
+                    t, q, r, norm = mean.mean(mesh.points, mesh.triangles, mesh.edges, input_currents, l, opt, w, v, cons, mu=mu, alpha=alpha)
                     if save:
                         #save(t=t, opt=opt, lambda_=l)
                         pass
@@ -106,33 +82,32 @@ def run_demo(mesh, input_currents, options, lambdas, mus, alphas, w=None, v=None
                     (opt, l, mu)
                     figname = '/home/altaa/fig_dump/%d-%s-%.04f-%.06f'%(figcount, opt, l, mu)
                     if save and file_doc is not None:
-                        plot2d.plot_mean(mesh, input_currents, comb, t, title, figname, file_doc, save=save)
-                        figcount += 1
+                        plot3d.plot_mean(mesh, input_currents, comb, t, title, figname, file_doc, save=save)
+                        plt.show()
+                        #figcount += 1
 
-                        figname = '/home/altaa/fig_dump/%d-%s-%.04f-%.04f'%(figcount, opt, l, mu)
-                        plot2d.plot_curve_and_mean(mesh, input_currents, comb, t, title, \
-                        figname, file_doc, save)
-                        figcount += input_currents.shape[0]
+                        #figname = '/home/altaa/fig_dump/%d-%s-%.04f-%.04f'%(figcount, opt, l, mu)
+                        #plotting.plot_curve_and_mean(mesh, input_currents, comb, t, title, \
+                        #figname, file_doc, save)
+                        #figcount += input_currents.shape[0]
 
                         figname = '/home/altaa/fig_dump/%d-%s-%.06f-%.06f'%(figcount,opt,l, mu)
-                        plot2d.plot_decomposition(mesh, input_currents, comb, t, q, r, title, \
+                        plot3d.plot_decomposition(mesh, input_currents, comb, t, q, r, title, \
                         figname, file_doc, save)
                         figcount += input_currents.shape[0]
+                        plt.show()
                 
-                # plot2d the combination with minimum flatnorm difference
+                # Plotting the combination with minimum flatnorm difference
             #title = 'Minimum flatnorm difference, %s, lambda=%.04f, %s' % (opt, l, str(comb))
 #                figname = '/home/altaa/fig_dump/%d-%s-%.04f'%(figcount, opt, l)
-#                plot2d.plot_mean(mesh, min_currents, min_comb, min_t, title, \
+#                plotting.plot_mean(mesh, min_currents, min_comb, min_t, title, \
 #                figname, file_doc)
 #                figcount += 1
 #
 #                figname = '/home/altaa/fig_dump/%d-%s-%.04f'%(figcount,opt,l)
-#                plot2d.plot_decomposition(mesh, min_currents, comb, min_t, min_q, min_r, \
+#                plotting.plot_decomposition(mesh, min_currents, comb, min_t, min_q, min_r, \
 #                title, figname, file_doc)
 #                figcount += input_currents.shape[0]
-    print "Norms", norms
-    print "t_lens", t_lens
-    print "Average len", average_len
     return t
 
 def mean_curve_demo(load_data=False, save_data=True):
@@ -150,36 +125,32 @@ def mean_curve_demo(load_data=False, save_data=True):
     boundary_box = (0,0,1,1)
     fixed_points = [(0,0),(1,0),(0,1),(1,1)]
     l=0.07
-    mesh, w, v, b_matrix = load_mesh(boundary_box, fixed_points, l)
+    boundary_box = (0,0,0,50,50,50)
+    l=8
+    mesh, w, v, b_matrix = load_mesh(boundary_box, None, l)
     print mesh.get_info()
 
     #function_sets = [['sin1pi','half_sin1pi'], ['x', 'x2', 'x5']]
     #function_sets = [['curve1', 'curve2', 'curve3', 'curve4', 'curve5']]
     #functions= ['curve4', 'curve5']
-    functions= ['curve1', 'curve2']
-    combinations = utils.get_combination(len(functions))
     combinations = np.array([[1,1,1]])
     #combinations = np.array([[1,1,1]])
-    ellipse1 = pointgen2d.sample_ellipse(0.4, 0.2, 10)
-    ellipse2 = pointgen2d.sample_ellipse(0.2, 0.4, 10)
-    shapes = [ellipse1, ellipse2]
-    #curve1 = pointgen2d.sample_curve1()
-    #curve2 = pointgen2d.sample_curve2()
+    curve1 = pointgen3d.curve1(mesh.bbox)
+    curve2 = pointgen3d.curve2(mesh.bbox)
     #mesh.plot()
     #plt.scatter(curve1[:,0], curve1[:,1], color='r')
     #plt.scatter(curve2[:,0], curve2[:,1], color='k')
     #plt.show()
-    #shapes = [curve1, curve2]
+    shapes = [curve1, curve2]
     points = list()
-    for f in functions:
-        points.append(pointgen2d.sample_function_mesh(mesh, f))
     points  = np.array(shapes)
-    vertices, paths, input_currents = curvegen2d.push_curves_on_mesh(mesh, points, is_closed=True)
+    vertices, paths, input_currents = curvegen2d.push_curves_on_mesh(mesh, points, is_closed=False)
 
     figname = '/home/altaa/fig_dump/%d.png'%(figcount)
-    title = '%s - (%s)' % (mesh.get_info(), ','.join(functions))
-    plot2d.plot_curves_approx(mesh, points, vertices, paths, title, figname, pdf_file)
+    title = '%s' % (mesh.get_info())
+    plot3d.plot_curves_approx(mesh, points, vertices, paths, title, figname, pdf_file)
     figcount += 1
+    plt.show()
     #envelope(mesh, input_currents)
     lambdas = [1]
     mus = [0.0001]
@@ -193,7 +164,6 @@ def mean_curve_demo(load_data=False, save_data=True):
     alpha2 = (1-alpha1).reshape(alpha1.size, 1)
     alphas = np.hstack((alpha1, alpha2))
     alphas = np.ndarray(shape=(1,2), buffer=np.array([0.5, 0.5]))
-
     t = run_demo(mesh, input_currents, options, lambdas, mus, alphas, w, v, b_matrix, pdf_file)
     #alphas = alphas + adjust_alphas(mesh, input_currents, t, v)
     #t = run_demo(mesh, input_currents, options, lambdas, mus, alphas, w, v, b_matrix, pdf_file)

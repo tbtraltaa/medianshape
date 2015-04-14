@@ -34,23 +34,27 @@ def print_cons(sub_cons, cons, c):
     print "\n"
     print 'c', c
 
-def mean(mesh, input_currents, lambda_, opt='default', w=[], v=[], cons=[], mu=0.001, alpha=None):
+def mean(points, simplices, subsimplices, input_currents, lambda_, opt='default', w=[], v=[], cons=[], mu=0.001, alpha=None):
     if not isinstance(input_currents, np.ndarray):
         input_currents = np.array(input_currents)
     average_len = np.rint(np.average(np.array([c.nonzero()[0].shape[0] for c in input_currents])))
     print "Average len", average_len
-    m_edges = mesh.edges.shape[0]
-    n_simplices = mesh.simplices.shape[0]
+    m_subsimplices = subsimplices.shape[0]
+    n_simplices = simplices.shape[0]
     k_currents = len(input_currents)
     sub_cons_count = k_currents 
-    input_currents  = input_currents.reshape(k_currents*m_edges,1)
-    w, v, b_matrix, cons = get_lp_inputs(mesh, k_currents, opt, w, v, [], cons)
+    input_currents  = input_currents.reshape(k_currents*m_subsimplices,1)
+    if w == []:
+        w = simpvol(points, subsimplices)
+    if v == []:
+        v = simpvol(points, simplices)
+    if cons == []:
+        w, v, b_matrix, cons = get_lp_inputs(points, simplices, subsimplices, k_currents, opt, w, v, [], cons)
     if opt == 'msfn':
-        input_currents = np.vstack((input_currents, np.zeros((m_edges,1))))
+        input_currents = np.vstack((input_currents, np.zeros((m_subsimplices,1))))
         sub_cons_count += 1 
     b = input_currents
-    print "b", b.shape
-    c = np.zeros((2*m_edges,1))
+    c = np.zeros((2*m_subsimplices,1))
     if opt == 'mass':
         c = np.vstack((abs(w),abs(w)))
         c = c*mu
@@ -60,8 +64,8 @@ def mean(mesh, input_currents, lambda_, opt='default', w=[], v=[], cons=[], mu=0
     if alpha is not None:
         for i in range(k_currents):
             if i < k_currents+1:
-                k_sub_c[i*(2*m_edges+2*n_simplices):(i+1)*(2*m_edges+2*n_simplices)] = \
-                k_sub_c[i*(2*m_edges+2*n_simplices):(i+1)*(2*m_edges+2*n_simplices)]*alpha[i]
+                k_sub_c[i*(2*m_subsimplices+2*n_simplices):(i+1)*(2*m_subsimplices+2*n_simplices)] = \
+                k_sub_c[i*(2*m_subsimplices+2*n_simplices):(i+1)*(2*m_subsimplices+2*n_simplices)]*alpha[i]
                 print "Alpha", i, alpha[i]
     c = np.append(c, k_sub_c)
     if opt !='mass':
@@ -91,38 +95,38 @@ def mean(mesh, input_currents, lambda_, opt='default', w=[], v=[], cons=[], mu=0
     #nonint = args2.shape[0]
     args = np.rint(sol['x'])
     norm = sol['primal objective']
-    x = args[0:m_edges] - args[m_edges:2*m_edges]
-    q = np.zeros((sub_cons_count, m_edges), dtype=int)
+    x = args[0:m_subsimplices] - args[m_subsimplices:2*m_subsimplices]
+    q = np.zeros((sub_cons_count, m_subsimplices), dtype=int)
     r = np.zeros((sub_cons_count, n_simplices), dtype=int)
-    qi_start = 2*m_edges
+    qi_start = 2*m_subsimplices
     for i in range(sub_cons_count):
-        qi_end = qi_start + 2*m_edges
-        q[i] = (args[qi_start: qi_start+m_edges] - args[qi_start+m_edges: qi_end]).reshape(m_edges,)
+        qi_end = qi_start + 2*m_subsimplices
+        q[i] = (args[qi_start: qi_start+m_subsimplices] - args[qi_start+m_subsimplices: qi_end]).reshape(m_subsimplices,)
         ri_start = qi_end
         ri_end = ri_start + 2*n_simplices
         r[i] = (args[ri_start: ri_start+n_simplices] - args[ri_start+n_simplices: ri_end]).reshape(n_simplices, )
         qi_start = ri_end
     return x, q, r, norm
 
-def get_lp_inputs(mesh, k_currents, opt='default', w=[], v=[], b_matrix=[], cons=[]):
-    m_edges = mesh.edges.shape[0]
-    n_simplices = mesh.simplices.shape[0]
+def get_lp_inputs(points, simplices, subsimplices, k_currents, opt='default', w=[], v=[], b_matrix=[], cons=[]):
+    m_subsimplices = subsimplices.shape[0]
+    n_simplices = simplices.shape[0]
     if w == []:
-        w = simpvol(mesh.points, mesh.simplices)
+        w = simpvol(points, subsimplices)
     if v == []:
-        v = simpvol(mesh.points, mesh.simplices)
+        v = simpvol(points, simplices)
     if b_matrix == []:
-        b_matrix = boundary_matrix(mesh.simplices, mesh.edges, format='coo')
+        b_matrix = boundary_matrix(simplices, subsimplices, format='coo')
     if cons == []:
         sub_cons_count = k_currents
         # Msfn option
         if opt == 'msfn':
             sub_cons_count += 1
-        m_edges_identity = sparse.identity(m_edges, dtype=np.int8, format='coo')
-        identity_cons = sparse.hstack((m_edges_identity, -m_edges_identity))
-        sub_cons = sparse.hstack((-m_edges_identity, m_edges_identity, -b_matrix, b_matrix))
-        sub_cons_col_count = 2*m_edges + 2*n_simplices
-        zero_sub_cons = sparse.coo_matrix((m_edges, sub_cons_col_count), dtype=np.int8)
+        m_subsimplices_identity = sparse.identity(m_subsimplices, dtype=np.int8, format='coo')
+        identity_cons = sparse.hstack((m_subsimplices_identity, -m_subsimplices_identity))
+        sub_cons = sparse.hstack((-m_subsimplices_identity, m_subsimplices_identity, -b_matrix, b_matrix))
+        sub_cons_col_count = 2*m_subsimplices + 2*n_simplices
+        zero_sub_cons = sparse.coo_matrix((m_subsimplices, sub_cons_col_count), dtype=np.int8)
         for i in range(sub_cons_count):
             if i == 0:
                 k_identity_cons = identity_cons

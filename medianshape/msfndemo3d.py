@@ -15,7 +15,7 @@ from scipy.sparse import csr_matrix
 from mesh.distmesh import distmesh3d
 from mesh.mesh import Mesh3D
 from mesh.utils import boundary_matrix, simpvol, get_subsimplices
-from shape_gen import point_gen, curve_gen, utils
+from shape_gen import pointgen3d, curvegen3d, utils
 from plot3d import *
 
 import distmesh as dm
@@ -39,9 +39,9 @@ if __name__ == "__main__":
 
     functions = ['curve1']
     points = list()
-    points.append(point_gen.sample_function_mesh(mesh, 'curve1'))
+    points.append(pointgen3d.sample_function_mesh(mesh, 'curve1'))
     points = np.array(points)
-    vertices, paths, input_currents = curve_gen.push_curves_on_mesh(mesh, points)
+    vertices, paths, input_currents = curvegen3d.push_curves_on_mesh(mesh, points)
     title = 'Functions - %s - (%s)' % (mesh.get_info(), ','.join(functions))
     plotting.plot_curves_approx(mesh, points, vertices, paths, title)
     plt.show()

@@ -15,7 +15,7 @@ import os
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
 
 from utils import vectorize, sparse_savetxt
-import point_gen
+import pointgen2d
 
 def push_curves_on_mesh(mesh, curves, is_closed=False, functions=None):
         input_currents = list()
@@ -73,11 +73,11 @@ def find_closest_vertex(mesh, point, selected_points, interval_size=5, func_str=
                     closest_vertex = candidate_idx[min_idx]
     else:
         temp_points = np.copy(mesh.points)
-        distances = cdist(point.reshape(1, 2), temp_points)
+        distances = cdist(point.reshape(1, -1), temp_points)
         closest_vertex = np.argmin(distances)  
         while closest_vertex in selected_points:
             temp_points[closest_vertex] = temp_points[np.argmax(distances)]
-            distances = cdist(point.reshape(1, 2), temp_points)
+            distances = cdist(point.reshape(1, -1), temp_points)
             closest_vertex= np.argmin(distances)  
     return closest_vertex
 
@@ -112,8 +112,8 @@ def find_path(mesh, path_points, is_closed=False):
     if is_closed:
         path_points = np.append(path_points, path_points[0].reshape(1,), axis=0)
     for i, edge in enumerate(mesh.edges):
-            p1 = mesh.points[edge[0]].T.reshape(1,2)
-            p2 = mesh.points[edge[1]].T.reshape(1,2)
+            p1 = mesh.points[edge[0]].T.reshape(1,-1)
+            p2 = mesh.points[edge[1]].T.reshape(1,-1)
             adjacency_matrix[edge[0],edge[1]] = cdist(p1, p2, 'euclidean')[0]
             adjacency_matrix[edge[1],edge[0]] = cdist(p1, p2, 'euclidean')[0]
 

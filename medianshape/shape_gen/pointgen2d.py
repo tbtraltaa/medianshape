@@ -36,6 +36,7 @@ def sample_function_mesh(mesh,  func_str, sample_size=None):
 def sample_ellipse(a, b, sample_size=None):
     return np.array([(a * math.cos(theta) +0.5 , b * math.sin(theta)+0.5)\
             for theta in (math.pi*2 * i/sample_size for i in range(sample_size))])
+
 def sample_curve1():
     x = np.linspace(0,30, 5)
     x = np.append(x, np.linspace(30, 0, 5)[1:])

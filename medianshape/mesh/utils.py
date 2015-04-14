@@ -119,7 +119,10 @@ def simpvol1(points, simplices):
 # Builds a boundary matrix of given simplices. The format of a boundary matrix is as follows.
 # boundary_matrix = (number of edges) x (number of simplices)
 def boundary_matrix(simplices, subsimplices, is_oriented=True, is_sparse=True, format='coo'):
-    subsimplex_dim  = simplices.shape[1] 
+    simplex_dim  = simplices.shape[1] 
+    #if simplex_dim - subsimplices.shape[1] != 1:
+    #    sys.stderr.write("Unable to build a boundary matrix. Please enter (d+1)-simplices and  d-subsimplices\n")
+     #   exit()
     n_simplices = simplices.shape[0]
     m_subsimplices = subsimplices.shape[0] 
     if is_sparse:
@@ -135,8 +138,8 @@ def boundary_matrix(simplices, subsimplices, is_oriented=True, is_sparse=True, f
     simplices = np.sort(simplices, axis=1)
     subsimplices = np.sort(subsimplices, axis=1)
     for i, simplex in enumerate(simplices):
-        for j in np.arange(subsimplex_dim):
-            idx = list(range(subsimplex_dim))
+        for j in np.arange(simplex_dim):
+            idx = list(range(simplex_dim))
             idx.pop(j)
             subsimplex = simplex.take(idx)
             # to check the membership of subsimplex in subsimplices
@@ -148,8 +151,7 @@ def boundary_matrix(simplices, subsimplices, is_oriented=True, is_sparse=True, f
             subsimplex_idx = subsimplex_idx[0][0]
             if is_oriented:
                 val = (-1)**((j + 1) + 1 + simplices_parity[i] + subsimplices_parity[subsimplex_idx])
-            else:
-                boundary_matrix[subsimplex_idx, i] = val
+            boundary_matrix[subsimplex_idx, i] = val
     if is_sparse:
         return boundary_matrix.asformat(format)
     else:
