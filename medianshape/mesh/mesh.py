@@ -89,39 +89,6 @@ class Mesh2D():
         for i, edge in enumerate(self.edges):
             print i, edge
 
-    def plot(self):
-        plt.triplot(self.points[:,0], self.points[:,1], self.simplices.copy())
-        #plt.scatter(self.points[:,0], self.points[:,1])
-
-    def plot_curve(self, func_path, title=None, color="black", marker=None, linewidth=3, ls='-', label=""):
-        if type(func_path) == list:
-            func_path = np.array(func_path)
-        if func_path.dtype != int:
-            func_path = func_path.astype(int)
-        nonzero_edges = func_path.nonzero()[0]
-        for i, edge_idx in enumerate(nonzero_edges):
-            edge = self.edges[edge_idx]
-            points = self.points[edge]
-            if i == len(nonzero_edges)-1:
-                plt.plot(points[:,0], points[:,1], color, linewidth=linewidth, marker=marker, ls=ls, label=label)
-            else:
-                plt.plot(points[:,0], points[:,1], color, linewidth=linewidth, marker=marker, ls=ls)
-
-        if title:
-            plt.title(title)
-
-    # Plot simplices
-    def plot_simplices(self, simplices, title=None, color="y"):
-        ax = plt.gca()
-        #ccw_symbol = u'\u2941'
-        #cw_symbol = u'\u21BB'
-        for i in simplices.nonzero()[0]:
-            hatch = ''
-            if simplices[i] == -1:
-                hatch = '.' 
-            simplex = plt.Polygon(self.points[self.simplices[i]], closed=True, fill=True, fc=color, hatch=hatch)
-            ax.add_patch(simplex)
-
 class Mesh3D():
     '''
 
@@ -185,32 +152,3 @@ class Mesh3D():
         print "Edges in mesh:"
         for i, edge in enumerate(self.edges):
             print i, edge
-
-    def plot_curve(self, func_path, title=None, color="black", marker=None, linewidth=3, ls='-', label=""):
-        if type(func_path) == list:
-            func_path = np.array(func_path)
-        if func_path.dtype != int:
-            func_path = func_path.astype(int)
-        nonzero_edges = func_path.nonzero()[0]
-        for i, edge_idx in enumerate(nonzero_edges):
-            edge = self.edges[edge_idx]
-            points = self.points[edge]
-            if i == len(nonzero_edges)-1:
-                plt.plot(points[:,0], points[:,1], color, linewidth=linewidth, marker=marker, ls=ls, label=label)
-            else:
-                plt.plot(points[:,0], points[:,1], color, linewidth=linewidth, marker=marker, ls=ls)
-
-        if title:
-            plt.title(title)
-
-    # Plot simplices
-    def plot_simplices(self, simplices, title=None, color="y"):
-        ax = plt.gca()
-        #ccw_symbol = u'\u2941'
-        #cw_symbol = u'\u21BB'
-        for i in simplices.nonzero()[0]:
-            hatch = ''
-            if simplices[i] == -1:
-                hatch = '.' 
-            simplex = plt.Polygon(self.points[self.simplices[i]], closed=True, fill=True, fc=color, hatch=hatch)
-            ax.add_patch(simplex)

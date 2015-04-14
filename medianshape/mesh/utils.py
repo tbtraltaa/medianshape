@@ -10,13 +10,6 @@ from scipy.misc import factorial
 from scipy.spatial.distance import cdist, pdist
 from scipy.sparse import dok_matrix
 
-def extract_edges(simplices):
-    edges = set()
-    for simplex in simplices:
-        for i in range(len(simplex)):
-            edges.add(tuple(sorted([simplex[i], simplex[(i+1)%len(simplex)]])))
-    return np.array(list(edges))
-
 def get_subsimplices(simplices):
     simplices = np.sort(simplices, axis=1)
     subsimplices = set()

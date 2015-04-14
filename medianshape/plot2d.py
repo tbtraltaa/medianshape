@@ -99,11 +99,11 @@ def plot_mean(mesh, input_currents, comb, t, title='', figname="", file_doc=None
 
 def plot_curve_and_mean(mesh, input_currents, comb, t, title=None, figname=None, file_doc=None, save=True, lim=5):
     color_set = "r"
-    if len(functions) == 2:
+    if len(input_currents) == 2:
         color_set = 'gr'
-    elif len(functions) == 3:
+    elif len(input_currents) == 3:
         color_set = 'gry'
-    elif len(functions) == 5:
+    elif len(input_currents) == 5:
         color_set = 'grcym' 
     colors = itertools.cycle(color_set)
     fig = plt.gca().figure

@@ -4,7 +4,7 @@ import numpy as np
 
 from mesh.mesh import Mesh2D
 import msfn
-import plotting
+import plot2d
 from scipy.sparse import dok_matrix, coo_matrix
 
 import matplotlib.pyplot as plt
@@ -15,9 +15,9 @@ def envelope(mesh, input_currents):
         if i < input_currents.shape[0] -1:
             diff = c - input_currents[i+1]
             x, s, norm = msfn.msfn(mesh.points, mesh.simplices, mesh.edges, diff, 0)
-            plotting.plot_mean(mesh, diff.reshape((1, len(c))), [1], [], lim=0.1)
+            plot2d.plot_mean(mesh, diff.reshape((1, len(c))), [1], [], lim=0.1)
             plt.show()
-            plotting.plot_decomposition(mesh, input_currents, comb, None, x, s, lim=0.1)
+            plot2d.plot_decomposition(mesh, input_currents, comb, None, x, s, lim=0.1)
             plt.show()
 
 def adjust_alphas(mesh, input_currents, t, v):

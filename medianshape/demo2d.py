@@ -139,17 +139,17 @@ def mean_curve_demo(load_data=False, save_data=True):
     lp_times = list()
     start = time.time()
     pdf_file = PdfPages('/home/altaa/figures.pdf')
-    fig = plt.figure(figsize=(8,8))
+    fig = plt.figure(figsize=(16,8))
     #fig = plt.figure()
     figcount = 1
     boundary_box = (0,0,200,50)
     fixed_points = [(0,0),(200,0),(0,50),(200,50)]
     l=6
-    boundary_box = (0,0,40,40)
-    fixed_points = [(0,0),(40,0),(0,40),(40,40)]
-    boundary_box = (0,0,1,1)
-    fixed_points = [(0,0),(1,0),(0,1),(1,1)]
-    l=0.07
+    #boundary_box = (0,0,40,40)
+    #fixed_points = [(0,0),(40,0),(0,40),(40,40)]
+    #boundary_box = (0,0,1,1)
+    #fixed_points = [(0,0),(1,0),(0,1),(1,1)]
+    #l=0.07
     mesh, w, v, b_matrix = load_mesh(boundary_box, fixed_points, l)
     print mesh.get_info()
 
@@ -173,15 +173,15 @@ def mean_curve_demo(load_data=False, save_data=True):
     points = list()
     for f in functions:
         points.append(pointgen2d.sample_function_mesh(mesh, f))
-    points  = np.array(shapes)
-    vertices, paths, input_currents = curvegen2d.push_curves_on_mesh(mesh, points, is_closed=True)
+    #points  = np.array(shapes)
+    vertices, paths, input_currents = curvegen2d.push_curves_on_mesh(mesh, points, is_closed=False, functions=functions)
 
     figname = '/home/altaa/fig_dump/%d.png'%(figcount)
     title = '%s - (%s)' % (mesh.get_info(), ','.join(functions))
     plot2d.plot_curves_approx(mesh, points, vertices, paths, title, figname, pdf_file)
     figcount += 1
     #envelope(mesh, input_currents)
-    lambdas = [1]
+    lambdas = [0.001]
     mus = [0.0001]
     alpha1 = np.array([0])
     #alpha1 = np.append(alpha1, np.linspace(0.4999, 0.5, 10))

@@ -17,6 +17,8 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
 from utils import vectorize, sparse_savetxt
 import pointgen2d
 
+#def push_functions_on_mesh_2d():
+
 def push_curves_on_mesh(mesh, curves, is_closed=False, functions=None):
         input_currents = list()
         paths = list()
@@ -60,10 +62,10 @@ def find_closest_vertex(mesh, point, selected_points, interval_size=5, func_str=
         for i, x in enumerate(interval_X):
             #Assigning candidate indices out of a tuple with 2 elements where the second one is empty
             candidate_idx = np.where(mesh.points[:,0]==x)[0]     
-            candidate_idx = [c_idx for i, c_idx in enumerate(candidate_idx) if c_idx not in selected_points]
+            candidate_idx = [c_idx for c_idx in candidate_idx if c_idx not in selected_points]
             if len(candidate_idx) != 0:
                 candidate_points = mesh.points[candidate_idx]
-                distances = cdist(candidate_points, func_points[i].T.reshape(1,2))
+                distances = cdist(candidate_points, func_points[i].reshape(1,-1))
                 min_idx = np.argmin(distances)  
                 dist = distances[min_idx]
                 if min_idx.size > 1:
@@ -117,9 +119,6 @@ def find_path(mesh, path_points, is_closed=False):
             adjacency_matrix[edge[0],edge[1]] = cdist(p1, p2, 'euclidean')[0]
             adjacency_matrix[edge[1],edge[0]] = cdist(p1, p2, 'euclidean')[0]
 
-    #print "Adjacent matrix \n", adjacency_matrix
-    #print graph.data
-
     # Finding path vertices in reverse order from the end to the start
     path_vertices = list()
     for i, point in reversed(list(enumerate(path_points))): 
@@ -169,7 +168,6 @@ def get_edge_vector(mesh, path):
         else:
             edge_vector[i] = -1
     return edge_vector
-
             
 if __name__ == '__main__':
     pass
