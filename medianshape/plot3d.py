@@ -3,9 +3,12 @@
 from __future__ import absolute_import
 
 import itertools
+import numpy as np
 
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
+
+from distmesh.plotting import axes_simpplot3d
 
 def plotmesh3d(mesh):
     dim = mesh.points.shape[1]
@@ -20,12 +23,11 @@ def plotmesh3d(mesh):
         ax.set_axis_off()
         c.set_simplices((mesh.points, mesh.simplices))
     elif dim == 3:
-        import mpl_toolkits.mplot3d
-        from distmesh.plotting import axes_simpplot3d
         ax = plt.gca(projection='3d')
-        ax.set_xlim(mesh.bbox[3])
-        ax.set_ylim(mesh.bbox[4])
-        ax.set_zlim(mesh.bbox[5])
+        lim = float(mesh.zmax)/10
+        ax.set_xlim(mesh.xmax + lim)
+        ax.set_ylim(mesh.ymax + lim)
+        ax.set_zlim(mesh.zmax + lim)
         ax.cla()
         axes_simpplot3d(ax, mesh.points, mesh.simplices, mesh.points[:,1] > 0)
         ax.set_title('Retriangulation')
@@ -58,8 +60,7 @@ def plot_simplices(mesh, simplices, title=None, color="y"):
         hatch = ''
         if simplices[i] == -1:
             hatch = '.' 
-        simplex = plt.Polygon(mesh.points[self.simplices[i]], closed=True, fill=True, fc=color, hatch=hatch)
-        ax.add_patch(simplex)
+        axes_simpplot3d(ax, mesh.points, mesh.triangles[i].reshape(1,-1), mesh.points[:,1] > 0)
 
 def plot_curves_approx(mesh, points, vertices, paths, title="", figname=None, file_doc=None, save=True, lim=5):
     color_set = "r"
@@ -70,13 +71,15 @@ def plot_curves_approx(mesh, points, vertices, paths, title="", figname=None, fi
     elif len(paths) == 5:
         color_set = 'grcym' 
     colors = itertools.cycle(color_set)
-    fig = plt.gca(projection='3d').figure
+    ax = plt.gca(projection='3d')
+    fig = ax.figure
+    ax.set_aspect('equal')
+    lim = float(mesh.zmax)/10
+    ax.set_xlim(mesh.xmax + lim)
+    ax.set_ylim(mesh.ymax + lim)
+    ax.set_zlim(mesh.zmax + lim)
     plt.clf()
-    plt.gca().set_aspect('equal')
-    lim = float(mesh.bbox[3])/10
-    plt.ylim([mesh.bbox[1]-lim, mesh.bbox[4]+lim])
-    plt.xlim([mesh.bbox[0]-lim, mesh.bbox[3]+lim])
-    plotmesh3d(mesh)
+    #plotmesh3d(mesh)
     for i, path in enumerate(paths):
         plot_curve_approx(mesh, points[i], vertices[i], path, color=colors.next())
     plt.title(title)
@@ -105,13 +108,15 @@ def plot_mean(mesh, input_currents, comb, t, title='', figname="", file_doc=None
     elif len(input_currents) == 5:
         color_set = 'grcym' 
     colors = itertools.cycle(color_set)
+    #fig = plt.figure(figsize=(12,8))
+    ax = plt.gca(projection='3d')
+    fig = ax.figure
+    ax.set_aspect('equal')
+    lim = float(mesh.zmax)/10
+    ax.set_xlim(mesh.xmax + lim)
+    ax.set_ylim(mesh.ymax + lim)
+    ax.set_zlim(mesh.zmax + lim)
     plt.clf()
-    fig = plt.gca(projection='3d').figure
-    plt.gca().set_aspect('equal')
-    lim = float(mesh.bbox[3])/10
-    plt.ylim([mesh.bbox[1]-lim, mesh.bbox[4]+lim])
-    plt.xlim([mesh.bbox[0]-lim, mesh.bbox[3]+lim])
-    #mesh.plot()
     for i, c in enumerate(input_currents):
         plot_curve(mesh, c, color=colors.next(), label='current%d, %d'%(i+1, comb[i]), linewidth=5)
     plot_curve(mesh, t, title)
@@ -132,12 +137,13 @@ def plot_curve_and_mean(mesh, input_currents, comb, t, title=None, figname=None,
     colors = itertools.cycle(color_set)
     ax = plt.gca(projection='3d')
     fig = ax.figure
+    ax.set_aspect('equal')
     for i, c in enumerate(input_currents):
-        fig.clf()                    
-        plt.gca().set_aspect('equal')
-        lim = mesh.bbox[3]/10
-        plt.ylim([mesh.bbox[1]-lim, mesh.bbox[4]+lim])
-        plt.xlim([mesh.bbox[0]-lim, mesh.bbox[3]+lim])
+        lim = float(mesh.zmax)/10
+        ax.set_xlim(mesh.xmax + lim)
+        ax.set_ylim(mesh.ymax + lim)
+        ax.set_zlim(mesh.zmax + lim)
+        plt.clf()                    
         plot_curve(mesh, c, color=colors.next(), linewidth=5, \
         label='current%d, %d'%(i+1, comb[i]))
         plot_curve(mesh, t, title, label='Mean')
@@ -160,11 +166,11 @@ def plot_decomposition(mesh, input_currents, comb, t, q, r, title='', figname=No
     fig = ax.figure
     for i, r_i in enumerate(r):
         color = colors.next()
-        fig.clf()
-        plt.gca().set_aspect('equal')
-        lim = mesh.bbox[3]/10
-        plt.ylim([mesh.bbox[1]-lim, mesh.bbox[4]+lim])
-        plt.xlim([mesh.bbox[0]-lim, mesh.bbox[3]+lim])
+        plt.clf()
+        lim = float(mesh.zmax)/10
+        ax.set_xlim(mesh.xmax + lim)
+        ax.set_ylim(mesh.ymax + lim)
+        ax.set_zlim(mesh.zmax + lim)
         plot_simplices(mesh, r_i, color=color)
         plot_curve(mesh, q[i], title=title + ', Q%d&R%d'%(i+1,i+1), color='m', marker='*', linewidth=6, label='Q%d'%(i+1))
         if t is not None:

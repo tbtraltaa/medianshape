@@ -51,9 +51,9 @@ def plot_curves_approx(mesh, points, vertices, paths, title="", figname=None, fi
     fig = plt.gca().figure
     plt.clf()
     plt.gca().set_aspect('equal')
-    lim = float(mesh.bbox[3])/10
-    plt.ylim([mesh.bbox[1]-lim, mesh.bbox[3]+lim])
-    plt.xlim([mesh.bbox[0]-lim, mesh.bbox[2]+lim])
+    lim = float(mesh.ymax)/10
+    plt.ylim([mesh.ymin-lim, mesh.ymax+lim])
+    plt.xlim([mesh.xmin-lim, mesh.xmax+lim])
     plot(mesh)
     for i, path in enumerate(paths):
         plot_curve_approx(mesh, points[i], vertices[i], path, color=colors.next())
@@ -84,9 +84,9 @@ def plot_mean(mesh, input_currents, comb, t, title='', figname="", file_doc=None
     plt.clf()
     fig = plt.gca().figure
     plt.gca().set_aspect('equal')
-    lim = float(mesh.bbox[3])/10
-    plt.ylim([mesh.bbox[1]-lim, mesh.bbox[3]+lim])
-    plt.xlim([mesh.bbox[0]-lim, mesh.bbox[2]+lim])
+    lim = float(mesh.ymax)/10
+    plt.ylim([mesh.ymin-lim, mesh.ymax+lim])
+    plt.xlim([mesh.xmin-lim, mesh.xmax+lim])
     plot(mesh)
     for i, c in enumerate(input_currents):
         plot_curve(mesh,  c, color=colors.next(), label='current%d, %d'%(i+1, comb[i]), linewidth=5)
@@ -110,9 +110,9 @@ def plot_curve_and_mean(mesh, input_currents, comb, t, title=None, figname=None,
     for i, c in enumerate(input_currents):
         fig.clf()                    
         plt.gca().set_aspect('equal')
-        lim = mesh.bbox[3]/10
-        plt.ylim([mesh.bbox[1]-lim, mesh.bbox[3]+lim])
-        plt.xlim([mesh.bbox[0]-lim, mesh.bbox[2]+lim])
+        lim = mesh.ymax/10
+        plt.ylim([mesh.ymin-lim, mesh.ymax+lim])
+        plt.xlim([mesh.xmin-lim, mesh.xmax+lim])
         plot(mesh)
         plot_curve(mesh, c, color=colors.next(), linewidth=5, \
         label='current%d, %d'%(i+1, comb[i]))
@@ -137,9 +137,9 @@ def plot_decomposition(mesh, input_currents, comb, t, q, r, title='', figname=No
         color = colors.next()
         fig.clf()
         plt.gca().set_aspect('equal')
-        lim = mesh.bbox[3]/10
-        plt.ylim([mesh.bbox[1]-lim, mesh.bbox[3]+lim])
-        plt.xlim([mesh.bbox[0]-lim, mesh.bbox[2]+lim])
+        lim = mesh.ymax/10
+        plt.ylim([mesh.ymin-lim, mesh.ymax+lim])
+        plt.xlim([mesh.xmin-lim, mesh.xmax+lim])
         plot(mesh)
         if r_dim == 1:
             plot_curve(mesh, r_i, title=title + ', Q%d&R%d'%(i+1,i+1), color='m', marker='*', linewidth=6, label='Q%d'%(i+1))

@@ -20,10 +20,17 @@ class Mesh2D():
         self.fixed_points = kwargs.get('fixed_points', None)
         self.diagonal = kwargs.get('diagonal', None)
         if self.bbox is not None:
-            if self.fixed_points is None: 
-                self.set_fixed_points()
+            self.set_boundary_points()
+            self.set_boundary_values()
             if self.diagonal is None:
                 self.set_diagonal()
+
+    def set_boundary_values(self):
+        if self.bbox is not None and len(self.bbox) == 4:
+            self.xmin = self.bbox[0]
+            self.ymin = self.bbox[1]
+            self.xmax = self.bbox[2]
+            self.ymax = self.bbox[3]
 
     def set_edges(self):
         edges = set()
@@ -32,14 +39,12 @@ class Mesh2D():
                 edges.add(tuple(sorted([simplex[i], simplex[(i+1)%len(simplex)]])))
         self.edges = np.array(list(edges), dtype=int)
 
-    def set_fixed_points(self):
-        self.fixed_points = list()
-        if self.bbox is not None:
-            if len(self.bbox) == 4:
-                self.fixed_points = [[self.bbox[0], self.bbox[1]],\
+    def set_boundary_points(self):
+        if self.bbox is not None and len(self.bbox) == 4:
+                self.boundary_points = np.array([[self.bbox[0], self.bbox[1]],\
                                         [self.bbox[0], self.bbox[3]],\
                                         [self.bbox[2], self.bbox[1]],\
-                                        [self.bbox[2], self.bbox[3]]]
+                                        [self.bbox[2], self.bbox[3]]])
     def set_diagonal(self):
         self.diagonal = np.sqrt(self.bbox[2]**2 + self.bbox[3]**2)
 
@@ -101,20 +106,31 @@ class Mesh3D():
         self.bbox = kwargs.get('bbox', [])
         self.fixed_points = kwargs.get('fixed_points', [])
         self.diagonal = kwargs.get('diagonal', 1e10)
-        if len(self.bbox) != 0:
-            self.set_diagonal()
+        if self.bbox is not None or len(self.bbox) != 0:
+            self.set_boundary_values()
+            self.set_boundary_points()
+            if self.diagonal is None:
+                self.set_diagonal()
 
-    def set_fixed_points(self):
-        self.fixed_points = list()
-        if len(self.bbox) != 0 and len(self.bbox) == 6:
-            self.fixed_points = [[self.bbox[0], self.bbox[1], self.bbox[2]],\
+    def set_boundary_values(self):
+        if self.bbox is not None and len(self.bbox) == 6:
+            self.xmin = self.bbox[0]
+            self.ymin = self.bbox[1]
+            self.zmin = self.bbox[2]
+            self.xmax = self.bbox[3]
+            self.ymax = self.bbox[4]
+            self.zmax = self.bbox[5]
+
+    def set_boundary_points(self):
+        if self.bbox is not None and len(self.bbox) == 6:
+            self.boundary_points = np.array([[self.bbox[0], self.bbox[1], self.bbox[2]],\
                                     [self.bbox[0], self.bbox[1], self.bbox[5]],\
                                     [self.bbox[0], self.bbox[4], self.bbox[2]],\
                                     [self.bbox[0], self.bbox[4], self.bbox[5]],\
                                     [self.bbox[3], self.bbox[1], self.bbox[2]],\
                                     [self.bbox[3], self.bbox[4], self.bbox[2]],\
                                     [self.bbox[3], self.bbox[1], self.bbox[5]],\
-                                    [self.bbox[3], self.bbox[4], self.bbox[5]]]
+                                    [self.bbox[3], self.bbox[4], self.bbox[5]]])
     def set_diagonal(self):
         self.diagonal = pdist([[self.bbox[0],self.bbox[1], self.bbox[2]],\
                                 [self.bbox[3], self.bbox[4], self.bbox[5]]])

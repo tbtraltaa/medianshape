@@ -15,9 +15,8 @@ from matplotlib.backends.backend_pdf import PdfPages
 
 from mesh.distmesh import distmesh3d
 from mesh.mesh import Mesh3D
-from shape_gen import pointgen3d, curvegen2d, utils
+from shapegen import pointgen3d, currentgen, utils
 import mean
-import plotting
 
 from utils import sparse_savetxt, load, save, envelope, adjust_alphas
 from mesh.utils import boundary_matrix, simpvol, get_subsimplices
@@ -29,7 +28,7 @@ import plot3d
 #options = ['default', 'mass', 'msfn']
 options = ['mass']
 
-def load_mesh(boundary_box=None, fixed_points=None, l=0.02, load_data=False):
+def load_mesh(boundary_box=None, l=0.02, fixed_points=None, include_corners=True, load_data=False):
     if load_data:
         #TODO add mesh diagonal
         mesh, w, v, b_matrix = load()
@@ -37,11 +36,20 @@ def load_mesh(boundary_box=None, fixed_points=None, l=0.02, load_data=False):
         mesh = Mesh3D()
         # l - initial length of triangle sides. Change it to vary traingle size
         mesh.bbox = boundary_box
-        mesh.set_fixed_points()
-        if fixed_points is not None:
-            mesh.fixed_points = fixed_points
+        mesh.set_boundary_points()
         mesh.set_diagonal()
-        mesh.points, mesh.simplices= distmesh3d("ball", mesh.bbox, None, l=l)
+        mesh.set_boundary_values()
+        mesh.fixed_points = fixed_points
+        if include_corners:
+            if mesh.fixed_points is not None:
+                mesh.fixed_points = np.vstack((mesh.fixed_points, mesh.boundary_points))
+            else:
+                mesh.fixed_points = mesh.boundary_points
+        mesh.fixed_points = np.array([[0.5, 0.5, 0.5]])
+        mesh.points, mesh.simplices= distmesh3d("ball", mesh.bbox, mesh.fixed_points, l=l)
+        plot3d.plotmesh3d(mesh)
+        plt.show()
+        exit()
         mesh.triangles = get_subsimplices(mesh.simplices)
         mesh.edges = get_subsimplices(mesh.triangles)
         w = simpvol(mesh.points, mesh.edges)
@@ -83,7 +91,7 @@ def run_demo(mesh, input_currents, options, lambdas, mus, alphas, w=None, v=None
                     figname = '/home/altaa/fig_dump/%d-%s-%.04f-%.06f'%(figcount, opt, l, mu)
                     if save and file_doc is not None:
                         plot3d.plot_mean(mesh, input_currents, comb, t, title, figname, file_doc, save=save)
-                        plt.show()
+                        #plt.show()
                         #figcount += 1
 
                         #figname = '/home/altaa/fig_dump/%d-%s-%.04f-%.04f'%(figcount, opt, l, mu)
@@ -95,7 +103,7 @@ def run_demo(mesh, input_currents, options, lambdas, mus, alphas, w=None, v=None
                         plot3d.plot_decomposition(mesh, input_currents, comb, t, q, r, title, \
                         figname, file_doc, save)
                         figcount += input_currents.shape[0]
-                        plt.show()
+                        #plt.show()
                 
                 # Plotting the combination with minimum flatnorm difference
             #title = 'Minimum flatnorm difference, %s, lambda=%.04f, %s' % (opt, l, str(comb))
@@ -114,7 +122,7 @@ def mean_curve_demo(load_data=False, save_data=True):
     lp_times = list()
     start = time.time()
     pdf_file = PdfPages('/home/altaa/figures.pdf')
-    fig = plt.figure(figsize=(8,8))
+    fig = plt.figure(figsize=(12,8))
     #fig = plt.figure()
     figcount = 1
     boundary_box = (0,0,200,50)
@@ -125,9 +133,9 @@ def mean_curve_demo(load_data=False, save_data=True):
     boundary_box = (0,0,1,1)
     fixed_points = [(0,0),(1,0),(0,1),(1,1)]
     l=0.07
-    boundary_box = (0,0,0,50,50,50)
-    l=8
-    mesh, w, v, b_matrix = load_mesh(boundary_box, None, l)
+    boundary_box = (0,0,0,1,1,1)
+    l=0.2
+    mesh, w, v, b_matrix = load_mesh(boundary_box, l, include_corners=True)
     print mesh.get_info()
 
     #function_sets = [['sin1pi','half_sin1pi'], ['x', 'x2', 'x5']]
@@ -144,16 +152,16 @@ def mean_curve_demo(load_data=False, save_data=True):
     shapes = [curve1, curve2]
     points = list()
     points  = np.array(shapes)
-    vertices, paths, input_currents = curvegen2d.push_curves_on_mesh(mesh, points, is_closed=False)
+    vertices, paths, input_currents = currentgen.push_curves_on_mesh(mesh, points, is_closed=False)
 
     figname = '/home/altaa/fig_dump/%d.png'%(figcount)
     title = '%s' % (mesh.get_info())
     plot3d.plot_curves_approx(mesh, points, vertices, paths, title, figname, pdf_file)
     figcount += 1
-    plt.show()
+    #plt.show()
     #envelope(mesh, input_currents)
-    lambdas = [1]
-    mus = [0.0001]
+    lambdas = [0.001]
+    mus = [0.001]
     alpha1 = np.array([0])
     #alpha1 = np.append(alpha1, np.linspace(0.4999, 0.5, 10))
     #alpha1 = np.append(alpha1, np.linspace(0.5, 0.5001, 10))
@@ -167,7 +175,6 @@ def mean_curve_demo(load_data=False, save_data=True):
     t = run_demo(mesh, input_currents, options, lambdas, mus, alphas, w, v, b_matrix, pdf_file)
     #alphas = alphas + adjust_alphas(mesh, input_currents, t, v)
     #t = run_demo(mesh, input_currents, options, lambdas, mus, alphas, w, v, b_matrix, pdf_file)
-
 
     if save_data:
         save(mesh, input_currents, b_matrix, w, v)

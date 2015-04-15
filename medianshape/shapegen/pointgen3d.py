@@ -17,8 +17,10 @@ def curve1(bbox):
     return points
 
 def curve2(bbox):
-    x = np.linspace(bbox[0] + 10, bbox[3], 5).reshape(-1, 1)
-    points = np.tile(x,(1,3))
+    x = np.linspace(bbox[0], bbox[3], 5).reshape(-1, 1)
+    z = x**5
+    points = np.tile(x,(1,2))
+    points = np.hstack((points,z))
     return points
 
 

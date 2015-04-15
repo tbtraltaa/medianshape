@@ -33,21 +33,24 @@ def cuboid_mesh(bbox, fixed_points, l=0.1):
     '''
         Generates 3-simplex, tetrahedral mesh in 3D using DistMesh
     '''
-    dist_function = lambda p: dcubiod(p, bbox[0], bbox[1], 
-                                        bbox[2], bbox[3],
-                                        bbox[4], bbox[5]) 
-    points, tetrahedras = dm.distmeshnd(dist_function, dm.huniform, l, bbox) 
+    print bbox
+    print fixed_points
+    dist_function = lambda p: dcuboid(p, bbox[0], bbox[1], bbox[2], bbox[3], bbox[4], bbox[5]) 
+    points, tetrahedras = dm.distmeshnd(dist_function, dm.huniform, l, bbox, fixed_points) 
     return points, tetrahedras
 
-def dcubiod(p, x1, y1, z1, x2, y2, z2):
+def dcuboid(p, x1, y1, z1, x2, y2, z2):
     """Signed distance function for cubiod with corners (x1,y1,z1), (x1,y1,z2),
     (x1,y2,z1), (x1,y2,z2), (x2,y1,z1), (x2,y2,z1), (x2,y1,z2), (x2,y2,z2).
 
     This has an incorrect distance to the four corners. 
     """
-    return -np.minimum(np.minimum(np.minimum(np.minimum(np.minimum\
-            (-y1+p[:,1],y2-p[:,1]),-x1+p[:,0]),x2-p[:,0]),-z1+p[:,2]), z2-p[:,2])
+    print "cuboid"
+    #print p
+    return -np.minimum(np.minimum(np.minimum(np.minimum(np.minimum(-y1+p[:,1],y2-p[:,1]),-x1+p[:,0]),x2-p[:,0]),-z1+p[:,2]), z2-p[:,2])
 
 def ball(bbox, fixed_points, l):                                                                                           
+    print fixed_points
+    print fixed_points.shape
     fd = lambda p: np.sqrt((p**2).sum(1))-float(bbox[5])
     return dm.distmeshnd(fd, dm.huniform, l, bbox, fixed_points) 

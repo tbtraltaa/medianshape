@@ -17,70 +17,89 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
 from utils import vectorize, sparse_savetxt
 import pointgen2d
 
-#def push_functions_on_mesh_2d():
-
-def push_curves_on_mesh(mesh, curves, is_closed=False, functions=None):
+def push_functions_on_mesh_2d(mesh, curves, functions, is_closed=False):
         input_currents = list()
         paths = list()
         vertices = list()
         for i, curve_points in enumerate(curves):
-            func_str = None
-            if functions:
-                func_str = functions[i]
+            func_str = functions[i]
             input_current, path, closest_vertices = \
-            push_curve_on_mesh(mesh, curve_points, is_closed=is_closed, func_str=func_str) 
+            push_function_on_mesh(mesh, curve_points, func_str=func_str, is_closed=is_closed) 
             vertices.append(closest_vertices)
             paths.append(path)
             input_currents.append(input_current)
         input_currents = np.array(input_currents).reshape(len(curves), mesh.edges.shape[0])
         return vertices, paths, input_currents
 
-def push_curve_on_mesh(mesh, points, interval_size=10, is_closed=False, func_str=None):
-        closest_vertices = find_closest_vertices(mesh, points, interval_size, func_str)
+def push_function_on_mesh(mesh, points, interval_size=10, func_str=None, is_closed=False):
+        closest_vertices = list()
+        for point in points:
+            min_dist = mesh.diagonal
+            closest_vertex = -1
+            min_idx = 0
+            ordered_X = np.sort(np.unique(mesh.points[:,0]))
+            interval_X = find_interval_X(point, ordered_X, interval_size)
+            func_values = vectorize(func_str, interval_X)
+            func_points = np.hstack((interval_X, func_values))
+            for i, x in enumerate(interval_X):
+                #Assigning candidate indices out of a tuple with 2 elements where the second one is empty
+                candidate_idx = np.where(mesh.points[:,0]==x)[0]     
+                candidate_idx = [c_idx for c_idx in candidate_idx if c_idx not in closest_vertices]
+                if len(candidate_idx) != 0:
+                    candidate_points = mesh.points[candidate_idx]
+                    distances = cdist(candidate_points, func_points[i].reshape(1,-1))
+                    min_idx = np.argmin(distances)  
+                    dist = distances[min_idx]
+                    if min_idx.size > 1:
+                        min_idx = random.sample(min_idx, 1)
+                    if dist < min_dist:
+                        min_dist = dist
+                        closest_vertex = candidate_idx[min_idx]
+            closest_vertices.append(closest_vertex)
+        closest_vertices = np.array(closest_vertices)
+        curve_path = find_path(mesh, closest_vertices, is_closed)
+        edge_vector = get_edge_vector(mesh, curve_path)
+        return edge_vector, curve_path, closest_vertices
+
+def push_curves_on_mesh(mesh, curves, is_closed=False):
+        input_currents = list()
+        paths = list()
+        vertices = list()
+        for i, curve_points in enumerate(curves):
+            input_current, path, closest_vertices = \
+            push_curve_on_mesh(mesh, curve_points, is_closed=is_closed) 
+            vertices.append(closest_vertices)
+            paths.append(path)
+            input_currents.append(input_current)
+        input_currents = np.array(input_currents).reshape(len(curves), mesh.edges.shape[0])
+        return vertices, paths, input_currents
+
+def push_curve_on_mesh(mesh, points, is_closed=False):
+        closest_vertices = find_closest_vertices(mesh, points)
         #print "Closest_vertices:\n", closest_vertices
         #print "Function points:\n", points
         curve_path = find_path(mesh, closest_vertices, is_closed)
         edge_vector = get_edge_vector(mesh, curve_path)
         return edge_vector, curve_path, closest_vertices
 
-def find_closest_vertices(mesh, points, interval_size=10, func_str=None):
+def find_closest_vertices(mesh, points):
     closest_vertices = list()
     for point in points:
-            closest_vertex = find_closest_vertex(mesh, point, closest_vertices, interval_size, func_str)
+            closest_vertex = find_closest_vertex(mesh, point, closest_vertices)
             closest_vertices.append(closest_vertex)
     return  np.array(closest_vertices)
 
-def find_closest_vertex(mesh, point, selected_points, interval_size=5, func_str=None):
+def find_closest_vertex(mesh, point, selected_points):
     min_dist = mesh.diagonal
     closest_vertex = -1
     min_idx = 0
-    if func_str:
-        ordered_X = np.sort(np.unique(mesh.points[:,0]))
-        interval_X = find_interval_X(point, ordered_X, interval_size)
-        func_values = vectorize(func_str, interval_X)
-        func_points = np.hstack((interval_X, func_values))
-        for i, x in enumerate(interval_X):
-            #Assigning candidate indices out of a tuple with 2 elements where the second one is empty
-            candidate_idx = np.where(mesh.points[:,0]==x)[0]     
-            candidate_idx = [c_idx for c_idx in candidate_idx if c_idx not in selected_points]
-            if len(candidate_idx) != 0:
-                candidate_points = mesh.points[candidate_idx]
-                distances = cdist(candidate_points, func_points[i].reshape(1,-1))
-                min_idx = np.argmin(distances)  
-                dist = distances[min_idx]
-                if min_idx.size > 1:
-                    min_idx = random.sample(min_idx, 1)
-                if dist < min_dist:
-                    min_dist = dist
-                    closest_vertex = candidate_idx[min_idx]
-    else:
-        temp_points = np.copy(mesh.points)
+    temp_points = np.copy(mesh.points)
+    distances = cdist(point.reshape(1, -1), temp_points)
+    closest_vertex = np.argmin(distances)  
+    while closest_vertex in selected_points:
+        temp_points[closest_vertex] = temp_points[np.argmax(distances)]
         distances = cdist(point.reshape(1, -1), temp_points)
-        closest_vertex = np.argmin(distances)  
-        while closest_vertex in selected_points:
-            temp_points[closest_vertex] = temp_points[np.argmax(distances)]
-            distances = cdist(point.reshape(1, -1), temp_points)
-            closest_vertex= np.argmin(distances)  
+        closest_vertex= np.argmin(distances)  
     return closest_vertex
 
 def find_interval_X(point, ordered_X, interval_size=5):

@@ -15,7 +15,7 @@ from matplotlib.backends.backend_pdf import PdfPages
 
 from mesh.distmesh import distmesh2d
 from mesh.mesh import Mesh2D
-from shape_gen import pointgen2d, curvegen2d, utils
+from shapegen import pointgen2d, currentgen, utils
 import mean
 import plot2d
 
@@ -28,7 +28,7 @@ import distmesh as dm
 #options = ['default', 'mass', 'msfn']
 options = ['mass']
 
-def load_mesh(boundary_box=None, fixed_points=None, l=0.02, load_data=False):
+def load_mesh(boundary_box=None, l=0.02, fixed_points=None, include_corners=True, load_data=False):
     if load_data:
         #TODO add mesh diagonal
         mesh, w, v, b_matrix = load()
@@ -36,8 +36,15 @@ def load_mesh(boundary_box=None, fixed_points=None, l=0.02, load_data=False):
         mesh = Mesh2D()
         # l - initial length of triangle sides. Change it to vary traingle size
         mesh.bbox = boundary_box
-        mesh.fixed_points = fixed_points
+        mesh.set_boundary_points()
         mesh.set_diagonal()
+        mesh.set_boundary_values()
+        mesh.fixed_points = fixed_points
+        if include_corners:
+            if mesh.fixed_points is not None:
+                mesh.fixed_points = np.vstack((mesh.fixed_points, mesh.boundary_points))
+            else:
+                mesh.fixed_points = mesh.boundary_points
         mesh.points, mesh.simplices = distmesh2d('square', mesh.bbox, mesh.fixed_points, l=l)
         mesh.edges = get_subsimplices(mesh.simplices)
         mesh.orient_simplices_2D()
@@ -143,14 +150,13 @@ def mean_curve_demo(load_data=False, save_data=True):
     #fig = plt.figure()
     figcount = 1
     boundary_box = (0,0,200,50)
-    fixed_points = [(0,0),(200,0),(0,50),(200,50)]
     l=6
     #boundary_box = (0,0,40,40)
     #fixed_points = [(0,0),(40,0),(0,40),(40,40)]
     #boundary_box = (0,0,1,1)
     #fixed_points = [(0,0),(1,0),(0,1),(1,1)]
     #l=0.07
-    mesh, w, v, b_matrix = load_mesh(boundary_box, fixed_points, l)
+    mesh, w, v, b_matrix = load_mesh(boundary_box, l)
     print mesh.get_info()
 
     #function_sets = [['sin1pi','half_sin1pi'], ['x', 'x2', 'x5']]
@@ -173,11 +179,11 @@ def mean_curve_demo(load_data=False, save_data=True):
     points = list()
     for f in functions:
         points.append(pointgen2d.sample_function_mesh(mesh, f))
-    #points  = np.array(shapes)
-    vertices, paths, input_currents = curvegen2d.push_curves_on_mesh(mesh, points, is_closed=False, functions=functions)
-
+   # points  = np.array(shapes)
+    #vertices, paths, input_currents = currentgen.push_functions_on_mesh_2d(mesh, points, is_closed=False, functions=functions)
+    vertices, paths, input_currents = currentgen.push_curves_on_mesh(mesh, points)
     figname = '/home/altaa/fig_dump/%d.png'%(figcount)
-    title = '%s - (%s)' % (mesh.get_info(), ','.join(functions))
+    title = mesh.get_info()
     plot2d.plot_curves_approx(mesh, points, vertices, paths, title, figname, pdf_file)
     figcount += 1
     #envelope(mesh, input_currents)
