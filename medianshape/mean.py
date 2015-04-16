@@ -34,7 +34,7 @@ def print_cons(sub_cons, cons, c):
     print "\n"
     print 'c', c
 
-def mean(points, simplices, subsimplices, input_currents, lambda_, opt='default', w=[], v=[], cons=[], mu=0.001, alpha=None):
+def mean(points, simplices, subsimplices, input_currents, lambda_, opt='default', w=[], v=[], cons=[], mu=0.001, alphas=None):
     if not isinstance(input_currents, np.ndarray):
         input_currents = np.array(input_currents)
     average_len = np.rint(np.average(np.array([c.nonzero()[0].shape[0] for c in input_currents])))
@@ -61,20 +61,18 @@ def mean(points, simplices, subsimplices, input_currents, lambda_, opt='default'
     sub_c = np.hstack((abs(w), abs(w), lambda_*abs(v), lambda_*abs(v)))
     sub_c = sub_c.reshape(len(sub_c),1)
     k_sub_c = np.tile(sub_c, (sub_cons_count,1))
-    if alpha is not None:
+    if alphas is None:
+        k_sub_c= k_sub_c/k_currents
+    else:
         for i in range(k_currents):
             if i < k_currents+1:
                 k_sub_c[i*(2*m_subsimplices+2*n_simplices):(i+1)*(2*m_subsimplices+2*n_simplices)] = \
-                k_sub_c[i*(2*m_subsimplices+2*n_simplices):(i+1)*(2*m_subsimplices+2*n_simplices)]*alpha[i]
-                print "Alpha", i, alpha[i]
+                k_sub_c[i*(2*m_subsimplices+2*n_simplices):(i+1)*(2*m_subsimplices+2*n_simplices)]*alphas[i]
+                print "alphas", i, alphas[i]
     c = np.append(c, k_sub_c)
-    if opt !='mass':
-        c = c/k_currents
     #np.savetxt("/home/altaa/dumps1/b-%s.txt"%opt, input_currents, fmt="%d", delimiter=" ")
     #np.savetxt("/home/altaa/dumps1/c-%s.txt"%opt, c, delimiter=" ")
-    print "Size of c: ", len(c)
-    print "Average len", np.rint(average_len)
-    print cons.shape
+    print 'Constraint shape', cons.shape
 
     g = -sparse.identity(len(c), dtype=np.int8, format='coo')
     h = np.zeros(len(c))
@@ -90,9 +88,10 @@ def mean(points, simplices, subsimplices, input_currents, lambda_, opt='default'
     print 'LP time %f mins.' % (elapsed/60)
 
     args = np.array(sol['x'])
-    #args1 = args[np.where(args >=1e-5)]
-    #args2 = args1[np.where(args1 <= 0.99999)]
-    #nonint = args2.shape[0]
+    args1 = args[np.where(args >=1e-5)]
+    args2 = args1[np.where(args1 <= 0.99999)]
+    nonint = args2.shape[0]
+    print "Non int", nonint
     args = np.rint(sol['x'])
     norm = sol['primal objective']
     x = args[0:m_subsimplices] - args[m_subsimplices:2*m_subsimplices]

@@ -103,5 +103,9 @@ def dcuboid(p, x1, y1, z1, x2, y2, z2):
     return d
 
 def sphere_mesh(bbox, fixed_points, l):
-    fd = lambda p: np.sqrt((p**2).sum(1))-float(bbox[5])
-    return dm.distmeshnd(fd, dm.huniform, l, bbox, fixed_points) 
+    r = np.abs(bbox[3] - bbox[0])*1.0/2  
+    center = [(bbox[0]+bbox[3])*1.0/2, (bbox[1] + bbox[4])*1.0/2, (bbox[2]+bbox[5])*1.0/2]
+    dist_function = lambda p: dm.dsphere(p, center[0], center[1], center[2], r)
+    points, simplices = dm.distmeshnd(dist_function, dm.huniform, l, bbox, fixed_points, fig=None) 
+    return points, simplices
+
