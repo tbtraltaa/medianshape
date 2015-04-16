@@ -79,9 +79,10 @@ def run_demo(mesh, input_currents, options, lambdas, mus, alphas, w=None, v=None
                 #input_currents = currents*comb.reshape(comb.size,1) 
             for mu in mus:
                 for alpha in alphas:
-                    t, q, r, norm = mean.mean(mesh.points, mesh.triangles, mesh.edges, input_currents, l, opt, w, v, cons, mu=mu, alpha=alpha)
+                    t, q, r, norm = mean.mean(mesh.points, mesh.triangles, mesh.edges, input_currents, l, opt, w, v, cons, mu=mu)
                     if save:
-                        save(t=t, opt=opt, lambda_=l)
+                        #save(t=t, opt=opt, lambda_=l)
+                        pass
                     norms.append(norm)
                     t_len = len(t.nonzero()[0])
                     t_lens.append(t_len)
@@ -133,7 +134,7 @@ def mean_curve_demo(load_data=False, save_data=True):
     fixed_points = [(0,0),(1,0),(0,1),(1,1)]
     l=0.07
     boundary_box = [0,0,0,20,20,20]
-    l=1
+    l=2
     mesh, w, v, b_matrix = load_mesh(boundary_box, l, include_corners=True)
     print mesh.get_info()
 
