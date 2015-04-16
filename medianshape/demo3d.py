@@ -13,7 +13,7 @@ from scipy.sparse import csr_matrix
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 
-from mesh.distmesh import distmesh3d
+from mesh.meshgen import distmesh3d, scipy_mesh3d
 from mesh.mesh import Mesh3D
 from shapegen import pointgen3d, currentgen, utils
 import mean
@@ -28,7 +28,7 @@ import plot3d
 #options = ['default', 'mass', 'msfn']
 options = ['mass']
 
-def load_mesh(boundary_box=None, l=0.02, fixed_points=None, include_corners=True, load_data=False):
+def load_mesh(boundary_box=None, l=0.2, fixed_points=None, include_corners=True, load_data=False):
     if load_data:
         #TODO add mesh diagonal
         mesh, w, v, b_matrix = load()
@@ -40,16 +40,18 @@ def load_mesh(boundary_box=None, l=0.02, fixed_points=None, include_corners=True
         mesh.set_diagonal()
         mesh.set_boundary_values()
         mesh.fixed_points = fixed_points
+        include_corners = False
         if include_corners:
             if mesh.fixed_points is not None:
                 mesh.fixed_points = np.vstack((mesh.fixed_points, mesh.boundary_points))
             else:
                 mesh.fixed_points = mesh.boundary_points
-        mesh.fixed_points = np.array([[0.5, 0.5, 0.5]])
-        mesh.points, mesh.simplices= distmesh3d("ball", mesh.bbox, mesh.fixed_points, l=l)
-        plot3d.plotmesh3d(mesh)
-        plt.show()
-        exit()
+        #mesh.fixed_points = np.array([[0.5, 0.5, 0.5]])
+        #mesh.points, mesh.simplices= distmesh3d("sphere", [0,0,0,1.5,1.5,1.5], mesh.fixed_points, l=l)
+        mesh.points, mesh.simplices = scipy_mesh3d(mesh.bbox, mesh.fixed_points, l)
+        #mesh.points, mesh.simplices= meshpy_cuboid3d(mesh.bbox, mesh.fixed_points.tolist(), max_volume=(1**3)*1.0/(6*np.sqrt(2)))
+        #plot3d.plotmesh3d(mesh)
+        #plt.show()
         mesh.triangles = get_subsimplices(mesh.simplices)
         mesh.edges = get_subsimplices(mesh.triangles)
         w = simpvol(mesh.points, mesh.edges)
@@ -161,7 +163,7 @@ def mean_curve_demo(load_data=False, save_data=True):
     #plt.show()
     #envelope(mesh, input_currents)
     lambdas = [0.001]
-    mus = [0.001]
+    mus = [0.00001]
     alpha1 = np.array([0])
     #alpha1 = np.append(alpha1, np.linspace(0.4999, 0.5, 10))
     #alpha1 = np.append(alpha1, np.linspace(0.5, 0.5001, 10))

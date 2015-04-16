@@ -13,7 +13,7 @@ from scipy.sparse import csr_matrix
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 
-from mesh.distmesh import distmesh2d
+from mesh.meshgen import distmesh2d
 from mesh.mesh import Mesh2D
 from shapegen import pointgen2d, currentgen, utils
 import mean

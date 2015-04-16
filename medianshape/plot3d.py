@@ -25,7 +25,7 @@ def plotmesh3d(mesh):
     elif dim == 3:
         ax = plt.gca(projection='3d')
         lim = float(mesh.zmax)/10
-        ax.set_xlim(mesh.xmax + lim)
+        ax.set_xlim(3)
         ax.set_ylim(mesh.ymax + lim)
         ax.set_zlim(mesh.zmax + lim)
         ax.cla()
