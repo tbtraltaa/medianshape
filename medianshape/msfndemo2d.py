@@ -26,20 +26,19 @@ if __name__ == "__main__":
     fig = plt.figure(figsize=(19,8))
     mesh = Mesh2D()
     # l - initial length of triangle sides. Change it to vary traingle size
-    mesh.bbox = (0,0,200,50)
+    mesh.bbox = (0,0,1,1)
     mesh.set_diagonal()
     mesh.set_boundary_values()
     mesh.set_boundary_points()
-    mesh.points, mesh.simplices = distmesh2d('square', mesh.bbox, mesh.boundary_points, l=15)
+    mesh.points, mesh.simplices = distmesh2d('square', mesh.bbox, mesh.boundary_points, l=0.1)
     mesh.set_edges()
     mesh.orient_simplices_2D()
 
-    functions = ['curve1']
     points = list()
-    points.append(pointgen2d.sample_function_mesh(mesh, 'curve1'))
+    points.append(pointgen2d.sample_function_mesh(mesh, 'sin1pi'))
     points = np.array(points)
-    vertices, paths, input_currents = currentgen.push_curves_on_mesh(mesh, points)
-    title = 'Functions - %s - (%s)' % (mesh.get_info(), ','.join(functions))
+    vertices, paths, input_currents = currentgen.push_functions_on_mesh_2d(mesh, points, functions=['sin1pi'])
+    title = mesh.get_info()
     plot2d.plot_curves_approx(mesh, points, vertices, paths, title)
     plt.show()
 
@@ -49,5 +48,5 @@ if __name__ == "__main__":
         for l in lambdas:
             title = "lambda=%.04f"%l
             x, s, norm = msfn.msfn(mesh.points, mesh.simplices, mesh.edges, input_current, l)
-            plot2d.plot_decomposition(mesh, input_currents, comb, None, x, s, title)
+            plot2d.plot_decomposition(mesh, input_currents, comb, x.T, None, s, title, lim=0.2)
             plt.show()

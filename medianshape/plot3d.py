@@ -172,9 +172,10 @@ def plot_decomposition(mesh, input_currents, comb, t, q, r, title='', figname=No
         ax.set_ylim(mesh.ymax + lim)
         ax.set_zlim(mesh.zmax + lim)
         plot_simplices(mesh, r_i, color=color)
-        plot_curve(mesh, q[i], title=title + ', Q%d&R%d'%(i+1,i+1), color='m', marker='*', linewidth=6, label='Q%d'%(i+1))
+        if q is not None:
+            plot_curve(mesh, q[i], title=title + ', Q%d&R%d'%(i+1,i+1), color='m', marker='*', linewidth=6, label='Q%d'%(i+1))
         if t is not None:
-            plot_curve(mesh, t, linewidth=4, label="Mean")
+            plot_curve(mesh, t, linewidth=4, label="Median")
         if i < input_currents.shape[0]:
             plot_curve(mesh, input_currents[i], color='r', ls='--', \
             label='current%d, %d'%(i+1, comb[i]))

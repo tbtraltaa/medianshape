@@ -9,7 +9,7 @@ from cvxopt import matrix, spmatrix, solvers
 from mesh.utils import boundary_matrix, simpvol
 
 def msfn(points, simplices, subsimplices, input_current, lambda_, w=[], v=[], cons=[]):
-    m_edges = subsimplices.shape[0]
+    m_subsimplices = subsimplices.shape[0]
     n_simplices = simplices.shape[0]
     if w == []:
         w = simpvol(points, subsimplices)
@@ -17,16 +17,15 @@ def msfn(points, simplices, subsimplices, input_current, lambda_, w=[], v=[], co
         v = simpvol(points, simplices)
     if cons == []:
         b_matrix = boundary_matrix(simplices, subsimplices, format='coo')
-        m_edges_identity = sparse.identity(m_edges, dtype=np.int8, format='coo')
-        cons = sparse.hstack((m_edges_identity, -m_edges_identity, b_matrix, -b_matrix))
-    w = np.zeros(m_edges)
+        m_subsimplices_identity = sparse.identity(m_subsimplices, dtype=np.int8, format='coo')
+        cons = sparse.hstack((m_subsimplices_identity, -m_subsimplices_identity, b_matrix, -b_matrix))
     c = np.concatenate((abs(w), abs(w), lambda_*abs(v), lambda_*abs(v))) 
     c = c.reshape(len(c),1)
     c = matrix(c) 
     cons = spmatrix(cons.data.tolist(), cons.row, cons.col, cons.shape, tc='d')
     input_current = matrix(input_current)
-    g = -sparse.identity(2*m_edges + 2*n_simplices, dtype=np.int8, format='coo')
-    h = np.zeros(2*m_edges + 2*n_simplices)
+    g = -sparse.identity(2*m_subsimplices + 2*n_simplices, dtype=np.int8, format='coo')
+    h = np.zeros(2*m_subsimplices + 2*n_simplices)
     G = spmatrix(g.data.tolist(), g.row, g.col, g.shape,  tc='d')
     h = matrix(h)
 
@@ -34,6 +33,6 @@ def msfn(points, simplices, subsimplices, input_current, lambda_, w=[], v=[], co
     #args = np.array(sol['x'])
     args = np.rint(sol['x'])
     norm = sol['primal objective']
-    x = (args[0:m_edges] - args[m_edges:2*m_edges]).reshape((1,m_edges)).astype(int)
-    s = (args[2*m_edges:2*m_edges+n_simplices] - args[2*m_edges+n_simplices:]).reshape(1, n_simplices).astype(int)
+    x = (args[0:m_subsimplices] - args[m_subsimplices:2*m_subsimplices]).reshape((1,m_subsimplices)).astype(int)
+    s = (args[2*m_subsimplices:2*m_subsimplices+n_simplices] - args[2*m_subsimplices+n_simplices:]).reshape(1, n_simplices).astype(int)
     return x, s, norm

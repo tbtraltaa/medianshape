@@ -123,7 +123,7 @@ def plot_curve_and_mean(mesh, input_currents, comb, t, title=None, figname=None,
         if save and file_doc:
             file_doc.savefig(fig)
 
-def plot_decomposition(mesh, input_currents, comb, t, q, r, title='', figname=None, file_doc=None, save=True, lim=5, r_dim=2):
+def plot_decomposition(mesh, input_currents, comb, t, q, r, title='', figname=None, file_doc=None, save=True, lim=None, r_dim=2):
     color_set = "r"
     if len(input_currents) == 2:
         color_set = 'gr'
@@ -137,7 +137,8 @@ def plot_decomposition(mesh, input_currents, comb, t, q, r, title='', figname=No
         color = colors.next()
         fig.clf()
         plt.gca().set_aspect('equal')
-        lim = mesh.ymax/10
+        if lim is None:
+            lim = mesh.ymax/10
         plt.ylim([mesh.ymin-lim, mesh.ymax+lim])
         plt.xlim([mesh.xmin-lim, mesh.xmax+lim])
         plot(mesh)
@@ -146,12 +147,13 @@ def plot_decomposition(mesh, input_currents, comb, t, q, r, title='', figname=No
             plt.scatter(mesh.points[q[i]][:, 0], mesh.points[q[i]][:,1], color='r')
         elif r_dim ==2:
             plot_simplices(mesh, r_i, color=color)
-            plot_curve(mesh, q[i], title=title + ', Q%d&R%d'%(i+1,i+1), color='m', marker='*', linewidth=6, label='Q%d'%(i+1))
-            if t is not None:
-                plot_curve(mesh, t, linewidth=4, label="Mean")
+            if q is not None:
+                plot_curve(mesh, q[i], title=title + ', Q%d&R%d'%(i+1,i+1), color='m', marker='*', linewidth=6, label='Q%d'%(i+1))
             if i < input_currents.shape[0]:
                 plot_curve(mesh, input_currents[i], color='r', ls='--', \
                 label='current%d, %d'%(i+1, comb[i]))
+            if t is not None:
+                plot_curve(mesh, t, linewidth=6, label="Median")
         plt.legend(loc='upper right')
         if save and figname:
             plt.savefig("%s-%d.png" % (figname, i), dpi=fig.dpi)

@@ -5,7 +5,7 @@ import numpy as np
 from mesh.mesh import Mesh2D
 import msfn
 import plot2d
-from scipy.sparse import dok_matrix, coo_matrix
+from scipy import sparse
 
 import matplotlib.pyplot as plt
 
@@ -48,11 +48,12 @@ def extract_edges(simplices):
     return np.array(list(edges))
 
 # Saves sparse matrix as text. if the input is not sparse, set is_sparse argument to False.
-def sparse_savetxt(fname, matrix, fmt='%d', delimiter=' ', is_sparse=True):
-    if not is_sparse:
-        matrix = coo_matrix(matrix)
+def sparse_savetxt(fname, matrix, fmt='%d', delimiter=' '):
+    if sparse.issparse(matrix):
+        if matrix.getformat() !='coo':
+            matrix = matrix.asformat('coo')
     else:
-        matrix = matrix.asformat('coo')
+        matrix = sparse.coo_matrix(matrix)
     with open(fname, 'w') as f:
         for i in range(len(matrix.row)):
             f.write("%d %d %d\n" % (matrix.row[i], matrix.col[i], matrix.data[i]))
@@ -65,7 +66,7 @@ def load(dirname='/home/altaa/dumps1'):
     mesh.edges = np.loadtxt("%s/edges.txt"%dirname)
     v = np.loadtxt("%s/v.txt"%dirname)
     w = np.loadtxt("%s/w.txt"%dirname)
-    b_matrix = dok_matrix((len(mesh.edges), len(mesh.simplices)), dtype=np.int8)
+    b_matrix = sparse.dok_matrix((len(mesh.edges), len(mesh.simplices)), dtype=np.int8)
     with open("%s/b_matrix.txt"%dirname, 'r') as f:
         for line in f.readLines():
             data = line.split()
@@ -91,9 +92,8 @@ def save(mesh=None, input_currents=None, b_matrix=None, w=None, v=None, t=None, 
         np.savetxt('%s/edges.txt' % dirname, mesh.edges, fmt='%d', delimiter=' ')
         np.savetxt('%s/simplices.txt'% dirname, mesh.simplices, fmt='%d', delimiter=' ')
     if input_currents is not None:
-        print input_currents.shape
         for i, c in enumerate(input_currents):
-            sparse_savetxt('%s/input_current%d.txt' % (dirname,i), c, is_sparse=False)
+            sparse_savetxt('%s/input_current%d.txt' % (dirname,i), c)
     if b_matrix is not None:
         sparse_savetxt('%s/b_matrix.txt' % dirname, b_matrix)
     if w is not None:
@@ -102,8 +102,6 @@ def save(mesh=None, input_currents=None, b_matrix=None, w=None, v=None, t=None, 
         np.savetxt('%s/v.txt' % dirname, v, delimiter=' ')
     if t is not None:
         if 'opt' in kwargs and 'lambda_' in kwargs:
-            np.savetxt("%s/t-%s-lambda-%s.txt"%(dirname, kwargs['opt'], kwargs['lambda_']), t, \
-            fmt="%d", delimiter=" ")
+            sparse_savetxt("%s/t-%s-lambda-%s.txt"%(dirname, kwargs['opt'], kwargs['lambda_']), t)
         else:
-            np.savetxt("%s/t.txt" % dirname, t, fmt="%d", delimiter=" ")
-
+            sparse_savetxt("%s/t.txt"%dirname, t)

@@ -60,9 +60,9 @@ def func1(x):
 def sin2pi(x):
     return np.abs(math.sin(2*math.pi*x))
 def sin1pi(x):
-    return 5*np.abs(math.sin(math.pi*x)) + 10
+    return np.abs(math.sin(math.pi*x))
 def half_sin1pi(x):
-    return 2*np.abs(math.sin(math.pi*x))/2 + 5
+    return 1.0/2*np.abs(math.sin(math.pi*x)) 
 def small_sin1pi(x):
     return np.abs(math.sin(math.pi*x))/4
 def func2(x):

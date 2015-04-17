@@ -57,7 +57,7 @@ def load_mesh(boundary_box=None, l=0.2, fixed_points=None, include_corners=True,
         b_matrix = boundary_matrix(mesh.triangles, mesh.edges)
     return mesh, w, v, b_matrix
 
-def run_demo(mesh, input_currents, options, lambdas, mus, alphas, w=None, v=None, b_matrix=None, file_doc=None, save=True):
+def run_demo(mesh, input_currents, options, lambdas, mus, w=None, v=None, b_matrix=None, file_doc=None, save_data=True):
     figcount = 2
     norms = list()
     t_lens = list()
@@ -78,44 +78,30 @@ def run_demo(mesh, input_currents, options, lambdas, mus, alphas, w=None, v=None
             #for comb in combinations:
                 #input_currents = currents*comb.reshape(comb.size,1) 
             for mu in mus:
-                for alpha in alphas:
-                    t, q, r, norm = mean.mean(mesh.points, mesh.triangles, mesh.edges, input_currents, l, opt, w, v, cons, mu=mu)
-                    if save:
-                        #save(t=t, opt=opt, lambda_=l)
-                        pass
-                    norms.append(norm)
-                    t_len = len(t.nonzero()[0])
-                    t_lens.append(t_len)
-                    title = '%s, lambda=%.04f, mu=%.06f'  % \
-                    (opt, l, mu)
-                    figname = '/home/altaa/fig_dump/%d-%s-%.04f-%.06f'%(figcount, opt, l, mu)
-                    if save and file_doc is not None:
-                        plot3d.plot_mean(mesh, input_currents, comb, t, title, figname, file_doc, save=save)
-                        #plt.show()
-                        figcount += 1
+                t, q, r, norm = mean.mean(mesh.points, mesh.triangles, mesh.edges, input_currents, l, opt, w, v, cons, mu=mu)
+                if save_data:
+                    save(t=t, opt=opt, lambda_=l)
+                norms.append(norm)
+                t_len = len(t.nonzero()[0])
+                t_lens.append(t_len)
+                title = '%s, lambda=%.04f, mu=%.06f'  % \
+                (opt, l, mu)
+                figname = '/home/altaa/fig_dump/%d-%s-%.04f-%.06f'%(figcount, opt, l, mu)
+                if save_data and file_doc is not None:
+                    plot3d.plot_mean(mesh, input_currents, comb, t, title, figname, file_doc, save=save)
+                    #plt.show()
+                    figcount += 1
 
-                        #figname = '/home/altaa/fig_dump/%d-%s-%.04f-%.04f'%(figcount, opt, l, mu)
-                        #plotting.plot_curve_and_mean(mesh, input_currents, comb, t, title, \
-                        #figname, file_doc, save)
-                        #figcount += input_currents.shape[0]
+                    #figname = '/home/altaa/fig_dump/%d-%s-%.04f-%.04f'%(figcount, opt, l, mu)
+                    #plotting.plot_curve_and_mean(mesh, input_currents, comb, t, title, \
+                    #figname, file_doc, save)
+                    #figcount += input_currents.shape[0]
 
-                        figname = '/home/altaa/fig_dump/%d-%s-%.06f-%.06f'%(figcount,opt,l, mu)
-                        plot3d.plot_decomposition(mesh, input_currents, comb, t, q, r, title, \
-                        figname, file_doc, save)
-                        figcount += input_currents.shape[0]
-                        #plt.show()
-                
-                # Plotting the combination with minimum flatnorm difference
-            #title = 'Minimum flatnorm difference, %s, lambda=%.04f, %s' % (opt, l, str(comb))
-#                figname = '/home/altaa/fig_dump/%d-%s-%.04f'%(figcount, opt, l)
-#                plotting.plot_mean(mesh, min_currents, min_comb, min_t, title, \
-#                figname, file_doc)
-#                figcount += 1
-#
-#                figname = '/home/altaa/fig_dump/%d-%s-%.04f'%(figcount,opt,l)
-#                plotting.plot_decomposition(mesh, min_currents, comb, min_t, min_q, min_r, \
-#                title, figname, file_doc)
-#                figcount += input_currents.shape[0]
+                    figname = '/home/altaa/fig_dump/%d-%s-%.06f-%.06f'%(figcount,opt,l, mu)
+                    plot3d.plot_decomposition(mesh, input_currents, comb, t, q, r, title, \
+                    figname, file_doc, save)
+                    figcount += input_currents.shape[0]
+                    #plt.show()
     return t
 
 def mean_curve_demo(load_data=False, save_data=True):
@@ -134,15 +120,13 @@ def mean_curve_demo(load_data=False, save_data=True):
     fixed_points = [(0,0),(1,0),(0,1),(1,1)]
     l=0.07
     boundary_box = [0,0,0,20,20,20]
-    l=2
+    l=4
     mesh, w, v, b_matrix = load_mesh(boundary_box, l, include_corners=True)
     print mesh.get_info()
 
     #function_sets = [['sin1pi','half_sin1pi'], ['x', 'x2', 'x5']]
     #function_sets = [['curve1', 'curve2', 'curve3', 'curve4', 'curve5']]
     #functions= ['curve4', 'curve5']
-    combinations = np.array([[1,1,1]])
-    #combinations = np.array([[1,1,1]])
     #curve1 = pointgen3d.curve1(mesh.bbox)
     #curve2 = pointgen3d.curve2(mesh.bbox)
     #shapes = [curve1, curve2]
@@ -163,9 +147,7 @@ def mean_curve_demo(load_data=False, save_data=True):
         save(mesh, input_currents, b_matrix, w, v)
     lambdas = [0.001]
     mus = [0.00001]
-    #alphas = np.ndarray(shape=(1,2), buffer=np.array([0.5, 0.5]))
-    alphas = np.ndarray(shape=(1,3), buffer=np.array([1.0/3, 1.0/3, 1.0/3]))
-    t = run_demo(mesh, input_currents, options, lambdas, mus, alphas, w, v, b_matrix, pdf_file)
+    t = run_demo(mesh, input_currents, options, lambdas, mus, w, v, b_matrix, pdf_file)
     pdf_file.close()
     elapsed = time.time() - start
     print 'Elapsed time %f mins.' % (elapsed/60)

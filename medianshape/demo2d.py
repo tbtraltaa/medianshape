@@ -79,7 +79,7 @@ def load_mesh(boundary_box=None, l=0.02, fixed_points=None, include_corners=True
         b_matrix = boundary_matrix(mesh.simplices, mesh.edges)
     return mesh, w, v, b_matrix
 
-def run_demo(mesh, input_currents, options, lambdas, mus, alphas, w=None, v=None, b_matrix=None, file_doc=None, save=True):
+def run_demo(mesh, input_currents, options, lambdas, mus, w=None, v=None, b_matrix=None, file_doc=None, save_data=True):
     figcount = 2
     norms = list()
     t_lens = list()
@@ -100,43 +100,30 @@ def run_demo(mesh, input_currents, options, lambdas, mus, alphas, w=None, v=None
             #for comb in combinations:
                 #input_currents = currents*comb.reshape(comb.size,1) 
             for mu in mus:
-                for alpha in alphas:
-                    t, q, r, norm = mean.mean(mesh.points, mesh.simplices, mesh.edges, \
-                    input_currents, l, opt, w, v, cons, mu=mu, alpha=alpha)
-                    if save:
-                        #save(t=t, opt=opt, lambda_=l)
-                        pass
-                    norms.append(norm)
-                    t_len = len(t.nonzero()[0])
-                    t_lens.append(t_len)
-                    title = '%s, lambda=%.04f, mu=%.06f'  % \
-                    (opt, l, mu)
-                    figname = '/home/altaa/fig_dump/%d-%s-%.04f-%.06f'%(figcount, opt, l, mu)
-                    if save and file_doc is not None:
-                        plot2d.plot_mean(mesh, input_currents, comb, t, title, figname, file_doc, save=save)
-                        figcount += 1
+                t, q, r, norm = mean.mean(mesh.points, mesh.simplices, mesh.edges, \
+                input_currents, l, opt, w, v, cons, mu=mu)
+                if save_data:
+                    save(t=t, opt=opt, lambda_=l)
+                norms.append(norm)
+                t_len = len(t.nonzero()[0])
+                t_lens.append(t_len)
+                title = '%s, lambda=%.04f, mu=%.06f'  % \
+                (opt, l, mu)
+                figname = '/home/altaa/fig_dump/%d-%s-%.04f-%.06f'%(figcount, opt, l, mu)
+                if save and file_doc is not None:
+                    plot2d.plot_mean(mesh, input_currents, comb, t, title, figname, file_doc, save=save)
+                    figcount += 1
 
-                        figname = '/home/altaa/fig_dump/%d-%s-%.04f-%.04f'%(figcount, opt, l, mu)
-                        plot2d.plot_curve_and_mean(mesh, input_currents, comb, t, title, \
-                        figname, file_doc, save)
-                        figcount += input_currents.shape[0]
+                    figname = '/home/altaa/fig_dump/%d-%s-%.04f-%.04f'%(figcount, opt, l, mu)
+                    plot2d.plot_curve_and_mean(mesh, input_currents, comb, t, title, \
+                    figname, file_doc, save)
+                    figcount += input_currents.shape[0]
 
-                        figname = '/home/altaa/fig_dump/%d-%s-%.06f-%.06f'%(figcount,opt,l, mu)
-                        plot2d.plot_decomposition(mesh, input_currents, comb, t, q, r, title, \
-                        figname, file_doc, save)
-                        figcount += input_currents.shape[0]
+                    figname = '/home/altaa/fig_dump/%d-%s-%.06f-%.06f'%(figcount,opt,l, mu)
+                    plot2d.plot_decomposition(mesh, input_currents, comb, t, q, r, title, \
+                    figname, file_doc, save)
+                    figcount += input_currents.shape[0]
                 
-                # plot2d the combination with minimum flatnorm difference
-            #title = 'Minimum flatnorm difference, %s, lambda=%.04f, %s' % (opt, l, str(comb))
-#                figname = '/home/altaa/fig_dump/%d-%s-%.04f'%(figcount, opt, l)
-#                plot2d.plot_mean(mesh, min_currents, min_comb, min_t, title, \
-#                figname, file_doc)
-#                figcount += 1
-#
-#                figname = '/home/altaa/fig_dump/%d-%s-%.04f'%(figcount,opt,l)
-#                plot2d.plot_decomposition(mesh, min_currents, comb, min_t, min_q, min_r, \
-#                title, figname, file_doc)
-#                figcount += input_currents.shape[0]
     print "Norms", norms
     print "t_lens", t_lens
     print "Average len", average_len
@@ -189,18 +176,8 @@ def mean_curve_demo(load_data=False, save_data=True):
     #envelope(mesh, input_currents)
     lambdas = [0.001]
     mus = [0.0001]
-    alpha1 = np.array([0])
-    #alpha1 = np.append(alpha1, np.linspace(0.4999, 0.5, 10))
-    #alpha1 = np.append(alpha1, np.linspace(0.5, 0.5001, 10))
-    alpha1 = np.append(alpha1, np.linspace(0.4, 0.5, 10))
-    alpha1 = np.append(alpha1, np.linspace(0.5, 0.6, 10))
-    alpha1 = np.append(alpha1, np.array([1]))
-    alpha1 = alpha1.reshape(alpha1.size, 1) 
-    alpha2 = (1-alpha1).reshape(alpha1.size, 1)
-    alphas = np.hstack((alpha1, alpha2))
-    alphas = np.ndarray(shape=(1,2), buffer=np.array([0.5, 0.5]))
 
-    t = run_demo(mesh, input_currents, options, lambdas, mus, alphas, w, v, b_matrix, pdf_file)
+    t = run_demo(mesh, input_currents, options, lambdas, mus, w, v, b_matrix, pdf_file)
     #alphas = alphas + adjust_alphas(mesh, input_currents, t, v)
     #t = run_demo(mesh, input_currents, options, lambdas, mus, alphas, w, v, b_matrix, pdf_file)
 

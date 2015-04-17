@@ -43,11 +43,11 @@ if __name__ == "__main__":
     plot3d.plot_curves_approx(mesh, points, vertices, paths, title)
     plt.show()
 
-    lambdas = [0.00001]
+    lambdas = [0.0001]
     comb = [1]
     for input_current in input_currents:
         for l in lambdas:
             title = "lambda=%.04f"%l
             x, s, norm = msfn.msfn(mesh.points, mesh.triangles, mesh.edges, input_current, l)
-            plot3d.plot_decomposition(mesh, input_currents, comb, None, x, s, title)
+            plot3d.plot_decomposition(mesh, input_currents, comb, x.T, None, s, title)
             plt.show()
