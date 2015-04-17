@@ -153,7 +153,7 @@ def plot_decomposition(mesh, input_currents, comb, t, q, r, title='', figname=No
                 plot_curve(mesh, input_currents[i], color='r', ls='--', \
                 label='current%d, %d'%(i+1, comb[i]))
             if t is not None:
-                plot_curve(mesh, t, linewidth=6, label="Median")
+                plot_curve(mesh, t, linewidth=4, label="Median")
         plt.legend(loc='upper right')
         if save and figname:
             plt.savefig("%s-%d.png" % (figname, i), dpi=fig.dpi)
