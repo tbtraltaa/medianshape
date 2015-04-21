@@ -50,12 +50,12 @@ def mean(points, simplices, subsimplices, input_currents, lambda_, opt='default'
         v = simpvol(points, simplices)
     if cons == []:
         w, v, b_matrix, cons = get_lp_inputs(points, simplices, subsimplices, k_currents, opt, w, v, [], cons)
-    if opt == 'msfn':
+    if opt=='MSFN' or opt == 'msfn':
         input_currents = np.vstack((input_currents, np.zeros((m_subsimplices,1))))
         sub_cons_count += 1 
     b = input_currents
     c = np.zeros((2*m_subsimplices,1))
-    if opt == 'mass':
+    if opt == 'MRSMS' or opt == 'mrsms':
         c = np.vstack((abs(w),abs(w)))
         c = c*mu
     sub_c = np.hstack((abs(w), abs(w), lambda_*abs(v), lambda_*abs(v)))

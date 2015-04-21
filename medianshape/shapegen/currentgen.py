@@ -61,7 +61,7 @@ def push_function_on_mesh(mesh, points, interval_size=10, func_str=None, is_clos
         edge_vector = get_edge_vector(mesh, curve_path)
         return edge_vector, curve_path, closest_vertices
 
-def push_curves_on_mesh(mesh, curves, is_closed=False):
+def push_curves_on_mesh(mesh, simplices, subsimplices, curves, is_closed=False):
         input_currents = list()
         paths = list()
         vertices = list()
@@ -71,16 +71,20 @@ def push_curves_on_mesh(mesh, curves, is_closed=False):
             vertices.append(closest_vertices)
             paths.append(path)
             input_currents.append(input_current)
-        input_currents = np.array(input_currents).reshape(len(curves), mesh.edges.shape[0])
+        input_currents = np.array(input_currents).reshape(len(curves), subsimplices.shape[0])
         return vertices, paths, input_currents
 
 def push_curve_on_mesh(mesh, points, is_closed=False):
         closest_vertices = find_closest_vertices(mesh, points)
         #print "Closest_vertices:\n", closest_vertices
         #print "Function points:\n", points
-        curve_path = find_path(mesh, closest_vertices, is_closed)
-        edge_vector = get_edge_vector(mesh, curve_path)
-        return edge_vector, curve_path, closest_vertices
+        if len(closest_vertices) == 1:
+            input_current = get_vertex_vector(mesh, closest_vertices)
+            curve_path = closest_vertices
+        else:
+            curve_path = find_path(mesh, closest_vertices, is_closed)
+            input_current = get_edge_vector(mesh, curve_path)
+        return input_current, curve_path, closest_vertices
 
 def find_closest_vertices(mesh, points):
     closest_vertices = list()
@@ -187,6 +191,13 @@ def get_edge_vector(mesh, path):
         else:
             edge_vector[i] = -1
     return edge_vector
+
+def get_vertex_vector(mesh, path):
+    vertex_vector = np.zeros(shape=(mesh.points.shape[0], 1))
+    print path
+    vertex_vector[path] = 1
+    print np.nonzero(vertex_vector)
+    return vertex_vector
             
 if __name__ == '__main__':
     pass
