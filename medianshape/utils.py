@@ -91,6 +91,8 @@ def save(mesh=None, input_currents=None, b_matrix=None, w=None, v=None, t=None, 
         np.savetxt('%s/points.txt' % dirname, mesh.points, delimiter=' ')
         np.savetxt('%s/edges.txt' % dirname, mesh.edges, fmt='%d', delimiter=' ')
         np.savetxt('%s/simplices.txt'% dirname, mesh.simplices, fmt='%d', delimiter=' ')
+        if mesh.points.shape[1] == 3:
+            np.savetxt('%s/triangles.txt'% dirname, mesh.triangles, fmt='%d', delimiter=' ')
     if input_currents is not None:
         for i, c in enumerate(input_currents):
             sparse_savetxt('%s/input_current%d.txt' % (dirname,i), c)

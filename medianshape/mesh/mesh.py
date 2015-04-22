@@ -79,7 +79,7 @@ class Mesh2D():
         return direction
 
     def get_info(self):
-        return "Mesh info: %d points, %d triangles and %d edges"% \
+        return "%d points, %d triangles and %d edges"% \
         (len(self.points), len(self.simplices), len(self.edges))
 
     def print_detail(self):
@@ -151,7 +151,7 @@ class Mesh3D():
         return simplices 
 
     def get_info(self):
-        return "Mesh info: %d points, %d tetrahedras, %d triangles and %d edges"% \
+        return "%d points, %d tetrahedras, %d triangles and %d edges"% \
         (len(self.points), len(self.simplices), len(self.triangles), len(self.edges))
 
     def print_detail(self):

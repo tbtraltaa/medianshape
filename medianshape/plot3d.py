@@ -46,7 +46,7 @@ def plotmesh3d(mesh, title=''):
         ax.set_zlim(mesh.zmax + lim)
         ax.cla()
         axes_simpplot3d(ax, mesh.points, mesh.simplices, mesh.points[:,1] > 0)
-        ax.set_title(title, horizontalalignment='center', verticalalignment='top')
+        ax.set_title(title, horizontalalignment='center', verticalalignment='top', transform=ax.transAxes)
     else:
         print "Plotting only supported in dimensions 2 and 3." 
 
@@ -59,7 +59,7 @@ def plot_point(mesh, vertex_vector, title=None, color="black", marker='.', s=200
     point = mesh.points[vertex_vector]
     ax.scatter(point[0], point[1], point[2], c=color, marker=marker, s=s, label=label)
     if title:
-        ax.set_title(title, horizontalalignment='center', verticalalignment='top')
+        ax.set_title(title, horizontalalignment='center', verticalalignment='top', transform=ax.transAxes)
 
 def plot_curve(mesh, func_path, title=None, color="black", marker=None, linewidth=3, ls='-', label=""):
     ax = plt.gca(projection='3d')
@@ -75,8 +75,8 @@ def plot_curve(mesh, func_path, title=None, color="black", marker=None, linewidt
             ax.plot(points[:,0], points[:,1], points[:,2], c=color, linewidth=linewidth, marker=marker, ls=ls, label=label)
         else:
             ax.plot(points[:,0], points[:,1], points[:,2], c=color, linewidth=linewidth, marker=marker, ls=ls)
-    if title:
-        ax.set_title(title, horizontalalignment='center', verticalalignment='top')
+    if title is not None:
+        ax.set_title(title, horizontalalignment='center', verticalalignment='top', transform=ax.transAxes)
 
 # Plot simplices
 def plot_simplices(mesh, simplices, title=None, color="y"):
@@ -101,16 +101,18 @@ def plot_curves_approx(mesh, points, vertices, paths, title="", figname=None, fi
     plt.clf()
     #plotmesh3d(mesh)
     for i, path in enumerate(paths):
-        plot_curve_approx(mesh, points[i], vertices[i], path, title=title, color=colors[i])
+        plot_curve_approx(mesh, points[i], vertices[i], path, color=colors[i])
+    plt.title(title, horizontalalignment='center', verticalalignment='top', transform=ax.transAxes)
     if save and figname:
-        plt.savefig('%s.png'%figname, dpi=fig.dpi)
+        plt.savefig('%s.png'%figname, pad_inches=-1, box_inches='tight')
     if save and file_doc:
         file_doc.savefig(fig)
 
 def plot_curve_approx(mesh, input_points, closest_vertices, path, title=None, color="red", linewidth=3, label=""):
     ax = plt.gca(projection='3d')
     ax.plot(input_points[:,0], input_points[:,1], input_points[:,2], c=color, ls="--")
-    ax.set_title(title, horizontalalignment='center', verticalalignment='top')
+    if title is not None:
+        ax.set_title(title, horizontalalignment='center', verticalalignment='top', transform=ax.transAxes)
     for i, edge in enumerate(path):
         points = mesh.points[edge]
         if len(path) != 1:
@@ -134,13 +136,14 @@ def plot_mean(mesh, input_currents, comb, t, title='', figname="", file_doc=None
     for i, c in enumerate(input_currents):
         if dim == 0:
             plot_point(mesh, c, color=colors[i], label='T%d'%(i+1))
-            plot_point(mesh, t, title)
+            plot_point(mesh, t)
         elif dim == 1:
             plot_curve(mesh, c, color=colors[i], label='T%d, %d'%(i+1, comb[i]), linewidth=5)
-            plot_curve(mesh, t, title)
-    plt.legend(loc='upper right')
+            plot_curve(mesh, t)
+    plt.legend(loc='lower right')
+    plt.title(title, horizontalalignment='center', verticalalignment='top', transform=ax.transAxes)
     if save and figname:
-        plt.savefig("%s.png"%figname, dpi=fig.dpi)
+        plt.savefig("%s.png"%figname, pad_inches=-1, box_inches='tight')
     if save and file_doc:
         file_doc.savefig(fig)
 
@@ -158,14 +161,15 @@ def plot_curve_and_mean(mesh, input_currents, comb, t, title=None, figname=None,
         plot_curve(mesh, c, color=colors[i], linewidth=5, \
         label='T%d, %d'%(i+1, comb[i]))
         plot_curve(mesh, t, title, label='Mean')
-        plt.legend(loc='upper right')
+        plt.legend(loc='lower right')
         if save and figname:
-            plt.savefig("%s-%d.png" % (figname, i), dpi=fig.dpi)
+            plt.savefig("%s-%d.png" % (figname, i), pad_inches=-1, box_inches='tight')
         if save and file_doc:
             file_doc.savefig(fig)
 
 def plot_decomposition(mesh, input_currents, comb, t, q, r, title='', figname=None, file_doc=None, save=True, lim=5, dim=1):
     colors = get_colors(len(input_currents))
+    fig = plt.figure(figsize=(8,8))
     ax = plt.gca(projection='3d')
     fig = ax.figure
     for i, r_i in enumerate(r):
@@ -195,9 +199,11 @@ def plot_decomposition(mesh, input_currents, comb, t, q, r, title='', figname=No
             elif dim == 1:
                 plot_curve(mesh, input_currents[i], color='r', ls='--', \
                 label='T%d, %d'%(i+1, comb[i]))
-        plt.legend(loc='upper right')
-        plt.show()
+        plt.legend(loc='lower right')
         if save and figname:
-            plt.savefig("%s-%d.png" % (figname, i), dpi=fig.dpi)
+            plt.savefig("%s-%d.png" % (figname, i), pad_inches=-1, box_inches='tight')
         if save and file_doc:
             file_doc.savefig(fig)
+        fig.tight_layout()
+        plt.show()
+        fig = plt.figure(figsize=(8,8))

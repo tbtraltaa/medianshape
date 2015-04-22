@@ -38,18 +38,18 @@ def equators():
     v = simpvol(mesh.points, simplices)
     b_matrix = boundary_matrix(simplices, subsimplices)
     dim = 0
-    return mesh, simplices, subsimplices, w, v, b_matrix, points.reshape(-1, 1, points.shape[1]), dim
+    return mesh, simplices, subsimplices, w, v, b_matrix, points.reshape(-1, 1, points.shape[1]), l, dim
 
 def arcs(): 
     boundary_box = [0,0,0,20,20,20]
-    l=4
+    l=2.2
     mesh, w, v, b_matrix = load_mesh(boundary_box, l, include_corners=False)
     curve1 = pointgen3d.sphere_arc(mesh.bbox, 0, 10)
     curve2 = pointgen3d.sphere_arc(mesh.bbox, 2*np.pi/3, 10)
     curve3 = pointgen3d.sphere_arc(mesh.bbox, 4*np.pi/3, 10)
     shapes = [curve1, curve2, curve3]
     points  = np.array(shapes)
-    return mesh, mesh.triangles, mesh.edges, w, v, b_matrix, points, 1
+    return mesh, mesh.triangles, mesh.edges, w, v, b_matrix, points, l, 1
 
 
 def load_mesh(boundary_box=None, l=0.2, fixed_points=None, include_corners=True, load_data=False):
@@ -111,8 +111,11 @@ def run_demo(mesh, simplices, subsimplices, input_currents, options, lambdas, mu
                 title = '%s, lambda=%.04f, mu=%.06f'%(opt, l, mu)
                 figname = '/home/altaa/fig_dump/%d-%s-%.04f-%.06f'%(figcount, opt, l, mu)
                 if save_data and file_doc is not None:
+                    fig = plt.figure(figsize=(8,8))
                     plot3d.plot_mean(mesh, input_currents, comb, t, title, figname, file_doc, save=save, dim=dim)
+                    plt.tight_layout()
                     plt.show()
+                    fig = plt.figure(figsize=(8,8))
                     figcount += 1
 
                     #figname = '/home/altaa/fig_dump/%d-%s-%.04f-%.04f'%(figcount, opt, l, mu)
@@ -124,7 +127,6 @@ def run_demo(mesh, simplices, subsimplices, input_currents, options, lambdas, mu
                     plot3d.plot_decomposition(mesh, input_currents, comb, t, q, r, title, \
                     figname, file_doc, save, dim=dim)
                     figcount += input_currents.shape[0]
-                    plt.show()
     return t
 
 def mean_curve_demo(load_data=False, save_data=True):
@@ -132,7 +134,7 @@ def mean_curve_demo(load_data=False, save_data=True):
     start = time.time()
     pdf_file = PdfPages('/home/altaa/figures.pdf')
 
-    fig = plt.figure(figsize=(10,8))
+    fig = plt.figure(figsize=(8,8))
     figcount = 1
     boundary_box = (0,0,200,50)
     fixed_points = [(0,0),(200,0),(0,50),(200,50)]
@@ -142,10 +144,14 @@ def mean_curve_demo(load_data=False, save_data=True):
     boundary_box = (0,0,1,1)
     fixed_points = [(0,0),(1,0),(0,1),(1,1)]
     l=0.07
-    mesh, simplices, subsimplices, w, v, b_matrix, points, dim = equators()
+    mesh, simplices, subsimplices, w, v, b_matrix, points, l, dim = arcs()
     print mesh.get_info()
     plot3d.plotmesh3d(mesh, mesh.get_info())
+    pdf_file.savefig(fig, pad_inches=-1, box_inches='tight')
+    plt.savefig("/home/altaa/fig_dump/mesh.png")
+    fig.tight_layout()
     plt.show()
+    fig = plt.figure(figsize=(8,8))
 
     #function_sets = [['sin1pi','half_sin1pi'], ['x', 'x2', 'x5']]
     #function_sets = [['curve1', 'curve2', 'curve3', 'curve4', 'curve5']]
@@ -157,9 +163,12 @@ def mean_curve_demo(load_data=False, save_data=True):
 
     figname = '/home/altaa/fig_dump/%d.png'%(figcount)
     title = '%s-l=%0.2f' % (mesh.get_info(),l)
+    title = 'Curve approximation'
     plot3d.plot_curves_approx(mesh, points, vertices, paths, title, figname, pdf_file)
     figcount += 1
+    fig.tight_layout()
     plt.show()
+    #exit()
     #envelope(mesh, input_currents)
     if save_data:
         save(mesh, input_currents, b_matrix, w, v)

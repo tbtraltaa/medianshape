@@ -124,7 +124,7 @@ def plot_curve_and_mean(mesh, input_currents, comb, t, title=None, figname=None,
             file_doc.savefig(fig)
 
 def plot_decomposition(mesh, input_currents, comb, t, q, r, title='', figname=None, file_doc=None, save=True, lim=None, r_dim=2):
-    color_set = "r"
+    color_set = "b"
     if len(input_currents) == 2:
         color_set = 'gr'
     elif len(input_currents) == 3:
@@ -153,7 +153,7 @@ def plot_decomposition(mesh, input_currents, comb, t, q, r, title='', figname=No
                 plot_curve(mesh, input_currents[i], color='r', ls='--', \
                 label='current%d, %d'%(i+1, comb[i]))
             if t is not None:
-                plot_curve(mesh, t, linewidth=4, label="Median")
+                plot_curve(mesh, t, linewidth=4, label="X")
         plt.legend(loc='upper right')
         if save and figname:
             plt.savefig("%s-%d.png" % (figname, i), dpi=fig.dpi)
