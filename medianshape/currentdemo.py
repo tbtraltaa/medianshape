@@ -11,7 +11,7 @@ from mesh.mesh import Mesh2D
 from mesh.utils import boundary_matrix, simpvol, get_subsimplices
 import plot2d
 
-def current_example():
+def currentdemo():
     mesh = Mesh2D()
     mesh.bbox = (0,0,1,1)
     mesh.set_boundary_points()
@@ -51,4 +51,4 @@ def current_example():
     plt.show()
 
 if __name__ == '__main__':
-    current_example()
+    currentdemo()

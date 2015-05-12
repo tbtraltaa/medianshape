@@ -25,8 +25,51 @@ from mesh.utils import boundary_matrix, boundary_matrix_2d, simpvol, get_subsimp
 from cvxopt import matrix, solvers
 import distmesh as dm
 
-#options = ['default', 'mass', 'msfn']
 options = ['MRSMS']
+
+def triangles():
+    mesh = Mesh2D()
+    mesh.bbox = [0, 0, 1, 1]
+    mesh.set_boundary_points()
+    mesh.set_diagonal()
+    mesh.set_boundary_values()
+    mesh.fixed_points = fixed_points
+    mesh.points = np.array([[0,0], [0,0.5], [0,1], [0.5,1], [1,1], \
+                            [1,0.5],[1,0],[0.5,0], [0.5, 0.5]])
+    mesh.simplices = np.array([[0,8,1],
+                                [1,8,2],
+                                [2,8,3],
+                                [3,8,4],
+                                [4,8,5],
+                                [5,8,6],
+                                [6,8,7],
+                                [7,8,0]])
+
+    mesh.edges = np.array([[0,1],
+                            [0,7],
+                            [0,8],
+                            [1,2],
+                            [1,8],
+                            [2,3],
+                            [2,8],
+                            [3,4],
+                            [3,8],
+                            [4,5],
+                            [4,8],
+                            [5,6],
+                            [5,8],
+                            [6,7],
+                            [6,8],
+                            [7,8]])
+def ellipses():
+    boundary_box = (0,0,1,1)
+    l=0.07
+    mesh, w, v, b_matrix = load_mesh(boundary_box, l)
+    ellipse1 = pointgen2d.sample_ellipse(0.4, 0.2, 10)
+    ellipse2 = pointgen2d.sample_ellipse(0.2, 0.4, 10)
+    shapes = [ellipse1, ellipse2]
+    return mesh, mesh.simplices, mesh.edges, w, v, b_matrix, np.array(shapes),l
+    
 
 def load_mesh(boundary_box=None, l=0.02, fixed_points=None, include_corners=True, load_data=False):
     if load_data:
@@ -48,32 +91,6 @@ def load_mesh(boundary_box=None, l=0.02, fixed_points=None, include_corners=True
         mesh.points, mesh.simplices = distmesh2d('square', mesh.bbox, mesh.fixed_points, l=l)
         mesh.edges = get_subsimplices(mesh.simplices)
         mesh.orient_simplices_2D()
-#        mesh.points = np.array([[0,0], [0,0.5],[0,1],[0.5,1],[1,1],[1,0.5],[1,0],[0.5,0], [0.5, 0.5]])
-#        mesh.simplices = np.array([[0,8,1],
-#                                    [1,8,2],
-#                                    [2,8,3],
-#                                    [3,8,4],
-#                                    [4,8,5],
-#                                    [5,8,6],
-#                                    [6,8,7],
-#                                    [7,8,0]])
-#
-#        mesh.edges = np.array([[0,1],
-#                                [0,7],
-#                                [0,8],
-#                                [1,2],
-#                                [1,8],
-#                                [2,3],
-#                                [2,8],
-#                                [3,4],
-#                                [3,8],
-#                                [4,5],
-#                                [4,8],
-#                                [5,6],
-#                                [5,8],
-#                                [6,7],
-#                                [6,8],
-#                                [7,8]])
         w = simpvol(mesh.points, mesh.edges)
         v = simpvol(mesh.points, mesh.simplices)
         b_matrix = boundary_matrix(mesh.simplices, mesh.edges)
@@ -122,7 +139,7 @@ def run_demo(mesh, input_currents, options, lambdas, mus, w=None, v=None, b_matr
                 
     return t
 
-def mean_demo2d(load_data=False, save_data=True):
+def meandemo2d(load_data=False, save_data=True):
     lp_times = list()
     start = time.time()
     pdf_file = PdfPages('/home/altaa/figures.pdf')
@@ -133,11 +150,6 @@ def mean_demo2d(load_data=False, save_data=True):
     l=6
     #boundary_box = (0,0,40,40)
     #fixed_points = [(0,0),(40,0),(0,40),(40,40)]
-    boundary_box = (0,0,1,1)
-    #fixed_points = [(0,0),(1,0),(0,1),(1,1)]
-    l=0.07
-    mesh, w, v, b_matrix = load_mesh(boundary_box, l)
-    print mesh.get_info()
 
     #function_sets = [['sin1pi','half_sin1pi'], ['x', 'x2', 'x5']]
     #function_sets = [['curve1', 'curve2', 'curve3', 'curve4', 'curve5']]
@@ -146,9 +158,6 @@ def mean_demo2d(load_data=False, save_data=True):
     combinations = utils.get_combination(len(functions))
     combinations = np.array([[1,1,1]])
     #combinations = np.array([[1,1,1]])
-    ellipse1 = pointgen2d.sample_ellipse(0.4, 0.2, 10)
-    ellipse2 = pointgen2d.sample_ellipse(0.2, 0.4, 10)
-    shapes = [ellipse1, ellipse2]
     #curve1 = pointgen2d.sample_curve1()
     #curve2 = pointgen2d.sample_curve2()
     #mesh.plot()
@@ -157,12 +166,13 @@ def mean_demo2d(load_data=False, save_data=True):
     #plt.show()
     #shapes = [curve1, curve2]
     #plot2d.plot_curve(mesh, c)
-    points = list()
-    for f in functions:
-        points.append(pointgen2d.sample_function_mesh(mesh, f))
-    points  = np.array(shapes)
+    #points = list()
+    #for f in functions:
+     #   points.append(pointgen2d.sample_function_mesh(mesh, f))
+    mesh, simplices, subsimplices, w, v, b_matrix, points, l  = ellipses() 
+    print mesh.get_info()
     #vertices, paths, input_currents = currentgen.push_functions_on_mesh_2d(mesh, points, is_closed=False, functions=functions)
-    vertices, paths, input_currents = currentgen.push_curves_on_mesh(mesh, mesh.simplices, mesh.edges, points,True)
+    vertices, paths, input_currents = currentgen.push_curves_on_mesh(mesh, simplices, subsimplices, points, True)
     figname = '/home/altaa/fig_dump/%d.png'%(figcount)
     title = mesh.get_info()
     plot2d.plot_curves_approx(mesh, points, vertices, paths, title, figname, pdf_file)
@@ -183,4 +193,4 @@ def mean_demo2d(load_data=False, save_data=True):
     print 'Elapsed time %f mins.' % (elapsed/60)
     
 if __name__ == '__main__':
-    mean_demo2d()
+    meandemo2d()
