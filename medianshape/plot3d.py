@@ -11,6 +11,24 @@ import matplotlib.cm as cm
 
 from distmesh.plotting import axes_simpplot3d
 
+def example(mesh):
+    ax = plt.gca(projection='3d')
+    lim = float(mesh.zmax)/10
+    ax.set_xlim(3)
+    ax.set_ylim(mesh.ymax + lim)
+    ax.set_zlim(mesh.zmax + lim)
+    ax.cla()
+    point = mesh.points[1]
+    ax.scatter(point[0], point[1], point[2], s=100)
+    edge = mesh.edges[3]
+    points = mesh.points[edge]
+    ax.scatter(points[:,0], points[:,1], points[:,2], s=100)
+    ax.plot(points[:,0], points[:,1], points[:,2])
+    axes_simpplot3d(ax, mesh.points, mesh.triangles[1].reshape(1,-1), mesh.points[:,1] > 0, label='2-simplex: triangle')
+    axes_simpplot3d(ax, mesh.points, mesh.simplices[3].reshape(1,-1), mesh.points[:,1] > 0, label='3-simplex: tetrahedra')
+    ax.set_title('N-simplex: {0-simplex,point}, {1-simplex,edge}, \n {2-simplex, triangle}, {3-simplex,tetrahedra}', horizontalalignment='center', verticalalignment='top', transform=ax.transAxes)
+    plt.legend(loc='lower right')
+
 def get_colors(n):
     '''Returns a function that maps each index in 0, 1, ... N-1 to a distinct 
         RGB color.'''
@@ -71,10 +89,7 @@ def plot_curve(mesh, func_path, title=None, color="black", marker=None, linewidt
     for i, edge_idx in enumerate(nonzero_edges):
         edge = mesh.edges[edge_idx]
         points = mesh.points[edge]
-        if i == len(nonzero_edges)-1:
-            ax.plot(points[:,0], points[:,1], points[:,2], c=color, linewidth=linewidth, marker=marker, ls=ls, label=label)
-        else:
-            ax.plot(points[:,0], points[:,1], points[:,2], c=color, linewidth=linewidth, marker=marker, ls=ls)
+        ax.plot(points[:,0], points[:,1], points[:,2], c=color, linewidth=linewidth, marker=marker, ls=ls, label=label if i==0 else "")
     if title is not None:
         ax.set_title(title, horizontalalignment='center', verticalalignment='top', transform=ax.transAxes)
 
@@ -101,7 +116,7 @@ def plot_curves_approx(mesh, points, vertices, paths, title="", figname=None, fi
     plt.clf()
     #plotmesh3d(mesh)
     for i, path in enumerate(paths):
-        plot_curve_approx(mesh, points[i], vertices[i], path, color=colors[i])
+        plot_curve_approx(mesh, points[i], vertices[i], path, color=colors[i], label="T%d"%(i+1))
     plt.title(title, horizontalalignment='center', verticalalignment='top', transform=ax.transAxes)
     if save and figname:
         plt.savefig('%s.png'%figname, pad_inches=-1, box_inches='tight')
@@ -110,15 +125,16 @@ def plot_curves_approx(mesh, points, vertices, paths, title="", figname=None, fi
 
 def plot_curve_approx(mesh, input_points, closest_vertices, path, title=None, color="red", linewidth=3, label=""):
     ax = plt.gca(projection='3d')
-    ax.plot(input_points[:,0], input_points[:,1], input_points[:,2], c=color, ls="--")
+    ax.plot(input_points[:,0], input_points[:,1], input_points[:,2], c=color, ls="--", label='Input points')
     if title is not None:
         ax.set_title(title, horizontalalignment='center', verticalalignment='top', transform=ax.transAxes)
     for i, edge in enumerate(path):
         points = mesh.points[edge]
         if len(path) != 1:
-            ax.plot(points[:,0], points[:,1], points[:,2], c=color, linewidth=linewidth, label=label)
-    ax.scatter(mesh.points[closest_vertices][:,0], mesh.points[closest_vertices][:,1], mesh.points[closest_vertices][:,2], s=100)
+            ax.plot(points[:,0], points[:,1], points[:,2], c=color, linewidth=linewidth, label=label if i==0 else "")
+    ax.scatter(mesh.points[closest_vertices][:,0], mesh.points[closest_vertices][:,1], mesh.points[closest_vertices][:,2], s=100, c=color, label="Closest vertices")
     ax.scatter(input_points[:,0], input_points[:,1], input_points[:,2], c=color)
+    plt.legend(loc='lower right')
 
 
 def plot_mean(mesh, input_currents, comb, t, title='', figname="", file_doc=None, save=True, lim=5, dim=1):
@@ -138,8 +154,10 @@ def plot_mean(mesh, input_currents, comb, t, title='', figname="", file_doc=None
             plot_point(mesh, c, color=colors[i], label='T%d'%(i+1))
             plot_point(mesh, t)
         elif dim == 1:
-            plot_curve(mesh, c, color=colors[i], label='T%d, %d'%(i+1, comb[i]), linewidth=5)
-            plot_curve(mesh, t)
+            #plot_curve(mesh, c, color=colors[i], label='T%d, %d'%(i+1, comb[i]), linewidth=5)
+            plot_curve(mesh, c, color=colors[i], label='T%d'%(i+1), linewidth=5)
+    if dim == 1:
+        plot_curve(mesh, t, label="Median")
     plt.legend(loc='lower right')
     plt.title(title, horizontalalignment='center', verticalalignment='top', transform=ax.transAxes)
     if save and figname:
@@ -159,8 +177,9 @@ def plot_curve_and_mean(mesh, input_currents, comb, t, title=None, figname=None,
         ax.set_zlim(mesh.zmax + lim)
         plt.clf()                    
         plot_curve(mesh, c, color=colors[i], linewidth=5, \
-        label='T%d, %d'%(i+1, comb[i]))
-        plot_curve(mesh, t, title, label='Mean')
+        #label='T%d, %d'%(i+1, comb[i]))
+        label='T%d'%(i+1))
+        plot_curve(mesh, t, title, label='Median')
         plt.legend(loc='lower right')
         if save and figname:
             plt.savefig("%s-%d.png" % (figname, i), pad_inches=-1, box_inches='tight')
@@ -198,7 +217,8 @@ def plot_decomposition(mesh, input_currents, comb, t, q, r, title='', figname=No
                 plot_point(mesh, input_currents[i], color=colors[i], label='T%d'%(i+1))
             elif dim == 1:
                 plot_curve(mesh, input_currents[i], color='r', ls='--', \
-                label='T%d, %d'%(i+1, comb[i]))
+                #label='T%d, %d'%(i+1, comb[i]))
+                label='T%d'%(i+1))
         plt.legend(loc='lower right')
         if save and figname:
             plt.savefig("%s-%d.png" % (figname, i), pad_inches=-1, box_inches='tight')

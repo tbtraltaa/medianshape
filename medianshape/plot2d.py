@@ -19,24 +19,21 @@ def plot_curve(mesh, func_path, title=None, color="black", marker=None, linewidt
     for i, edge_idx in enumerate(nonzero_edges):
         edge = mesh.edges[edge_idx]
         points = mesh.points[edge]
-        if i == len(nonzero_edges)-1:
-            plt.plot(points[:,0], points[:,1], color, linewidth=linewidth, marker=marker, ls=ls, label=label)
-        else:
-            plt.plot(points[:,0], points[:,1], color, linewidth=linewidth, marker=marker, ls=ls)
+        plt.plot(points[:,0], points[:,1], color, linewidth=linewidth, marker=marker, ls=ls, label=label if i==0 else "")
 
     if title:
         plt.title(title)
 
 # Plot simplices
-def plot_simplices(mesh, simplices, title=None, color="y"):
+def plot_simplices(mesh, simplices, title=None, color="y", label=""):
     ax = plt.gca()
     #ccw_symbol = u'\u2941'
     #cw_symbol = u'\u21BB'
-    for i in simplices.nonzero()[0]:
+    for i, idx in enumerate(simplices.nonzero()[0]):
         hatch = ''
-        if simplices[i] == -1:
+        if simplices[idx] == -1:
             hatch = '.' 
-        simplex = plt.Polygon(mesh.points[mesh.simplices[i]], closed=True, fill=True, fc=color, hatch=hatch)
+        simplex = plt.Polygon(mesh.points[mesh.simplices[idx]], closed=True, fill=True, fc=color, hatch=hatch, label=label if i==0 else "")
         ax.add_patch(simplex)
 
 def plot_curves_approx(mesh, points, vertices, paths, title="", figname=None, file_doc=None, save=True, lim=5):
@@ -56,7 +53,7 @@ def plot_curves_approx(mesh, points, vertices, paths, title="", figname=None, fi
     plt.xlim([mesh.xmin-lim, mesh.xmax+lim])
     plot(mesh)
     for i, path in enumerate(paths):
-        plot_curve_approx(mesh, points[i], vertices[i], path, color=colors.next())
+        plot_curve_approx(mesh, points[i], vertices[i], path, color=colors.next(), label="T%d"%(i+1))
     plt.title(title)
     if save and figname:
         plt.savefig('%s.png'%figname, dpi=fig.dpi)
@@ -64,13 +61,14 @@ def plot_curves_approx(mesh, points, vertices, paths, title="", figname=None, fi
         file_doc.savefig(fig)
 
 def plot_curve_approx(mesh, input_points, closest_vertices, path, title=None, color="red", linewidth=3, label=""):
-    plt.plot(input_points[:,0], input_points[:,1], c=color, ls="--")
+    plt.plot(input_points[:,0], input_points[:,1], c=color, ls="--", label='Input points')
     plt.title(title)
     for i, edge in enumerate(path):
         points = mesh.points[edge]
-        plt.plot(points[:,0], points[:,1], color, linewidth=linewidth, label=label)
-    plt.scatter(mesh.points[closest_vertices][:,0], mesh.points[closest_vertices][:,1], s=100)
+        plt.plot(points[:,0], points[:,1], color, linewidth=linewidth, label=label if i==0 else "")
+    plt.scatter(mesh.points[closest_vertices][:,0], mesh.points[closest_vertices][:,1], s=100, label='Closest vertices')
     plt.scatter(input_points[:,0], input_points[:,1], c=color)
+    plt.legend(loc='lower right')
 
 def plot_mean(mesh, input_currents, comb, t, title='', figname="", file_doc=None, save=True, lim=5):
     color_set = "r"
@@ -89,9 +87,9 @@ def plot_mean(mesh, input_currents, comb, t, title='', figname="", file_doc=None
     plt.xlim([mesh.xmin-lim, mesh.xmax+lim])
     plot(mesh)
     for i, c in enumerate(input_currents):
-        plot_curve(mesh,  c, color=colors.next(), label='current%d, %d'%(i+1, comb[i]), linewidth=5)
-    plot_curve(mesh, t, title, label='Median curve')
-    plt.legend(loc='upper right')
+        plot_curve(mesh,  c, color=colors.next(), label='T%d, %d'%(i+1, comb[i]), linewidth=5)
+    plot_curve(mesh, t, title, label='Median')
+    plt.legend(loc='lower right')
     if save and figname:
         plt.savefig("%s.png"%figname, dpi=fig.dpi)
     if save and file_doc:
@@ -110,14 +108,14 @@ def plot_curve_and_mean(mesh, input_currents, comb, t, title=None, figname=None,
     for i, c in enumerate(input_currents):
         fig.clf()                    
         plt.gca().set_aspect('equal')
-        lim = mesh.ymax/10
+        lim = mesh.ymax*1.0/10
         plt.ylim([mesh.ymin-lim, mesh.ymax+lim])
         plt.xlim([mesh.xmin-lim, mesh.xmax+lim])
         plot(mesh)
         plot_curve(mesh, c, color=colors.next(), linewidth=5, \
-        label='current%d, %d'%(i+1, comb[i]))
+        label='T%d, %d'%(i+1, comb[i]))
         plot_curve(mesh, t, title, label='Mean')
-        plt.legend(loc='upper right')
+        plt.legend(loc='lower right')
         if save and figname:
             plt.savefig("%s-%d.png" % (figname, i), dpi=fig.dpi)
         if save and file_doc:
@@ -138,7 +136,8 @@ def plot_decomposition(mesh, input_currents, comb, t, q, r, title='', figname=No
         fig.clf()
         plt.gca().set_aspect('equal')
         if lim is None:
-            lim = mesh.ymax/10
+            lim = mesh.ymax*1.0/10
+        print lim
         plt.ylim([mesh.ymin-lim, mesh.ymax+lim])
         plt.xlim([mesh.xmin-lim, mesh.xmax+lim])
         plot(mesh)
@@ -146,15 +145,19 @@ def plot_decomposition(mesh, input_currents, comb, t, q, r, title='', figname=No
             plot_curve(mesh, r_i, title=title + ', Q%d&R%d'%(i+1,i+1), color='m', marker='*', linewidth=6, label='Q%d'%(i+1))
             plt.scatter(mesh.points[q[i]][:, 0], mesh.points[q[i]][:,1], color='r')
         elif r_dim ==2:
-            plot_simplices(mesh, r_i, color=color)
+            plot_simplices(mesh, r_i, color=color, label="R%d"%(i+1))
             if q is not None:
                 plot_curve(mesh, q[i], title=title + ', Q%d&R%d'%(i+1,i+1), color='m', marker='*', linewidth=6, label='Q%d'%(i+1))
             if i < input_currents.shape[0]:
                 plot_curve(mesh, input_currents[i], color='r', ls='--', \
-                label='current%d, %d'%(i+1, comb[i]))
+                label='T%d, %d'%(i+1, comb[i]))
+                #label='T')
             if t is not None:
-                plot_curve(mesh, t, linewidth=4, label="X")
+                plot_curve(mesh, t, linewidth=4, label="Median")
         plt.legend(loc='upper right')
+        plt.tight_layout()
+        plt.show()
+        fig = plt.figure(figsize=(8,8))
         if save and figname:
             plt.savefig("%s-%d.png" % (figname, i), dpi=fig.dpi)
         if save and file_doc:

@@ -26,7 +26,7 @@ from cvxopt import matrix, solvers
 import distmesh as dm
 
 #options = ['default', 'mass', 'msfn']
-options = ['mass']
+options = ['MRSMS']
 
 def load_mesh(boundary_box=None, l=0.02, fixed_points=None, include_corners=True, load_data=False):
     if load_data:
@@ -108,22 +108,24 @@ def run_demo(mesh, input_currents, options, lambdas, mus, alphas, w=None, v=None
                     norms.append(norm)
                     t_len = len(t.nonzero()[0])
                     t_lens.append(t_len)
-                    title = '%s, lambda=%.04f, mu=%.06f'  % \
-                    (opt, l, mu)
+                    title = '%s, lambda=%.04f, mu=%.06f, alpha=%s' %(opt, l, mu, str(alpha))
                     figname = '/home/altaa/fig_dump/%d-%s-%.04f-%.06f'%(figcount, opt, l, mu)
                     if save and file_doc is not None:
                         plot2d.plot_mean(mesh, input_currents, comb, t, title, figname, file_doc, save=save)
+                        plt.tight_layout()
+                        plt.show()
+                        fig = plt.figure(figsize=(14,4))
                         figcount += 1
 
-                        figname = '/home/altaa/fig_dump/%d-%s-%.04f-%.04f'%(figcount, opt, l, mu)
-                        plot2d.plot_curve_and_mean(mesh, input_currents, comb, t, title, \
-                        figname, file_doc, save)
-                        figcount += input_currents.shape[0]
+                        #figname = '/home/altaa/fig_dump/%d-%s-%.04f-%.04f'%(figcount, opt, l, mu)
+                        #plot2d.plot_curve_and_mean(mesh, input_currents, comb, t, title, \
+                        #figname, file_doc, save)
+                        #figcount += input_currents.shape[0]
 
-                        figname = '/home/altaa/fig_dump/%d-%s-%.06f-%.06f'%(figcount,opt,l, mu)
-                        plot2d.plot_decomposition(mesh, input_currents, comb, t, q, r, title, \
-                        figname, file_doc, save)
-                        figcount += input_currents.shape[0]
+                        #figname = '/home/altaa/fig_dump/%d-%s-%.06f-%.06f'%(figcount,opt,l, mu)
+                        #plot2d.plot_decomposition(mesh, input_currents, comb, t, q, r, title, \
+                        #figname, file_doc, save)
+                        #figcount += input_currents.shape[0]
                 
     print "Norms", norms
     print "t_lens", t_lens
@@ -133,12 +135,12 @@ def run_demo(mesh, input_currents, options, lambdas, mus, alphas, w=None, v=None
 def mean_curve_demo(load_data=False, save_data=True):
     lp_times = list()
     start = time.time()
-    pdf_file = PdfPages('/home/altaa/figures.pdf')
-    fig = plt.figure(figsize=(16,8))
+    pdf_file = PdfPages('/home/altaa/figures1.pdf')
+    fig = plt.figure(figsize=(14,4))
     #fig = plt.figure()
     figcount = 1
     boundary_box = (0,0,200,50)
-    l=6
+    l=3
     #boundary_box = (0,0,40,40)
     #fixed_points = [(0,0),(40,0),(0,40),(40,40)]
     #boundary_box = (0,0,1,1)
@@ -149,14 +151,14 @@ def mean_curve_demo(load_data=False, save_data=True):
 
     #function_sets = [['sin1pi','half_sin1pi'], ['x', 'x2', 'x5']]
     #function_sets = [['curve1', 'curve2', 'curve3', 'curve4', 'curve5']]
-    #functions= ['curve4', 'curve5']
-    functions= ['curve1', 'curve2']
+    functions= ['curve4', 'curve5']
+    #functions= ['curve1', 'curve2']
     combinations = utils.get_combination(len(functions))
     combinations = np.array([[1,1,1]])
     #combinations = np.array([[1,1,1]])
-    ellipse1 = pointgen2d.sample_ellipse(0.4, 0.2, 10)
-    ellipse2 = pointgen2d.sample_ellipse(0.2, 0.4, 10)
-    shapes = [ellipse1, ellipse2]
+    #ellipse1 = pointgen2d.sample_ellipse(0.4, 0.2, 10)
+    #ellipse2 = pointgen2d.sample_ellipse(0.2, 0.4, 10)
+    #shapes = [ellipse1, ellipse2]
     #curve1 = pointgen2d.sample_curve1()
     #curve2 = pointgen2d.sample_curve2()
     #mesh.plot()
@@ -169,24 +171,29 @@ def mean_curve_demo(load_data=False, save_data=True):
         points.append(pointgen2d.sample_function_mesh(mesh, f))
    # points  = np.array(shapes)
     #vertices, paths, input_currents = currentgen.push_functions_on_mesh_2d(mesh, points, is_closed=False, functions=functions)
-    vertices, paths, input_currents = currentgen.push_curves_on_mesh(mesh, points)
+    vertices, paths, input_currents = currentgen.push_functions_on_mesh_2d(mesh, points, functions)
     figname = '/home/altaa/fig_dump/%d.png'%(figcount)
     title = mesh.get_info()
     plot2d.plot_curves_approx(mesh, points, vertices, paths, title, figname, pdf_file)
+    plt.tight_layout()
+    plt.show()
+    fig = plt.figure(figsize=(14,4))
     figcount += 1
     #envelope(mesh, input_currents)
-    lambdas = [0.001]
+    lambdas = [0.01]
     mus = [0.0001]
     alpha1 = np.array([0])
-    #alpha1 = np.append(alpha1, np.linspace(0.4999, 0.5, 10))
-    #alpha1 = np.append(alpha1, np.linspace(0.5, 0.5001, 10))
-    alpha1 = np.append(alpha1, np.linspace(0.4, 0.5, 10))
-    alpha1 = np.append(alpha1, np.linspace(0.5, 0.6, 10))
+    alpha1 = np.append(alpha1, np.linspace(0.4999, 0.5, 10))
+    alpha1 = np.append(alpha1, np.linspace(0.5, 0.5001, 10))
+    #alpha1 = np.append(alpha1, np.linspace(0.4, 0.5, 10))
+    #alpha1 = np.append(alpha1, np.linspace(0.5, 0.6, 10))
     alpha1 = np.append(alpha1, np.array([1]))
     alpha1 = alpha1.reshape(alpha1.size, 1) 
     alpha2 = (1-alpha1).reshape(alpha1.size, 1)
-    alphas = np.hstack((alpha1, alpha2))
-    alphas = np.ndarray(shape=(1,2), buffer=np.array([0.5, 0.5]))
+    alphas = np.hstack((np.arange(2, len(alpha1)+2).reshape(-1, 1),alpha1, alpha2))
+    np.savetxt('/home/altaa/Desktop/alphas.txt', alphas, delimiter=',', fmt="%0.8f")
+    exit()
+    #alphas = np.ndarray(shape=(1,2), buffer=np.array([0.5, 0.5]))
 
     t = run_demo(mesh, input_currents, options, lambdas, mus, alphas, w, v, b_matrix, pdf_file)
     #alphas = alphas + adjust_alphas(mesh, input_currents, t, v)

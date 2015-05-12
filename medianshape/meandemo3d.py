@@ -1,4 +1,4 @@
-# encoding: utf-8
+#encoding: utf-8
 
 from __future__ import absolute_import
 
@@ -18,7 +18,7 @@ from mesh.mesh import Mesh3D
 from shapegen import pointgen3d, currentgen, utils
 import mean
 
-from utils import sparse_savetxt, load, save, envelope, adjust_alphas
+from utils import sparse_savetxt, load, save
 from mesh.utils import boundary_matrix, simpvol, get_subsimplices
 
 from cvxopt import matrix, solvers
@@ -28,8 +28,9 @@ import plot3d
 #options = ['default', 'mass', 'msfn']
 options = ['MRSMS']
 def equators():
+    # l - initial length of triangle sides. Change it to vary traingle size
     boundary_box = [0,0,0,20,20,20]
-    l=3
+    l = 4
     mesh, w, v, b_matrix = load_mesh(boundary_box, l, include_corners=False)
     points = pointgen3d.sphere_equator(mesh.bbox, 4)
     simplices = mesh.edges
@@ -40,9 +41,10 @@ def equators():
     dim = 0
     return mesh, simplices, subsimplices, w, v, b_matrix, points.reshape(-1, 1, points.shape[1]), l, dim
 
-def arcs(): 
+def equally_spaced_longitudes(): 
+    # l - initial length of triangle sides. Change it to vary traingle size
     boundary_box = [0,0,0,20,20,20]
-    l=2.2
+    l = 4
     mesh, w, v, b_matrix = load_mesh(boundary_box, l, include_corners=False)
     curve1 = pointgen3d.sphere_arc(mesh.bbox, 0, 10)
     curve2 = pointgen3d.sphere_arc(mesh.bbox, 2*np.pi/3, 10)
@@ -51,6 +53,17 @@ def arcs():
     points  = np.array(shapes)
     return mesh, mesh.triangles, mesh.edges, w, v, b_matrix, points, l, 1
 
+def differently_spaced_longitudes(): 
+    # l - initial length of triangle sides. Change it to vary traingle size
+    boundary_box = [0,0,0,20,20,20]
+    l = 4
+    mesh, w, v, b_matrix = load_mesh(boundary_box, l, include_corners=False)
+    curve1 = pointgen3d.sphere_arc(mesh.bbox, 0, 10)
+    curve2 = pointgen3d.sphere_arc(mesh.bbox, np.pi/4, 10)
+    curve3 = pointgen3d.sphere_arc(mesh.bbox, 9*np.pi/8, 10)
+    shapes = [curve1, curve2, curve3]
+    points  = np.array(shapes)
+    return mesh, mesh.triangles, mesh.edges, w, v, b_matrix, points, l, 1
 
 def load_mesh(boundary_box=None, l=0.2, fixed_points=None, include_corners=True, load_data=False):
     if load_data:
@@ -58,7 +71,6 @@ def load_mesh(boundary_box=None, l=0.2, fixed_points=None, include_corners=True,
         mesh, w, v, b_matrix = load()
     else:
         mesh = Mesh3D()
-        # l - initial length of triangle sides. Change it to vary traingle size
         mesh.bbox = boundary_box
         mesh.set_boundary_points()
         mesh.set_diagonal()
@@ -129,22 +141,14 @@ def run_demo(mesh, simplices, subsimplices, input_currents, options, lambdas, mu
                     figcount += input_currents.shape[0]
     return t
 
-def mean_curve_demo(load_data=False, save_data=True):
+def meandemo3d(load_data=False, save_data=True):
     lp_times = list()
     start = time.time()
-    pdf_file = PdfPages('/home/altaa/figures.pdf')
+    pdf_file = PdfPages('/home/altaa/figures-l=2.5.pdf')
 
     fig = plt.figure(figsize=(8,8))
     figcount = 1
-    boundary_box = (0,0,200,50)
-    fixed_points = [(0,0),(200,0),(0,50),(200,50)]
-    l=6
-    boundary_box = (0,0,40,40)
-    fixed_points = [(0,0),(40,0),(0,40),(40,40)]
-    boundary_box = (0,0,1,1)
-    fixed_points = [(0,0),(1,0),(0,1),(1,1)]
-    l=0.07
-    mesh, simplices, subsimplices, w, v, b_matrix, points, l, dim = arcs()
+    mesh, simplices, subsimplices, w, v, b_matrix, points, l, dim = equally_spaced_longitudes()
     print mesh.get_info()
     plot3d.plotmesh3d(mesh, mesh.get_info())
     pdf_file.savefig(fig, pad_inches=-1, box_inches='tight')
@@ -152,13 +156,6 @@ def mean_curve_demo(load_data=False, save_data=True):
     fig.tight_layout()
     plt.show()
     fig = plt.figure(figsize=(8,8))
-
-    #function_sets = [['sin1pi','half_sin1pi'], ['x', 'x2', 'x5']]
-    #function_sets = [['curve1', 'curve2', 'curve3', 'curve4', 'curve5']]
-    #functions= ['curve4', 'curve5']
-    #curve1 = pointgen3d.curve1(mesh.bbox)
-    #curve2 = pointgen3d.curve2(mesh.bbox)
-    #shapes = [curve1, curve2]
     vertices, paths, input_currents = currentgen.push_curves_on_mesh(mesh, simplices, subsimplices, points, is_closed=False)
 
     figname = '/home/altaa/fig_dump/%d.png'%(figcount)
@@ -168,8 +165,6 @@ def mean_curve_demo(load_data=False, save_data=True):
     figcount += 1
     fig.tight_layout()
     plt.show()
-    #exit()
-    #envelope(mesh, input_currents)
     if save_data:
         save(mesh, input_currents, b_matrix, w, v)
     lambdas = [0.001]
@@ -180,4 +175,4 @@ def mean_curve_demo(load_data=False, save_data=True):
     print 'Elapsed time %f mins.' % (elapsed/60)
     
 if __name__ == '__main__':
-    mean_curve_demo()
+    meandemo3d()

@@ -19,14 +19,14 @@ from shapegen import pointgen2d, currentgen, utils
 import mean
 import plot2d
 
-from utils import sparse_savetxt, load, save, envelope, adjust_alphas
+from utils import sparse_savetxt, load, save
 from mesh.utils import boundary_matrix, boundary_matrix_2d, simpvol, get_subsimplices
 
 from cvxopt import matrix, solvers
 import distmesh as dm
 
 #options = ['default', 'mass', 'msfn']
-options = ['mass']
+options = ['MRSMS']
 
 def load_mesh(boundary_box=None, l=0.02, fixed_points=None, include_corners=True, load_data=False):
     if load_data:
@@ -34,7 +34,7 @@ def load_mesh(boundary_box=None, l=0.02, fixed_points=None, include_corners=True
         mesh, w, v, b_matrix = load()
     else:
         mesh = Mesh2D()
-        # l - initial length of triangle sides. Change it to vary traingle size
+        #l - initial length of triangle sides. Change it to vary traingle size
         mesh.bbox = boundary_box
         mesh.set_boundary_points()
         mesh.set_diagonal()
@@ -81,8 +81,6 @@ def load_mesh(boundary_box=None, l=0.02, fixed_points=None, include_corners=True
 
 def run_demo(mesh, input_currents, options, lambdas, mus, w=None, v=None, b_matrix=None, file_doc=None, save_data=True):
     figcount = 2
-    norms = list()
-    t_lens = list()
     if w is None:
         w = simpvol(mesh.points, mesh.edges)
     if v is None:
@@ -91,9 +89,7 @@ def run_demo(mesh, input_currents, options, lambdas, mus, w=None, v=None, b_matr
         b_matrix = boundary_matrix(mesh.simplices, mesh.edges)
     k_currents = len(input_currents)
     for opt in options:
-        average_len = np.average(np.array([c.nonzero()[0].shape[0] for c in input_currents]))
         w, v, b_matrix, cons = mean.get_lp_inputs(mesh.points, mesh.simplices, mesh.edges,  k_currents, opt, w, v, b_matrix)
-        #np.savetxt('/home/altaa/dumps1/cons-%s.txt'%opt, cons, fmt='%d', delimiter=' ')
         for l in lambdas:
             comb=[1,1,1]
             #for comb in combinations[:-1,:]:
@@ -104,45 +100,42 @@ def run_demo(mesh, input_currents, options, lambdas, mus, w=None, v=None, b_matr
                 input_currents, l, opt, w, v, cons, mu=mu)
                 if save_data:
                     save(t=t, opt=opt, lambda_=l)
-                norms.append(norm)
-                t_len = len(t.nonzero()[0])
-                t_lens.append(t_len)
-                title = '%s, lambda=%.04f, mu=%.06f'  % \
+                title = '%s, lambda=%.04f, mu=%.04f'  % \
                 (opt, l, mu)
                 figname = '/home/altaa/fig_dump/%d-%s-%.04f-%.06f'%(figcount, opt, l, mu)
                 if save and file_doc is not None:
                     plot2d.plot_mean(mesh, input_currents, comb, t, title, figname, file_doc, save=save)
+                    plt.tight_layout()
+                    plt.show()
+                    fig = plt.figure(figsize=(8,8))
                     figcount += 1
 
-                    figname = '/home/altaa/fig_dump/%d-%s-%.04f-%.04f'%(figcount, opt, l, mu)
-                    plot2d.plot_curve_and_mean(mesh, input_currents, comb, t, title, \
-                    figname, file_doc, save)
-                    figcount += input_currents.shape[0]
+                    #figname = '/home/altaa/fig_dump/%d-%s-%.04f-%.04f'%(figcount, opt, l, mu)
+                    #plot2d.plot_curve_and_mean(mesh, input_currents, comb, t, title, \
+                    #figname, file_doc, save)
+                    #figcount += input_currents.shape[0]
 
                     figname = '/home/altaa/fig_dump/%d-%s-%.06f-%.06f'%(figcount,opt,l, mu)
                     plot2d.plot_decomposition(mesh, input_currents, comb, t, q, r, title, \
                     figname, file_doc, save)
                     figcount += input_currents.shape[0]
                 
-    print "Norms", norms
-    print "t_lens", t_lens
-    print "Average len", average_len
     return t
 
-def mean_curve_demo(load_data=False, save_data=True):
+def mean_demo2d(load_data=False, save_data=True):
     lp_times = list()
     start = time.time()
     pdf_file = PdfPages('/home/altaa/figures.pdf')
-    fig = plt.figure(figsize=(16,8))
+    fig = plt.figure(figsize=(8,8))
     #fig = plt.figure()
     figcount = 1
     boundary_box = (0,0,200,50)
     l=6
     #boundary_box = (0,0,40,40)
     #fixed_points = [(0,0),(40,0),(0,40),(40,40)]
-    #boundary_box = (0,0,1,1)
+    boundary_box = (0,0,1,1)
     #fixed_points = [(0,0),(1,0),(0,1),(1,1)]
-    #l=0.07
+    l=0.07
     mesh, w, v, b_matrix = load_mesh(boundary_box, l)
     print mesh.get_info()
 
@@ -163,25 +156,25 @@ def mean_curve_demo(load_data=False, save_data=True):
     #plt.scatter(curve2[:,0], curve2[:,1], color='k')
     #plt.show()
     #shapes = [curve1, curve2]
+    #plot2d.plot_curve(mesh, c)
     points = list()
     for f in functions:
         points.append(pointgen2d.sample_function_mesh(mesh, f))
-   # points  = np.array(shapes)
+    points  = np.array(shapes)
     #vertices, paths, input_currents = currentgen.push_functions_on_mesh_2d(mesh, points, is_closed=False, functions=functions)
-    vertices, paths, input_currents = currentgen.push_curves_on_mesh(mesh, points)
+    vertices, paths, input_currents = currentgen.push_curves_on_mesh(mesh, mesh.simplices, mesh.edges, points,True)
     figname = '/home/altaa/fig_dump/%d.png'%(figcount)
     title = mesh.get_info()
     plot2d.plot_curves_approx(mesh, points, vertices, paths, title, figname, pdf_file)
+    plt.tight_layout()
+    plt.show()
+    fig = plt.figure(figsize=(8,8))
     figcount += 1
-    #envelope(mesh, input_currents)
     lambdas = [0.001]
+    lambdas = [1]
     mus = [0.0001]
 
     t = run_demo(mesh, input_currents, options, lambdas, mus, w, v, b_matrix, pdf_file)
-    #alphas = alphas + adjust_alphas(mesh, input_currents, t, v)
-    #t = run_demo(mesh, input_currents, options, lambdas, mus, alphas, w, v, b_matrix, pdf_file)
-
-
     if save_data:
         save(mesh, input_currents, b_matrix, w, v)
 
@@ -190,4 +183,4 @@ def mean_curve_demo(load_data=False, save_data=True):
     print 'Elapsed time %f mins.' % (elapsed/60)
     
 if __name__ == '__main__':
-    mean_curve_demo()
+    mean_demo2d()

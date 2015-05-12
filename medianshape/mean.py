@@ -14,31 +14,9 @@ solvers.options['show_progress'] = False
 
 from mesh.utils import boundary_matrix, simpvol
 
-def print_cons(sub_cons, cons, c):
-    string = ""
-    print "Sub cons:"
-    for row in sub_cons:
-        for col in row:
-            string += "%2d" % col
-        print string
-        string = ""
-
-    string = ""
-    print "\n"
-    print "Cons"
-    for row in cons:
-        for col in row:
-            string += "%2d" % col
-        print string
-        string = ""
-    print "\n"
-    print 'c', c
-
 def mean(points, simplices, subsimplices, input_currents, lambda_, opt='default', w=[], v=[], cons=[], mu=0.001, alphas=None):
     if not isinstance(input_currents, np.ndarray):
         input_currents = np.array(input_currents)
-    average_len = np.rint(np.average(np.array([c.nonzero()[0].shape[0] for c in input_currents])))
-    print "Average len", average_len
     m_subsimplices = subsimplices.shape[0]
     n_simplices = simplices.shape[0]
     k_currents = len(input_currents)
@@ -147,6 +125,4 @@ def get_lp_inputs(points, simplices, subsimplices, k_currents, opt='default', w=
             else:
                 cons = sparse.vstack((cons, cons_row))
         cons = sparse.hstack((k_identity_cons, cons))
-    # Uncomment the line below to print sub_cons, cons and c
-    #print_cons(sub_cons.toarray(), cons.toarray(), c)
     return w, v, b_matrix, cons

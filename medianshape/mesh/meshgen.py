@@ -106,6 +106,6 @@ def sphere_mesh(bbox, fixed_points, l):
     r = np.abs(bbox[3] - bbox[0])*1.0/2  
     center = [(bbox[0]+bbox[3])*1.0/2, (bbox[1] + bbox[4])*1.0/2, (bbox[2]+bbox[5])*1.0/2]
     dist_function = lambda p: dm.dsphere(p, center[0], center[1], center[2], r)
-    points, simplices = dm.distmeshnd(dist_function, dm.huniform, l, bbox, fixed_points) 
+    points, simplices = dm.distmeshnd(dist_function, dm.huniform, l, bbox, fixed_points, fig=None) 
     return points, simplices
 
