@@ -11,13 +11,12 @@ import matplotlib.pyplot as plt
 
 def envelope(mesh, input_currents):
     for i, c in enumerate(input_currents):
-        comb=[1]
         if i < input_currents.shape[0] -1:
             diff = c - input_currents[i+1]
             x, s, norm = msfn.msfn(mesh.points, mesh.simplices, mesh.edges, diff, 0)
-            plot2d.plot_mean(mesh, diff.reshape((1, len(c))), [1], [], lim=0.1)
+            plot2d.plot_mean(mesh, diff.reshape((1, len(c))), [], lim=0.1)
             plt.show()
-            plot2d.plot_decomposition(mesh, input_currents, comb, None, x, s, lim=0.1)
+            plot2d.plot_decomposition(mesh, input_currents, None, x, s, lim=0.1)
             plt.show()
 
 def adjust_alphas(mesh, input_currents, t, v):
@@ -25,12 +24,11 @@ def adjust_alphas(mesh, input_currents, t, v):
     total_sum = 0
     print input_currents.shape
     for i, c in enumerate(input_currents):
-        comb=[1]
         diff = c.reshape(-1,1) - t
         x, s, norm = msfn.msfn(mesh.points, mesh.simplices, mesh.edges, diff, 0)
         plotting.plot_mean(mesh, diff.reshape((1, len(c))), [1], [])
         plt.show()
-        plotting.plot_decomposition(mesh, input_currents, comb, None, x, s)
+        plotting.plot_decomposition(mesh, input_currents, None, x, s)
         plt.show()
         area =  np.sum(s*v)
         total_sum += area
@@ -68,7 +66,6 @@ def load(dirname='output/dumps'):
 # Saves mesh, input currents, boundary matrix, w and v.
 def save(mesh=None, input_currents=None, b_matrix=None, w=None, v=None, t=None, dirname='output/dumps', **kwargs):
     if mesh is not None:
-        np.savetxt('%s/points.txt' % dirname, mesh.points, delimiter=' ')
         np.savetxt('%s/edges.txt' % dirname, mesh.edges, fmt='%d', delimiter=' ')
         np.savetxt('%s/simplices.txt'% dirname, mesh.simplices, fmt='%d', delimiter=' ')
         if mesh.points.shape[1] == 3:
@@ -83,7 +80,7 @@ def save(mesh=None, input_currents=None, b_matrix=None, w=None, v=None, t=None, 
     if v is not None:
         np.savetxt('%s/v.txt' % dirname, v, delimiter=' ')
     if t is not None:
-        if 'opt' in kwargs and 'lambda_' in kwargs:
-            sparse_savetxt("%s/t-%s-lambda-%s.txt"%(dirname, kwargs['opt'], kwargs['lambda_']), t)
+        if 'mu' in kwargs and 'lambda_' in kwargs:
+            sparse_savetxt("%s/t-lambda-%s-mu-%s.txt"%(dirname, kwargs['lambda_'], kwargs['mu']), t)
         else:
             sparse_savetxt("%s/t.txt"%dirname, t)

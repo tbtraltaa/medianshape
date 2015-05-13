@@ -25,8 +25,6 @@ from cvxopt import matrix, solvers
 import distmesh as dm
 import plot3d
 
-#options = ['default', 'mass', 'msfn']
-options = ['MRSMS']
 def equators():
     # l - initial length of triangle sides. Change it to vary traingle size
     boundary_box = [0,0,0,20,20,20]
@@ -93,7 +91,7 @@ def load_mesh(boundary_box=None, l=0.2, fixed_points=None, include_corners=True,
         b_matrix = boundary_matrix(mesh.triangles, mesh.edges)
     return mesh, w, v, b_matrix
 
-def run_demo(mesh, simplices, subsimplices, input_currents, options, lambdas, mus, w=None, v=None, b_matrix=None, file_doc=None, save_data=True, dim=1):
+def run_demo(mesh, simplices, subsimplices, input_currents, lambdas, mus, w=None, v=None, b_matrix=None, file_doc=None, save_data=True, dim=1):
     figcount = 2
     norms = list()
     t_lens = list()
@@ -104,41 +102,35 @@ def run_demo(mesh, simplices, subsimplices, input_currents, options, lambdas, mu
     if b_matrix is None:
         b_matrix = boundary_matrix(simplices, subsimplices)
     k_currents = len(input_currents)
-    for opt in options:
-        average_len = np.average(np.array([c.nonzero()[0].shape[0] for c in input_currents]))
-        w, v, b_matrix, cons = median.get_lp_inputs(mesh.points, simplices, subsimplices,  k_currents, opt, w, v, b_matrix)
-        #np.savetxt('output/dumps/cons-%s.txt'%opt, cons, fmt='%d', delimiter=' ')
-        for l in lambdas:
-            comb=np.ones(len(input_currents))
-            #for comb in combinations[:-1,:]:
-            #for comb in combinations:
-                #input_currents = currents*comb.reshape(comb.size,1) 
-            for mu in mus:
-                t, q, r, norm = median.median(mesh.points, simplices, subsimplices, input_currents, l, opt, w, v, cons, mu=mu)
-                if save_data:
-                    save(t=t, opt=opt, lambda_=l)
-                norms.append(norm)
-                t_len = len(t.nonzero()[0])
-                t_lens.append(t_len)
-                title = '%s, lambda=%.04f, mu=%.06f'%(opt, l, mu)
-                figname = 'output/figures/%d-%s-%.04f-%.06f'%(figcount, opt, l, mu)
-                if save_data and file_doc is not None:
-                    fig = plt.figure(figsize=(8,8))
-                    plot3d.plot_median(mesh, input_currents, comb, t, title, figname, file_doc, save=save, dim=dim)
-                    plt.tight_layout()
-                    plt.show()
-                    fig = plt.figure(figsize=(8,8))
-                    figcount += 1
+    w, v, b_matrix, cons = median.get_lp_inputs(mesh.points, simplices, subsimplices,  k_currents, w, v, b_matrix)
+    #np.savetxt('output/dumps/cons-%s.txt'%cons, fmt='%d', delimiter=' ')
+    for l in lambdas:
+        for mu in mus:
+            t, q, r, norm = median.median(mesh.points, simplices, subsimplices, input_currents, l, w, v, cons, mu=mu)
+            if save_data:
+                save(t=t, lambda_=l, mu=mu)
+            norms.append(norm)
+            t_len = len(t.nonzero()[0])
+            t_lens.append(t_len)
+            title = 'MRSMS, lambda=%.04f, mu=%.06f'%(l, mu)
+            figname = 'output/figures/%d-%.04f-%.06f'%(figcount, l, mu)
+            if save_data and file_doc is not None:
+                fig = plt.figure(figsize=(8,8))
+                plot3d.plot_median(mesh, input_currents, t, title, figname, file_doc, save=save, dim=dim)
+                plt.tight_layout()
+                plt.show()
+                fig = plt.figure(figsize=(8,8))
+                figcount += 1
 
-                    #figname = 'output/figures/%d-%s-%.04f-%.04f'%(figcount, opt, l, mu)
-                    #plotting.plot_curve_and_median(mesh, input_currents, comb, t, title, \
-                    #figname, file_doc, save)
-                    #figcount += input_currents.shape[0]
+                #figname = 'output/figures/%d-%s-%.04f-%.04f'%(figcount, l, mu)
+                #plotting.plot_curve_and_median(mesh, input_currents, comb, t, title, \
+                #figname, file_doc, save)
+                #figcount += input_currents.shape[0]
 
-                    figname = 'output/figures/%d-%s-%.06f-%.06f'%(figcount,opt,l, mu)
-                    plot3d.plot_decomposition(mesh, input_currents, comb, t, q, r, title, \
-                    figname, file_doc, save, dim=dim)
-                    figcount += input_currents.shape[0]
+                figname = 'output/figures/%d-%.06f-%.06f'%(figcount, l, mu)
+                plot3d.plot_decomposition(mesh, input_currents, t, q, r, title, \
+                figname, file_doc, save, dim=dim)
+                figcount += input_currents.shape[0]
     return t
 
 def mediandemo3d(load_data=False, save_data=True):
@@ -169,7 +161,7 @@ def mediandemo3d(load_data=False, save_data=True):
         save(mesh, input_currents, b_matrix, w, v)
     lambdas = [0.001]
     mus = [0.00001]
-    t = run_demo(mesh, simplices, subsimplices, input_currents, options, lambdas, mus, w, v, b_matrix, pdf_file, dim=dim)
+    t = run_demo(mesh, simplices, subsimplices, input_currents, lambdas, mus, w, v, b_matrix, pdf_file, dim=dim)
     pdf_file.close()
     elapsed = time.time() - start
     print 'Elapsed time %f mins.' % (elapsed/60)

@@ -14,7 +14,7 @@ solvers.options['show_progress'] = False
 
 from mesh.utils import boundary_matrix, simpvol
 
-def median(points, simplices, subsimplices, input_currents, lambda_, opt='default', w=[], v=[], cons=[], mu=0.001, alphas=None):
+def median(points, simplices, subsimplices, input_currents, lambda_, w=[], v=[], cons=[], mu=0.001, alphas=None):
     if not isinstance(input_currents, np.ndarray):
         input_currents = np.array(input_currents)
     m_subsimplices = subsimplices.shape[0]
@@ -27,15 +27,10 @@ def median(points, simplices, subsimplices, input_currents, lambda_, opt='defaul
     if v == []:
         v = simpvol(points, simplices)
     if cons == []:
-        w, v, b_matrix, cons = get_lp_inputs(points, simplices, subsimplices, k_currents, opt, w, v, [], cons)
-    if opt=='MSFN' or opt == 'msfn':
-        input_currents = np.vstack((input_currents, np.zeros((m_subsimplices,1))))
-        sub_cons_count += 1 
+        w, v, b_matrix, cons = get_lp_inputs(points, simplices, subsimplices, k_currents, w, v, [], cons)
     b = input_currents
-    c = np.zeros((2*m_subsimplices,1))
-    if opt == 'MRSMS' or opt == 'mrsms':
-        c = np.vstack((abs(w),abs(w)))
-        c = c*mu
+    c = np.vstack((abs(w),abs(w)))
+    c = c*mu
     sub_c = np.hstack((abs(w), abs(w), lambda_*abs(v), lambda_*abs(v)))
     sub_c = sub_c.reshape(len(sub_c),1)
     k_sub_c = np.tile(sub_c, (sub_cons_count,1))
@@ -46,12 +41,9 @@ def median(points, simplices, subsimplices, input_currents, lambda_, opt='defaul
             if i < k_currents+1:
                 k_sub_c[i*(2*m_subsimplices+2*n_simplices):(i+1)*(2*m_subsimplices+2*n_simplices)] = \
                 k_sub_c[i*(2*m_subsimplices+2*n_simplices):(i+1)*(2*m_subsimplices+2*n_simplices)]*alphas[i]
-                print "alphas", i, alphas[i]
     c = np.append(c, k_sub_c)
     #np.savetxt("output/dumps/b-%s.txt"%opt, input_currents, fmt="%d", delimiter=" ")
     #np.savetxt("output/dumps/c-%s.txt"%opt, c, delimiter=" ")
-    print 'Constraint shape', cons.shape
-
     g = -sparse.identity(len(c), dtype=np.int8, format='coo')
     h = np.zeros(len(c))
     G = spmatrix(g.data.tolist(), g.row, g.col, g.shape,  tc='d')
@@ -85,7 +77,7 @@ def median(points, simplices, subsimplices, input_currents, lambda_, opt='defaul
         qi_start = ri_end
     return x, q, r, norm
 
-def get_lp_inputs(points, simplices, subsimplices, k_currents, opt='default', w=[], v=[], b_matrix=[], cons=[]):
+def get_lp_inputs(points, simplices, subsimplices, k_currents, w=[], v=[], b_matrix=[], cons=[]):
     m_subsimplices = subsimplices.shape[0]
     n_simplices = simplices.shape[0]
     if w == []:
@@ -96,9 +88,6 @@ def get_lp_inputs(points, simplices, subsimplices, k_currents, opt='default', w=
         b_matrix = boundary_matrix(simplices, subsimplices, format='coo')
     if cons == []:
         sub_cons_count = k_currents
-        # Msfn option
-        if opt == 'msfn':
-            sub_cons_count += 1
         m_subsimplices_identity = sparse.identity(m_subsimplices, dtype=np.int8, format='coo')
         identity_cons = sparse.hstack((m_subsimplices_identity, -m_subsimplices_identity))
         sub_cons = sparse.hstack((-m_subsimplices_identity, m_subsimplices_identity, -b_matrix, b_matrix))

@@ -70,7 +70,7 @@ def plot_curve_approx(mesh, input_points, closest_vertices, path, title=None, co
     plt.scatter(input_points[:,0], input_points[:,1], c=color)
     plt.legend(loc='lower right')
 
-def plot_median(mesh, input_currents, comb, t, title='', figname="", file_doc=None, save=True, lim=5):
+def plot_median(mesh, input_currents, t, title='', figname="", file_doc=None, save=True, lim=5):
     color_set = "r"
     if len(input_currents) == 2:
         color_set = 'gr'
@@ -87,7 +87,7 @@ def plot_median(mesh, input_currents, comb, t, title='', figname="", file_doc=No
     plt.xlim([mesh.xmin-lim, mesh.xmax+lim])
     plot(mesh)
     for i, c in enumerate(input_currents):
-        plot_curve(mesh,  c, color=colors.next(), label='T%d, %d'%(i+1, comb[i]), linewidth=5)
+        plot_curve(mesh,  c, color=colors.next(), label='T%d'%(i+1), linewidth=5)
     plot_curve(mesh, t, title, label='Median')
     plt.legend(loc='lower right')
     if save and figname:
@@ -95,7 +95,7 @@ def plot_median(mesh, input_currents, comb, t, title='', figname="", file_doc=No
     if save and file_doc:
         file_doc.savefig(fig)
 
-def plot_curve_and_median(mesh, input_currents, comb, t, title=None, figname=None, file_doc=None, save=True, lim=5):
+def plot_curve_and_median(mesh, input_currents, t, title=None, figname=None, file_doc=None, save=True, lim=5):
     color_set = "r"
     if len(input_currents) == 2:
         color_set = 'gr'
@@ -113,7 +113,7 @@ def plot_curve_and_median(mesh, input_currents, comb, t, title=None, figname=Non
         plt.xlim([mesh.xmin-lim, mesh.xmax+lim])
         plot(mesh)
         plot_curve(mesh, c, color=colors.next(), linewidth=5, \
-        label='T%d, %d'%(i+1, comb[i]))
+        label='T%d'%(i+1))
         plot_curve(mesh, t, title, label='median')
         plt.legend(loc='lower right')
         if save and figname:
@@ -121,7 +121,7 @@ def plot_curve_and_median(mesh, input_currents, comb, t, title=None, figname=Non
         if save and file_doc:
             file_doc.savefig(fig)
 
-def plot_decomposition(mesh, input_currents, comb, t, q, r, title='', figname=None, file_doc=None, save=True, lim=None, r_dim=2):
+def plot_decomposition(mesh, input_currents, t, q, r, title='', figname=None, file_doc=None, save=True, lim=None, r_dim=2):
     color_set = "b"
     if len(input_currents) == 2:
         color_set = 'gr'
@@ -149,9 +149,7 @@ def plot_decomposition(mesh, input_currents, comb, t, q, r, title='', figname=No
             if q is not None:
                 plot_curve(mesh, q[i], title=title + ', Q%d&R%d'%(i+1,i+1), color='m', marker='*', linewidth=6, label='Q%d'%(i+1))
             if i < input_currents.shape[0]:
-                plot_curve(mesh, input_currents[i], color='r', ls='--', \
-                label='T%d, %d'%(i+1, comb[i]))
-                #label='T')
+                plot_curve(mesh, input_currents[i], color='r', ls='--', label='T%d'%(i+1))
             if t is not None:
                 plot_curve(mesh, t, linewidth=4, label="Median")
         plt.legend(loc='upper right')

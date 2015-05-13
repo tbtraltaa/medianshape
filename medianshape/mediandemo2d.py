@@ -25,8 +25,6 @@ from mesh.utils import boundary_matrix, boundary_matrix_2d, simpvol, get_subsimp
 from cvxopt import matrix, solvers
 import distmesh as dm
 
-options = ['MRSMS']
-
 def triangles():
     mesh = Mesh2D()
     mesh.bbox = [0, 0, 1, 1]
@@ -96,7 +94,7 @@ def load_mesh(boundary_box=None, l=0.02, fixed_points=None, include_corners=True
         b_matrix = boundary_matrix(mesh.simplices, mesh.edges)
     return mesh, w, v, b_matrix
 
-def run_demo(mesh, input_currents, options, lambdas, mus, w=None, v=None, b_matrix=None, file_doc=None, save_data=True):
+def run_demo(mesh, input_currents, lambdas, mus, w=None, v=None, b_matrix=None, file_doc=None, save_data=True):
     figcount = 2
     if w is None:
         w = simpvol(mesh.points, mesh.edges)
@@ -105,37 +103,31 @@ def run_demo(mesh, input_currents, options, lambdas, mus, w=None, v=None, b_matr
     if b_matrix is None:
         b_matrix = boundary_matrix(mesh.simplices, mesh.edges)
     k_currents = len(input_currents)
-    for opt in options:
-        w, v, b_matrix, cons = median.get_lp_inputs(mesh.points, mesh.simplices, mesh.edges,  k_currents, opt, w, v, b_matrix)
-        for l in lambdas:
-            comb=[1,1,1]
-            #for comb in combinations[:-1,:]:
-            #for comb in combinations:
-                #input_currents = currents*comb.reshape(comb.size,1) 
-            for mu in mus:
-                t, q, r, norm = median.median(mesh.points, mesh.simplices, mesh.edges, \
-                input_currents, l, opt, w, v, cons, mu=mu)
-                if save_data:
-                    save(t=t, opt=opt, lambda_=l)
-                title = '%s, lambda=%.04f, mu=%.04f'  % \
-                (opt, l, mu)
-                figname = 'output/figures/%d-%s-%.04f-%.06f'%(figcount, opt, l, mu)
-                if save and file_doc is not None:
-                    plot2d.plot_median(mesh, input_currents, comb, t, title, figname, file_doc, save=save)
-                    plt.tight_layout()
-                    plt.show()
-                    fig = plt.figure(figsize=(8,8))
-                    figcount += 1
+    w, v, b_matrix, cons = median.get_lp_inputs(mesh.points, mesh.simplices, mesh.edges,  k_currents, w, v, b_matrix)
+    for l in lambdas:
+        for mu in mus:
+            t, q, r, norm = median.median(mesh.points, mesh.simplices, mesh.edges, \
+            input_currents, l, w, v, cons, mu=mu)
+            if save_data:
+                save(t=t, lambda_=l, mu=mu)
+            title = 'MRSMS, lambda=%.04f, mu=%.04f'  % (l, mu)
+            figname = 'output/figures/%d-%.04f-%.06f'%(figcount, l, mu)
+            if save and file_doc is not None:
+                plot2d.plot_median(mesh, input_currents, t, title, figname, file_doc, save=save)
+                plt.tight_layout()
+                plt.show()
+                fig = plt.figure(figsize=(8,8))
+                figcount += 1
 
-                    #figname = 'output/figures/%d-%s-%.04f-%.04f'%(figcount, opt, l, mu)
-                    #plot2d.plot_curve_and_median(mesh, input_currents, comb, t, title, \
-                    #figname, file_doc, save)
-                    #figcount += input_currents.shape[0]
+                #figname = 'output/figures/%d-%.04f-%.04f'%(figcount, l, mu)
+                #plot2d.plot_curve_and_median(mesh, input_currents, t, title, \
+                #figname, file_doc, save)
+                #figcount += input_currents.shape[0]
 
-                    figname = 'output/figures/%d-%s-%.06f-%.06f'%(figcount,opt,l, mu)
-                    plot2d.plot_decomposition(mesh, input_currents, comb, t, q, r, title, \
-                    figname, file_doc, save)
-                    figcount += input_currents.shape[0]
+                figname = 'output/figures/%d-%.06f-%.06f'%(figcount, l, mu)
+                plot2d.plot_decomposition(mesh, input_currents, t, q, r, title, \
+                figname, file_doc, save)
+                figcount += input_currents.shape[0]
                 
     return t
 
@@ -184,7 +176,7 @@ def mediandemo2d(load_data=False, save_data=True):
     lambdas = [1]
     mus = [0.0001]
 
-    t = run_demo(mesh, input_currents, options, lambdas, mus, w, v, b_matrix, pdf_file)
+    t = run_demo(mesh, input_currents, lambdas, mus, w, v, b_matrix, pdf_file)
     if save_data:
         save(mesh, input_currents, b_matrix, w, v)
 

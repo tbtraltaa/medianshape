@@ -25,9 +25,6 @@ from mesh.utils import boundary_matrix, boundary_matrix_2d, simpvol, get_subsimp
 from cvxopt import matrix, solvers
 import distmesh as dm
 
-#options = ['default', 'mass', 'msfn']
-options = ['MRSMS']
-
 def load_mesh(boundary_box=None, l=0.02, fixed_points=None, include_corners=True, load_data=False):
     if load_data:
         #TODO add mesh diagonal
@@ -79,10 +76,8 @@ def load_mesh(boundary_box=None, l=0.02, fixed_points=None, include_corners=True
         b_matrix = boundary_matrix(mesh.simplices, mesh.edges)
     return mesh, w, v, b_matrix
 
-def run_demo(mesh, input_currents, options, lambdas, mus, alphas, w=None, v=None, b_matrix=None, file_doc=None, save_data=True):
+def run_demo(mesh, input_currents, lambdas, mus, alphas, w=None, v=None, b_matrix=None, file_doc=None, save_data=True):
     figcount = 2
-    norms = list()
-    t_lens = list()
     if w is None:
         w = simpvol(mesh.points, mesh.edges)
     if v is None:
@@ -90,46 +85,34 @@ def run_demo(mesh, input_currents, options, lambdas, mus, alphas, w=None, v=None
     if b_matrix is None:
         b_matrix = boundary_matrix(mesh.simplices, mesh.edges)
     k_currents = len(input_currents)
-    for opt in options:
-        average_len = np.average(np.array([c.nonzero()[0].shape[0] for c in input_currents]))
-        w, v, b_matrix, cons = median.get_lp_inputs(mesh.points, mesh.simplices, mesh.edges,  k_currents, opt, w, v, b_matrix)
-        #np.savetxt('output/dumps/cons-%s.txt'%opt, cons, fmt='%d', delimiter=' ')
-        for l in lambdas:
-            comb=[1,1,1]
-            #for comb in combinations[:-1,:]:
-            #for comb in combinations:
-                #input_currents = currents*comb.reshape(comb.size,1) 
-            for mu in mus:
-                for alpha in alphas:
-                    t, q, r, norm = median.median(mesh.points, mesh.simplices, mesh.edges, \
-                    input_currents, l, opt, w, v, cons, mu=mu, alphas=alpha)
-                    if save_data:
-                        save(t=t, opt=opt, lambda_=l)
-                    norms.append(norm)
-                    t_len = len(t.nonzero()[0])
-                    t_lens.append(t_len)
-                    title = '%s, lambda=%.04f, mu=%.06f, alpha=%s' %(opt, l, mu, str(alpha))
-                    figname = 'output/figures/%d-%s-%.04f-%.06f'%(figcount, opt, l, mu)
-                    if save and file_doc is not None:
-                        plot2d.plot_median(mesh, input_currents, comb, t, title, figname, file_doc, save=save)
-                        plt.tight_layout()
-                        plt.show()
-                        fig = plt.figure(figsize=(14,4))
-                        figcount += 1
+    w, v, b_matrix, cons = median.get_lp_inputs(mesh.points, mesh.simplices, mesh.edges,  k_currents, w, v, b_matrix)
+    #np.savetxt('output/dumps/cons.txt', cons, fmt='%d', delimiter=' ')
+    for l in lambdas:
+        for mu in mus:
+            for alpha in alphas:
+                t, q, r, norm = median.median(mesh.points, mesh.simplices, mesh.edges, \
+                input_currents, l, w, v, cons, mu=mu, alphas=alpha)
+                if save_data:
+                    save(t=t, lambda_=l, mu=mu)
+                title = 'MRSMS, lambda=%.04f, mu=%.06f, alpha=%s'%(l, mu, str(alpha))
+                figname = 'output/figures/%d-%.04f-%.06f'%(figcount,l, mu)
+                if save and file_doc is not None:
+                    plot2d.plot_median(mesh, input_currents, t, title, figname, file_doc, save=save)
+                    plt.tight_layout()
+                    plt.show()
+                    fig = plt.figure(figsize=(14,4))
+                    figcount += 1
 
-                        #figname = 'output/figures/%d-%s-%.04f-%.04f'%(figcount, opt, l, mu)
-                        #plot2d.plot_curve_and_median(mesh, input_currents, comb, t, title, \
-                        #figname, file_doc, save)
-                        #figcount += input_currents.shape[0]
+                    #figname = 'output/figures/%d-%.04f-%.04f'%(figcount, l, mu)
+                    #plot2d.plot_curve_and_median(mesh, input_currents, t, title, \
+                    #figname, file_doc, save)
+                    #figcount += input_currents.shape[0]
 
-                        #figname = 'output/figures/%d-%s-%.06f-%.06f'%(figcount,opt,l, mu)
-                        #plot2d.plot_decomposition(mesh, input_currents, comb, t, q, r, title, \
-                        #figname, file_doc, save)
-                        #figcount += input_currents.shape[0]
+                    #figname = 'output/figures/%d-%.06f-%.06f'%(figcount, l, mu)
+                    #plot2d.plot_decomposition(mesh, input_currents, t, q, r, title, \
+                    #figname, file_doc, save)
+                    #figcount += input_currents.shape[0]
                 
-    print "Norms", norms
-    print "t_lens", t_lens
-    print "Average len", average_len
     return t
 
 def deform2d(load_data=False, save_data=True):
@@ -140,7 +123,7 @@ def deform2d(load_data=False, save_data=True):
     #fig = plt.figure()
     figcount = 1
     boundary_box = (0,0,200,50)
-    l=3
+    l=6
     #boundary_box = (0,0,40,40)
     #fixed_points = [(0,0),(40,0),(0,40),(40,40)]
     #boundary_box = (0,0,1,1)
@@ -153,9 +136,6 @@ def deform2d(load_data=False, save_data=True):
     #function_sets = [['curve1', 'curve2', 'curve3', 'curve4', 'curve5']]
     functions= ['curve4', 'curve5']
     #functions= ['curve1', 'curve2']
-    combinations = utils.get_combination(len(functions))
-    combinations = np.array([[1,1,1]])
-    #combinations = np.array([[1,1,1]])
     #ellipse1 = pointgen2d.sample_ellipse(0.4, 0.2, 10)
     #ellipse2 = pointgen2d.sample_ellipse(0.2, 0.4, 10)
     #shapes = [ellipse1, ellipse2]
@@ -193,10 +173,7 @@ def deform2d(load_data=False, save_data=True):
     alphas = np.hstack((np.arange(2, len(alpha1)+2).reshape(-1, 1),alpha1, alpha2))
     #alphas = np.ndarray(shape=(1,2), buffer=np.array([0.5, 0.5]))
 
-    t = run_demo(mesh, input_currents, options, lambdas, mus, alphas, w, v, b_matrix, pdf_file)
-    #alphas = alphas + adjust_alphas(mesh, input_currents, t, v)
-    #t = run_demo(mesh, input_currents, options, lambdas, mus, alphas, w, v, b_matrix, pdf_file)
-
+    t = run_demo(mesh, input_currents, lambdas, mus, alphas, w, v, b_matrix, pdf_file)
 
     if save_data:
         save(mesh, input_currents, b_matrix, w, v)
