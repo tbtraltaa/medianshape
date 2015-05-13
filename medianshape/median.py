@@ -14,7 +14,7 @@ solvers.options['show_progress'] = False
 
 from mesh.utils import boundary_matrix, simpvol
 
-def mean(points, simplices, subsimplices, input_currents, lambda_, opt='default', w=[], v=[], cons=[], mu=0.001, alphas=None):
+def median(points, simplices, subsimplices, input_currents, lambda_, opt='default', w=[], v=[], cons=[], mu=0.001, alphas=None):
     if not isinstance(input_currents, np.ndarray):
         input_currents = np.array(input_currents)
     m_subsimplices = subsimplices.shape[0]
@@ -48,8 +48,8 @@ def mean(points, simplices, subsimplices, input_currents, lambda_, opt='default'
                 k_sub_c[i*(2*m_subsimplices+2*n_simplices):(i+1)*(2*m_subsimplices+2*n_simplices)]*alphas[i]
                 print "alphas", i, alphas[i]
     c = np.append(c, k_sub_c)
-    #np.savetxt("/home/altaa/dumps1/b-%s.txt"%opt, input_currents, fmt="%d", delimiter=" ")
-    #np.savetxt("/home/altaa/dumps1/c-%s.txt"%opt, c, delimiter=" ")
+    #np.savetxt("output/dumps/b-%s.txt"%opt, input_currents, fmt="%d", delimiter=" ")
+    #np.savetxt("output/dumps/c-%s.txt"%opt, c, delimiter=" ")
     print 'Constraint shape', cons.shape
 
     g = -sparse.identity(len(c), dtype=np.int8, format='coo')

@@ -137,7 +137,7 @@ def plot_curve_approx(mesh, input_points, closest_vertices, path, title=None, co
     plt.legend(loc='lower right')
 
 
-def plot_mean(mesh, input_currents, comb, t, title='', figname="", file_doc=None, save=True, lim=5, dim=1):
+def plot_median(mesh, input_currents, comb, t, title='', figname="", file_doc=None, save=True, lim=5, dim=1):
     
     colors= get_colors(len(input_currents))
     #fig = plt.figure(figsize=(10,8))
@@ -165,7 +165,7 @@ def plot_mean(mesh, input_currents, comb, t, title='', figname="", file_doc=None
     if save and file_doc:
         file_doc.savefig(fig)
 
-def plot_curve_and_mean(mesh, input_currents, comb, t, title=None, figname=None, file_doc=None, save=True, lim=5):
+def plot_curve_and_median(mesh, input_currents, comb, t, title=None, figname=None, file_doc=None, save=True, lim=5):
     colors= get_colors(len(input_currents))
     ax = plt.gca(projection='3d')
     fig = ax.figure

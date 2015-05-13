@@ -19,7 +19,6 @@ from shapegen import pointgen2d, currentgen, utils
 import plot2d
 
 import msfn
-import shortestpath_msfn
 
 if __name__ == "__main__":
     start = time.time()

@@ -16,7 +16,7 @@ from matplotlib.backends.backend_pdf import PdfPages
 from mesh.meshgen import distmesh3d, scipy_mesh3d
 from mesh.mesh import Mesh3D
 from shapegen import pointgen3d, currentgen, utils
-import mean
+import median
 
 from utils import sparse_savetxt, load, save, envelope, adjust_alphas
 from mesh.utils import boundary_matrix, simpvol, get_subsimplices
@@ -70,7 +70,7 @@ def run_demo(mesh, input_currents, options, lambdas, mus, alphas, w=None, v=None
     k_currents = len(input_currents)
     for opt in options:
         average_len = np.average(np.array([c.nonzero()[0].shape[0] for c in input_currents]))
-        w, v, b_matrix, cons = mean.get_lp_inputs(mesh.points, mesh.triangles, mesh.edges,  k_currents, opt, w, v, b_matrix)
+        w, v, b_matrix, cons = median.get_lp_inputs(mesh.points, mesh.triangles, mesh.edges,  k_currents, opt, w, v, b_matrix)
         #np.savetxt('/home/altaa/dumps1/cons-%s.txt'%opt, cons, fmt='%d', delimiter=' ')
         for l in lambdas:
             comb=[1,1,1]
@@ -79,7 +79,7 @@ def run_demo(mesh, input_currents, options, lambdas, mus, alphas, w=None, v=None
                 #input_currents = currents*comb.reshape(comb.size,1) 
             for mu in mus:
                 for alpha in alphas:
-                    t, q, r, norm = mean.mean(mesh.points, mesh.triangles, mesh.edges, input_currents, l, opt, w, v, cons, mu=mu, alphas=alpha)
+                    t, q, r, norm = median.median(mesh.points, mesh.triangles, mesh.edges, input_currents, l, opt, w, v, cons, mu=mu, alphas=alpha)
                     if save_data:
                         save(t=t, opt=opt, lambda_=l)
                     norms.append(norm)
@@ -87,18 +87,18 @@ def run_demo(mesh, input_currents, options, lambdas, mus, alphas, w=None, v=None
                     t_lens.append(t_len)
                     title = '%s, lambda=%.04f, mu=%.06f'  % \
                     (opt, l, mu)
-                    figname = '/home/altaa/fig_dump/%d-%s-%.04f-%.06f'%(figcount, opt, l, mu)
+                    figname = 'output/figures/%d-%s-%.04f-%.06f'%(figcount, opt, l, mu)
                     if save and file_doc is not None:
-                        plot3d.plot_mean(mesh, input_currents, comb, t, title, figname, file_doc, save=save)
+                        plot3d.plot_median(mesh, input_currents, comb, t, title, figname, file_doc, save=save)
                         #plt.show()
                         figcount += 1
 
-                        #figname = '/home/altaa/fig_dump/%d-%s-%.04f-%.04f'%(figcount, opt, l, mu)
-                        #plotting.plot_curve_and_mean(mesh, input_currents, comb, t, title, \
+                        #figname = 'output/figures/%d-%s-%.04f-%.04f'%(figcount, opt, l, mu)
+                        #plotting.plot_curve_and_median(mesh, input_currents, comb, t, title, \
                         #figname, file_doc, save)
                         #figcount += input_currents.shape[0]
 
-                        figname = '/home/altaa/fig_dump/%d-%s-%.06f-%.06f'%(figcount,opt,l, mu)
+                        figname = 'output/figures/%d-%s-%.06f-%.06f'%(figcount,opt,l, mu)
                         plot3d.plot_decomposition(mesh, input_currents, comb, t, q, r, title, \
                         figname, file_doc, save)
                         figcount += input_currents.shape[0]
@@ -106,21 +106,21 @@ def run_demo(mesh, input_currents, options, lambdas, mus, alphas, w=None, v=None
                 
                 # Plotting the combination with minimum flatnorm difference
             #title = 'Minimum flatnorm difference, %s, lambda=%.04f, %s' % (opt, l, str(comb))
-#                figname = '/home/altaa/fig_dump/%d-%s-%.04f'%(figcount, opt, l)
-#                plotting.plot_mean(mesh, min_currents, min_comb, min_t, title, \
+#                figname = 'output/figures/%d-%s-%.04f'%(figcount, opt, l)
+#                plotting.plot_median(mesh, min_currents, min_comb, min_t, title, \
 #                figname, file_doc)
 #                figcount += 1
 #
-#                figname = '/home/altaa/fig_dump/%d-%s-%.04f'%(figcount,opt,l)
+#                figname = 'output/figures/%d-%s-%.04f'%(figcount,opt,l)
 #                plotting.plot_decomposition(mesh, min_currents, comb, min_t, min_q, min_r, \
 #                title, figname, file_doc)
 #                figcount += input_currents.shape[0]
     return t
 
-def mean_curve_demo(load_data=False, save_data=True):
+def deform3d(load_data=False, save_data=True):
     lp_times = list()
     start = time.time()
-    pdf_file = PdfPages('/home/altaa/figures.pdf')
+    pdf_file = PdfPages('output/deform3d.pdf')
 
     fig = plt.figure(figsize=(12,8))
     figcount = 1
@@ -152,7 +152,7 @@ def mean_curve_demo(load_data=False, save_data=True):
     points  = np.array(shapes)
     vertices, paths, input_currents = currentgen.push_curves_on_mesh(mesh, points, is_closed=False)
 
-    figname = '/home/altaa/fig_dump/%d.png'%(figcount)
+    figname = 'output/figures/%d.png'%(figcount)
     title = '%s-l=%0.2f' % (mesh.get_info(),l)
     plot3d.plot_curves_approx(mesh, points, vertices, paths, title, figname, pdf_file)
     figcount += 1
@@ -170,4 +170,4 @@ def mean_curve_demo(load_data=False, save_data=True):
     print 'Elapsed time %f mins.' % (elapsed/60)
     
 if __name__ == '__main__':
-    mean_curve_demo()
+    deform3d()

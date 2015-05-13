@@ -16,7 +16,7 @@ from matplotlib.backends.backend_pdf import PdfPages
 from mesh.meshgen import distmesh2d
 from mesh.mesh import Mesh2D
 from shapegen import pointgen2d, currentgen, utils
-import mean
+import median
 import plot2d
 
 from utils import sparse_savetxt, load, save
@@ -106,43 +106,43 @@ def run_demo(mesh, input_currents, options, lambdas, mus, w=None, v=None, b_matr
         b_matrix = boundary_matrix(mesh.simplices, mesh.edges)
     k_currents = len(input_currents)
     for opt in options:
-        w, v, b_matrix, cons = mean.get_lp_inputs(mesh.points, mesh.simplices, mesh.edges,  k_currents, opt, w, v, b_matrix)
+        w, v, b_matrix, cons = median.get_lp_inputs(mesh.points, mesh.simplices, mesh.edges,  k_currents, opt, w, v, b_matrix)
         for l in lambdas:
             comb=[1,1,1]
             #for comb in combinations[:-1,:]:
             #for comb in combinations:
                 #input_currents = currents*comb.reshape(comb.size,1) 
             for mu in mus:
-                t, q, r, norm = mean.mean(mesh.points, mesh.simplices, mesh.edges, \
+                t, q, r, norm = median.median(mesh.points, mesh.simplices, mesh.edges, \
                 input_currents, l, opt, w, v, cons, mu=mu)
                 if save_data:
                     save(t=t, opt=opt, lambda_=l)
                 title = '%s, lambda=%.04f, mu=%.04f'  % \
                 (opt, l, mu)
-                figname = '/home/altaa/fig_dump/%d-%s-%.04f-%.06f'%(figcount, opt, l, mu)
+                figname = 'output/figures/%d-%s-%.04f-%.06f'%(figcount, opt, l, mu)
                 if save and file_doc is not None:
-                    plot2d.plot_mean(mesh, input_currents, comb, t, title, figname, file_doc, save=save)
+                    plot2d.plot_median(mesh, input_currents, comb, t, title, figname, file_doc, save=save)
                     plt.tight_layout()
                     plt.show()
                     fig = plt.figure(figsize=(8,8))
                     figcount += 1
 
-                    #figname = '/home/altaa/fig_dump/%d-%s-%.04f-%.04f'%(figcount, opt, l, mu)
-                    #plot2d.plot_curve_and_mean(mesh, input_currents, comb, t, title, \
+                    #figname = 'output/figures/%d-%s-%.04f-%.04f'%(figcount, opt, l, mu)
+                    #plot2d.plot_curve_and_median(mesh, input_currents, comb, t, title, \
                     #figname, file_doc, save)
                     #figcount += input_currents.shape[0]
 
-                    figname = '/home/altaa/fig_dump/%d-%s-%.06f-%.06f'%(figcount,opt,l, mu)
+                    figname = 'output/figures/%d-%s-%.06f-%.06f'%(figcount,opt,l, mu)
                     plot2d.plot_decomposition(mesh, input_currents, comb, t, q, r, title, \
                     figname, file_doc, save)
                     figcount += input_currents.shape[0]
                 
     return t
 
-def meandemo2d(load_data=False, save_data=True):
+def mediandemo2d(load_data=False, save_data=True):
     lp_times = list()
     start = time.time()
-    pdf_file = PdfPages('/home/altaa/figures.pdf')
+    pdf_file = PdfPages('output/figures.pdf')
     fig = plt.figure(figsize=(8,8))
     #fig = plt.figure()
     figcount = 1
@@ -173,7 +173,7 @@ def meandemo2d(load_data=False, save_data=True):
     print mesh.get_info()
     #vertices, paths, input_currents = currentgen.push_functions_on_mesh_2d(mesh, points, is_closed=False, functions=functions)
     vertices, paths, input_currents = currentgen.push_curves_on_mesh(mesh, simplices, subsimplices, points, True)
-    figname = '/home/altaa/fig_dump/%d.png'%(figcount)
+    figname = 'output/figures/%d.png'%(figcount)
     title = mesh.get_info()
     plot2d.plot_curves_approx(mesh, points, vertices, paths, title, figname, pdf_file)
     plt.tight_layout()
@@ -193,4 +193,4 @@ def meandemo2d(load_data=False, save_data=True):
     print 'Elapsed time %f mins.' % (elapsed/60)
     
 if __name__ == '__main__':
-    meandemo2d()
+    mediandemo2d()

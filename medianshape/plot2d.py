@@ -70,7 +70,7 @@ def plot_curve_approx(mesh, input_points, closest_vertices, path, title=None, co
     plt.scatter(input_points[:,0], input_points[:,1], c=color)
     plt.legend(loc='lower right')
 
-def plot_mean(mesh, input_currents, comb, t, title='', figname="", file_doc=None, save=True, lim=5):
+def plot_median(mesh, input_currents, comb, t, title='', figname="", file_doc=None, save=True, lim=5):
     color_set = "r"
     if len(input_currents) == 2:
         color_set = 'gr'
@@ -95,7 +95,7 @@ def plot_mean(mesh, input_currents, comb, t, title='', figname="", file_doc=None
     if save and file_doc:
         file_doc.savefig(fig)
 
-def plot_curve_and_mean(mesh, input_currents, comb, t, title=None, figname=None, file_doc=None, save=True, lim=5):
+def plot_curve_and_median(mesh, input_currents, comb, t, title=None, figname=None, file_doc=None, save=True, lim=5):
     color_set = "r"
     if len(input_currents) == 2:
         color_set = 'gr'
@@ -114,7 +114,7 @@ def plot_curve_and_mean(mesh, input_currents, comb, t, title=None, figname=None,
         plot(mesh)
         plot_curve(mesh, c, color=colors.next(), linewidth=5, \
         label='T%d, %d'%(i+1, comb[i]))
-        plot_curve(mesh, t, title, label='Mean')
+        plot_curve(mesh, t, title, label='median')
         plt.legend(loc='lower right')
         if save and figname:
             plt.savefig("%s-%d.png" % (figname, i), dpi=fig.dpi)

@@ -51,7 +51,7 @@ def sparse_savetxt(fname, matrix, fmt='%d', delimiter=' '):
             f.write("%d %d %d\n" % (matrix.row[i], matrix.col[i], matrix.data[i]))
 
 # Loads previously computed mesh, boundary_matrix, input currents, w and v from a directory
-def load(dirname='/home/altaa/dumps1'):
+def load(dirname='output/dumps'):
     mesh = Mesh()
     mesh.points = np.loadtxt("%s/points.txt"%dirname) 
     mesh.simplices = np.loadtxt("%s/simplices.txt"%dirname)
@@ -66,7 +66,7 @@ def load(dirname='/home/altaa/dumps1'):
     return mesh, w, v, b_matrix
 
 # Saves mesh, input currents, boundary matrix, w and v.
-def save(mesh=None, input_currents=None, b_matrix=None, w=None, v=None, t=None, dirname='/home/altaa/dumps1', **kwargs):
+def save(mesh=None, input_currents=None, b_matrix=None, w=None, v=None, t=None, dirname='output/dumps', **kwargs):
     if mesh is not None:
         np.savetxt('%s/points.txt' % dirname, mesh.points, delimiter=' ')
         np.savetxt('%s/edges.txt' % dirname, mesh.edges, fmt='%d', delimiter=' ')
