@@ -3,16 +3,51 @@
 from __future__ import absolute_import
 
 import importlib
-import random
-import math
 
 import numpy as np
 
 import distmesh as dm
 from scipy.spatial import Delaunay
-from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.pyplot as plt
 
+import mesh.utils as mutils 
+from mesh.mesh import Mesh2D, Mesh3D
+
+def meshgen2d(boundary_box=None, l=0.02, fixed_points=None, include_corners=True):
+    mesh = Mesh2D()
+    #l - initial length of triangle sides. Change it to vary traingle size
+    mesh.bbox = boundary_box
+    mesh.set_boundary_points()
+    mesh.set_diagonal()
+    mesh.set_boundary_values()
+    mesh.fixed_points = fixed_points
+    if include_corners:
+        if mesh.fixed_points is not None:
+            mesh.fixed_points = np.vstack((mesh.fixed_points, mesh.boundary_points))
+        else:
+            mesh.fixed_points = mesh.boundary_points
+    mesh.points, mesh.simplices = distmesh2d('square', mesh.bbox, mesh.fixed_points, l=l)
+    mesh.edges = mutils.get_subsimplices(mesh.simplices)
+    mesh.orient_simplices_2D()
+    return mesh
+
+def meshgen3d(boundary_box=None, l=0.2, fixed_points=None, include_corners=True, load_data=False):
+    mesh = Mesh3D()
+    mesh.bbox = boundary_box
+    mesh.set_boundary_points()
+    mesh.set_diagonal()
+    mesh.set_boundary_values()
+    mesh.fixed_points = fixed_points
+    if include_corners:
+        if mesh.fixed_points is not None:
+            mesh.fixed_points = np.vstack((mesh.fixed_points, mesh.boundary_points))
+        else:
+            mesh.fixed_points = mesh.boundary_points
+    mesh.points, mesh.simplices= distmesh3d("sphere", mesh.bbox, mesh.fixed_points, l=l)
+    #mesh.points, mesh.simplices = scipy_mesh3d(mesh.bbox, mesh.fixed_points, l)
+    mesh.triangles = mutils.get_subsimplices(mesh.simplices)
+    mesh.edges = mutils.get_subsimplices(mesh.triangles)
+    return mesh
 
 def scipy_mesh3d(bbox, fixed_points, l):
     bbox = np.array(bbox).reshape(2, -1)

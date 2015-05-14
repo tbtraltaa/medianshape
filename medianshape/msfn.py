@@ -30,7 +30,6 @@ def msfn(points, simplices, subsimplices, input_current, lambda_, w=[], v=[], co
     h = matrix(h)
 
     sol = solvers.lp(c, G, h, cons, input_current, solver='glpk')
-    #args = np.array(sol['x'])
     args = np.rint(sol['x'])
     norm = sol['primal objective']
     x = (args[0:m_subsimplices] - args[m_subsimplices:2*m_subsimplices]).reshape((1,m_subsimplices)).astype(int)

@@ -6,11 +6,27 @@ import itertools
 
 import matplotlib.pyplot as plt
 
-def plot(mesh):
+def get_colors(n):
+    '''Returns a function that maps each index in 0, 1, ... N-1 to a distinct 
+        RGB color.'''
+    if n < 4:
+        if n == 1:
+            return 'r'
+        elif n == 2:
+            return 'gr'
+        elif n == 3:
+            return 'gry'
+        elif n == 4:
+            return 'grcy' 
+    else:
+        return cm.rainbow(np.linspace(0, 1, n))
+
+def plotmesh2d(mesh):
     plt.triplot(mesh.points[:,0], mesh.points[:,1], mesh.simplices.copy())
+    plt.tight_layout()
     #plt.scatter(mesh.points[:,0], mesh.points[:,1])
 
-def plot_curve(mesh, func_path, title=None, color="black", marker=None, linewidth=3, ls='-', label=""):
+def plot_curve2d(mesh, func_path, title=None, color="black", marker=None, linewidth=3, ls='-', label=""):
     if type(func_path) == list:
         func_path = np.array(func_path)
     if func_path.dtype != int:
@@ -25,7 +41,7 @@ def plot_curve(mesh, func_path, title=None, color="black", marker=None, linewidt
         plt.title(title)
 
 # Plot simplices
-def plot_simplices(mesh, simplices, title=None, color="y", label=""):
+def plot_simplices2d(mesh, simplices, title=None, color="y", label=""):
     ax = plt.gca()
     #ccw_symbol = u'\u2941'
     #cw_symbol = u'\u21BB'
@@ -36,31 +52,25 @@ def plot_simplices(mesh, simplices, title=None, color="y", label=""):
         simplex = plt.Polygon(mesh.points[mesh.simplices[idx]], closed=True, fill=True, fc=color, hatch=hatch, label=label if i==0 else "")
         ax.add_patch(simplex)
 
-def plot_curves_approx(mesh, points, vertices, paths, title="", figname=None, file_doc=None, save=True, lim=5):
-    color_set = "r"
-    if len(paths) == 2:
-        color_set = 'gr'
-    elif len(paths) == 3:
-        color_set = 'gry'
-    elif len(paths) == 5:
-        color_set = 'grcym' 
-    colors = itertools.cycle(color_set)
+def plot_curves_approx2d(mesh, points, vertices, paths, title="", figname=None, file_doc=None, save=True, lim=5):
+    colors = get_colors(len(points))
     fig = plt.gca().figure
     plt.clf()
     plt.gca().set_aspect('equal')
     lim = float(mesh.ymax)/10
     plt.ylim([mesh.ymin-lim, mesh.ymax+lim])
     plt.xlim([mesh.xmin-lim, mesh.xmax+lim])
-    plot(mesh)
+    plotmesh2d(mesh)
     for i, path in enumerate(paths):
-        plot_curve_approx(mesh, points[i], vertices[i], path, color=colors.next(), label="T%d"%(i+1))
+        plot_curve_approx2d(mesh, points[i], vertices[i], path, color=colors[i], label="T%d"%(i+1))
     plt.title(title)
+    plt.tight_layout()
     if save and figname:
         plt.savefig('%s.png'%figname, dpi=fig.dpi)
     if save and file_doc:
         file_doc.savefig(fig)
 
-def plot_curve_approx(mesh, input_points, closest_vertices, path, title=None, color="red", linewidth=3, label=""):
+def plot_curve_approx2d(mesh, input_points, closest_vertices, path, title=None, color="red", linewidth=3, label=""):
     plt.plot(input_points[:,0], input_points[:,1], c=color, ls="--", label='Input points')
     plt.title(title)
     for i, edge in enumerate(path):
@@ -70,40 +80,27 @@ def plot_curve_approx(mesh, input_points, closest_vertices, path, title=None, co
     plt.scatter(input_points[:,0], input_points[:,1], c=color)
     plt.legend(loc='lower right')
 
-def plot_median(mesh, input_currents, t, title='', figname="", file_doc=None, save=True, lim=5):
-    color_set = "r"
-    if len(input_currents) == 2:
-        color_set = 'gr'
-    elif len(input_currents) == 3:
-        color_set = 'gry'
-    elif len(input_currents) == 5:
-        color_set = 'grcym' 
-    colors = itertools.cycle(color_set)
+def plot_median2d(mesh, input_currents, t, title='', figname="", file_doc=None, save=True, lim=5):
+    colors= get_colors(len(input_currents))
     plt.clf()
     fig = plt.gca().figure
     plt.gca().set_aspect('equal')
     lim = float(mesh.ymax)/10
     plt.ylim([mesh.ymin-lim, mesh.ymax+lim])
     plt.xlim([mesh.xmin-lim, mesh.xmax+lim])
-    plot(mesh)
+    plotmesh2d(mesh)
     for i, c in enumerate(input_currents):
-        plot_curve(mesh,  c, color=colors.next(), label='T%d'%(i+1), linewidth=5)
-    plot_curve(mesh, t, title, label='Median')
+        plot_curve2d(mesh,  c, color=colors[i], label='T%d'%(i+1), linewidth=5)
+    plot_curve2d(mesh, t, title, label='Median')
     plt.legend(loc='lower right')
+    plt.tight_layout()
     if save and figname:
         plt.savefig("%s.png"%figname, dpi=fig.dpi)
     if save and file_doc:
         file_doc.savefig(fig)
 
-def plot_curve_and_median(mesh, input_currents, t, title=None, figname=None, file_doc=None, save=True, lim=5):
-    color_set = "r"
-    if len(input_currents) == 2:
-        color_set = 'gr'
-    elif len(input_currents) == 3:
-        color_set = 'gry'
-    elif len(input_currents) == 5:
-        color_set = 'grcym' 
-    colors = itertools.cycle(color_set)
+def plot_curve_and_median2d(mesh, input_currents, t, title=None, figname=None, file_doc=None, save=True, lim=5):
+    colors= get_colors(len(input_currents))
     fig = plt.gca().figure
     for i, c in enumerate(input_currents):
         fig.clf()                    
@@ -111,28 +108,21 @@ def plot_curve_and_median(mesh, input_currents, t, title=None, figname=None, fil
         lim = mesh.ymax*1.0/10
         plt.ylim([mesh.ymin-lim, mesh.ymax+lim])
         plt.xlim([mesh.xmin-lim, mesh.xmax+lim])
-        plot(mesh)
-        plot_curve(mesh, c, color=colors.next(), linewidth=5, \
+        plotmesh2d(mesh)
+        plot_curve2d(mesh, c, color=colors[i], linewidth=5, \
         label='T%d'%(i+1))
-        plot_curve(mesh, t, title, label='median')
+        plot_curve2d(mesh, t, title, label='median')
         plt.legend(loc='lower right')
+        plt.tight_layout()
         if save and figname:
             plt.savefig("%s-%d.png" % (figname, i), dpi=fig.dpi)
         if save and file_doc:
             file_doc.savefig(fig)
 
-def plot_decomposition(mesh, input_currents, t, q, r, title='', figname=None, file_doc=None, save=True, lim=None, r_dim=2):
-    color_set = "b"
-    if len(input_currents) == 2:
-        color_set = 'gr'
-    elif len(input_currents) == 3:
-        color_set = 'gry'
-    elif len(input_currents) == 5:
-        color_set = 'grcym' 
-    colors = itertools.cycle(color_set)
+def plot_decomposition2d(mesh, input_currents, t, q, r, title='', figname=None, file_doc=None, save=True, lim=None):
+    colors= get_colors(len(input_currents))
     fig = plt.gca().figure
     for i, r_i in enumerate(r):
-        color = colors.next()
         fig.clf()
         plt.gca().set_aspect('equal')
         if lim is None:
@@ -140,24 +130,19 @@ def plot_decomposition(mesh, input_currents, t, q, r, title='', figname=None, fi
         print lim
         plt.ylim([mesh.ymin-lim, mesh.ymax+lim])
         plt.xlim([mesh.xmin-lim, mesh.xmax+lim])
-        plot(mesh)
-        if r_dim == 1:
-            plot_curve(mesh, r_i, title=title + ', Q%d&R%d'%(i+1,i+1), color='m', marker='*', linewidth=6, label='Q%d'%(i+1))
-            plt.scatter(mesh.points[q[i]][:, 0], mesh.points[q[i]][:,1], color='r')
-        elif r_dim ==2:
-            plot_simplices(mesh, r_i, color=color, label="R%d"%(i+1))
-            if q is not None:
-                plot_curve(mesh, q[i], title=title + ', Q%d&R%d'%(i+1,i+1), color='m', marker='*', linewidth=6, label='Q%d'%(i+1))
-            if i < input_currents.shape[0]:
-                plot_curve(mesh, input_currents[i], color='r', ls='--', label='T%d'%(i+1))
-            if t is not None:
-                plot_curve(mesh, t, linewidth=4, label="Median")
-        plt.legend(loc='upper right')
+        plotmesh2d(mesh)
+        plot_simplices2d(mesh, r_i, color=colors[i], label="R%d"%(i+1))
+        if q is not None:
+            plot_curve2d(mesh, q[i], title=title + ', Q%d&R%d'%(i+1,i+1), color='m', marker='*', linewidth=6, label='Q%d'%(i+1))
+        plot_curve2d(mesh, input_currents[i], color='r', ls='--', label='T%d'%(i+1))
+        if t is not None:
+            plot_curve2d(mesh, t, linewidth=4, label="Median")
+        plt.legend(loc='lower right')
         plt.tight_layout()
-        plt.show()
-        fig = plt.figure(figsize=(8,8))
         if save and figname:
             plt.savefig("%s-%d.png" % (figname, i), dpi=fig.dpi)
         if save and file_doc:
             file_doc.savefig(fig)
+        plt.show()
+        fig = plt.figure(figsize=(8,8))
 

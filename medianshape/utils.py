@@ -1,59 +1,38 @@
+
 from __future__ import absolute_import 
 
 import numpy as np
 
-from mesh.mesh import Mesh2D
-import msfn
-import plot2d
 from scipy import sparse
 
-import matplotlib.pyplot as plt
+from mesh.mesh import Mesh2D, Mesh3D
 
-def envelope(mesh, input_currents):
-    for i, c in enumerate(input_currents):
-        if i < input_currents.shape[0] -1:
-            diff = c - input_currents[i+1]
-            x, s, norm = msfn.msfn(mesh.points, mesh.simplices, mesh.edges, diff, 0)
-            plot2d.plot_mean(mesh, diff.reshape((1, len(c))), [], lim=0.1)
-            plt.show()
-            plot2d.plot_decomposition(mesh, input_currents, None, x, s, lim=0.1)
-            plt.show()
-
-def adjust_alphas(mesh, input_currents, t, v):
-    alphas = list()
-    total_sum = 0
-    print input_currents.shape
-    for i, c in enumerate(input_currents):
-        diff = c.reshape(-1,1) - t
-        x, s, norm = msfn.msfn(mesh.points, mesh.simplices, mesh.edges, diff, 0)
-        plotting.plot_mean(mesh, diff.reshape((1, len(c))), [1], [])
-        plt.show()
-        plotting.plot_decomposition(mesh, input_currents, None, x, s)
-        plt.show()
-        area =  np.sum(s*v)
-        total_sum += area
-        alphas.append(area)
-    alphas = np.array(alphas).reshape(1,-1)
-    alphas = (alphas *1.0/total_sum)/10000
-    return alphas
-
-# Saves sparse matrix as text. if the input is not sparse, set is_sparse argument to False.
-def sparse_savetxt(fname, matrix, fmt='%d', delimiter=' '):
-    if sparse.issparse(matrix):
-        if matrix.getformat() !='coo':
-            matrix = matrix.asformat('coo')
-    else:
-        matrix = sparse.coo_matrix(matrix)
-    with open(fname, 'w') as f:
-        for i in range(len(matrix.row)):
-            f.write("%d %d %d\n" % (matrix.row[i], matrix.col[i], matrix.data[i]))
 
 # Loads previously computed mesh, boundary_matrix, input currents, w and v from a directory
-def load(dirname='output/dumps'):
-    mesh = Mesh()
+def load_mesh2d(dirname='dumps'):
+    mesh = Mesh2D()
+    mesh.bbox = np.loadtxt("%s/bbox.txt"%dirname)
+    mesh.set_boundary_points()
+    mesh.set_diagonal()
+    mesh.set_boundary_values()
     mesh.points = np.loadtxt("%s/points.txt"%dirname) 
-    mesh.simplices = np.loadtxt("%s/simplices.txt"%dirname)
     mesh.edges = np.loadtxt("%s/edges.txt"%dirname)
+    mesh.simplices = np.loadtxt("%s/simplices.txt"%dirname)
+    return mesh
+
+def load_mesh3d(dirname='dumps'):
+    mesh = Mesh3D()
+    mesh.bbox = np.loadtxt("%s/bbox.txt"%dirname)
+    mesh.set_boundary_points()
+    mesh.set_diagonal()
+    mesh.set_boundary_values()
+    mesh.points = np.loadtxt("%s/points.txt"%dirname) 
+    mesh.edges = np.loadtxt("%s/edges.txt"%dirname)
+    mesh.triangles = np.loadtxt("%s/triangles.txt"%dirname)
+    mesh.simplices = np.loadtxt("%s/simplices.txt"%dirname)
+    return mesh
+
+def load_weights_and_boundary(dirname='dumps'):
     v = np.loadtxt("%s/v.txt"%dirname)
     w = np.loadtxt("%s/w.txt"%dirname)
     b_matrix = sparse.dok_matrix((len(mesh.edges), len(mesh.simplices)), dtype=np.int8)
@@ -61,10 +40,10 @@ def load(dirname='output/dumps'):
         for line in f.readLines():
             data = line.split()
             b_matrix[int(data[0]), int(data[1])] = np.int8(data[2])
-    return mesh, w, v, b_matrix
+    return w, v, b_matrix
 
 # Saves mesh, input currents, boundary matrix, w and v.
-def save(mesh=None, input_currents=None, b_matrix=None, w=None, v=None, t=None, dirname='output/dumps', **kwargs):
+def save_data(mesh=None, input_currents=None, b_matrix=None, w=None, v=None, t=None, dirname='dumps', **kwargs):
     if mesh is not None:
         np.savetxt('%s/edges.txt' % dirname, mesh.edges, fmt='%d', delimiter=' ')
         np.savetxt('%s/simplices.txt'% dirname, mesh.simplices, fmt='%d', delimiter=' ')
@@ -84,3 +63,13 @@ def save(mesh=None, input_currents=None, b_matrix=None, w=None, v=None, t=None, 
             sparse_savetxt("%s/t-lambda-%s-mu-%s.txt"%(dirname, kwargs['lambda_'], kwargs['mu']), t)
         else:
             sparse_savetxt("%s/t.txt"%dirname, t)
+# Saves sparse matrix as text. if the input is not sparse, set is_sparse argument to False.
+def sparse_savetxt(fname, matrix, fmt='%d', delimiter=' '):
+    if sparse.issparse(matrix):
+        if matrix.getformat() !='coo':
+            matrix = matrix.asformat('coo')
+    else:
+        matrix = sparse.coo_matrix(matrix)
+    with open(fname, 'w') as f:
+        for i in range(len(matrix.row)):
+            f.write("%d %d %d\n" % (matrix.row[i], matrix.col[i], matrix.data[i]))

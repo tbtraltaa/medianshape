@@ -4,6 +4,7 @@ build/
 medianshape/draft/
 medianshape/backup.py
 medianshape/output/
+medianshape/dumps/
 *.csv
 *.vtk
 *.edge

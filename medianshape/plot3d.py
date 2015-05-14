@@ -11,24 +11,6 @@ import matplotlib.cm as cm
 
 from distmesh.plotting import axes_simpplot3d
 
-def example(mesh):
-    ax = plt.gca(projection='3d')
-    lim = float(mesh.zmax)/10
-    ax.set_xlim(3)
-    ax.set_ylim(mesh.ymax + lim)
-    ax.set_zlim(mesh.zmax + lim)
-    ax.cla()
-    point = mesh.points[1]
-    ax.scatter(point[0], point[1], point[2], s=100)
-    edge = mesh.edges[3]
-    points = mesh.points[edge]
-    ax.scatter(points[:,0], points[:,1], points[:,2], s=100)
-    ax.plot(points[:,0], points[:,1], points[:,2])
-    axes_simpplot3d(ax, mesh.points, mesh.triangles[1].reshape(1,-1), mesh.points[:,1] > 0, label='2-simplex: triangle')
-    axes_simpplot3d(ax, mesh.points, mesh.simplices[3].reshape(1,-1), mesh.points[:,1] > 0, label='3-simplex: tetrahedra')
-    ax.set_title('N-simplex: {0-simplex,point}, {1-simplex,edge}, \n {2-simplex, triangle}, {3-simplex,tetrahedra}', horizontalalignment='center', verticalalignment='top', transform=ax.transAxes)
-    plt.legend(loc='lower right')
-
 def get_colors(n):
     '''Returns a function that maps each index in 0, 1, ... N-1 to a distinct 
         RGB color.'''
@@ -44,7 +26,7 @@ def get_colors(n):
     else:
         return cm.rainbow(np.linspace(0, 1, n))
 
-def plotmesh3d(mesh, title=''):
+def plotmesh3d(mesh, title='', figname=None, file_doc=None, save=True):
     dim = mesh.points.shape[1]
     if dim == 2:
         from distmesh.plotting import SimplexCollection
@@ -58,6 +40,7 @@ def plotmesh3d(mesh, title=''):
         c.set_simplices((mesh.points, mesh.simplices))
     elif dim == 3:
         ax = plt.gca(projection='3d')
+        fig = ax.figure
         lim = float(mesh.zmax)/10
         ax.set_xlim(3)
         ax.set_ylim(mesh.ymax + lim)
@@ -65,10 +48,14 @@ def plotmesh3d(mesh, title=''):
         ax.cla()
         axes_simpplot3d(ax, mesh.points, mesh.simplices, mesh.points[:,1] > 0)
         ax.set_title(title, horizontalalignment='center', verticalalignment='top', transform=ax.transAxes)
+        if save and figname:
+            plt.savefig('%s.png'%figname, pad_inches=-1, box_inches='tight')
+        if save and file_doc:
+            file_doc.savefig(fig)
     else:
         print "Plotting only supported in dimensions 2 and 3." 
 
-def plot_point(mesh, vertex_vector, title=None, color="black", marker='.', s=200, label=""):
+def plot_point3d(mesh, vertex_vector, title=None, color="black", marker='.', s=200, label=""):
     ax = plt.gca(projection='3d')
     if type(vertex_vector) == list:
         vertex_vector = np.array(vertex_vector)
@@ -79,7 +66,7 @@ def plot_point(mesh, vertex_vector, title=None, color="black", marker='.', s=200
     if title:
         ax.set_title(title, horizontalalignment='center', verticalalignment='top', transform=ax.transAxes)
 
-def plot_curve(mesh, func_path, title=None, color="black", marker=None, linewidth=3, ls='-', label=""):
+def plot_curve3d(mesh, func_path, title=None, color="black", marker=None, linewidth=3, ls='-', label=""):
     ax = plt.gca(projection='3d')
     if type(func_path) == list:
         func_path = np.array(func_path)
@@ -94,7 +81,7 @@ def plot_curve(mesh, func_path, title=None, color="black", marker=None, linewidt
         ax.set_title(title, horizontalalignment='center', verticalalignment='top', transform=ax.transAxes)
 
 # Plot simplices
-def plot_simplices(mesh, simplices, title=None, color="y"):
+def plot_simplices3d(mesh, simplices, title=None, color="y"):
     ax = plt.gca(projection='3d')
     #ccw_symbol = u'\u2941'
     #cw_symbol = u'\u21BB'
@@ -104,7 +91,7 @@ def plot_simplices(mesh, simplices, title=None, color="y"):
             hatch = '.' 
         axes_simpplot3d(ax, mesh.points, mesh.triangles[i].reshape(1,-1), mesh.points[:,1] > 0)
 
-def plot_curves_approx(mesh, points, vertices, paths, title="", figname=None, file_doc=None, save=True, lim=5):
+def plot_curves_approx3d(mesh, points, vertices, paths, title="", figname=None, file_doc=None, save=True, lim=5):
     colors = get_colors(len(points))
     ax = plt.gca(projection='3d')
     fig = ax.figure
@@ -116,14 +103,14 @@ def plot_curves_approx(mesh, points, vertices, paths, title="", figname=None, fi
     plt.clf()
     #plotmesh3d(mesh)
     for i, path in enumerate(paths):
-        plot_curve_approx(mesh, points[i], vertices[i], path, color=colors[i], label="T%d"%(i+1))
+        plot_curve_approx3d(mesh, points[i], vertices[i], path, color=colors[i], label="T%d"%(i+1))
     plt.title(title, horizontalalignment='center', verticalalignment='top', transform=ax.transAxes)
     if save and figname:
         plt.savefig('%s.png'%figname, pad_inches=-1, box_inches='tight')
     if save and file_doc:
         file_doc.savefig(fig)
 
-def plot_curve_approx(mesh, input_points, closest_vertices, path, title=None, color="red", linewidth=3, label=""):
+def plot_curve_approx3d(mesh, input_points, closest_vertices, path, title=None, color="red", linewidth=3, label=""):
     ax = plt.gca(projection='3d')
     ax.plot(input_points[:,0], input_points[:,1], input_points[:,2], c=color, ls="--", label='Input points')
     if title is not None:
@@ -137,10 +124,9 @@ def plot_curve_approx(mesh, input_points, closest_vertices, path, title=None, co
     plt.legend(loc='lower right')
 
 
-def plot_median(mesh, input_currents, t, title='', figname="", file_doc=None, save=True, lim=5, dim=1):
+def plot_median3d(mesh, input_currents, t, title='', figname="", file_doc=None, save=True, lim=5):
     
     colors= get_colors(len(input_currents))
-    #fig = plt.figure(figsize=(10,8))
     ax = plt.gca(projection='3d')
     fig = ax.figure
     ax.set_aspect('equal')
@@ -150,13 +136,8 @@ def plot_median(mesh, input_currents, t, title='', figname="", file_doc=None, sa
     ax.set_zlim(mesh.zmax + lim)
     plt.clf()
     for i, c in enumerate(input_currents):
-        if dim == 0:
-            plot_point(mesh, c, color=colors[i], label='T%d'%(i+1))
-            plot_point(mesh, t)
-        elif dim == 1:
-            plot_curve(mesh, c, color=colors[i], label='T%d'%(i+1), linewidth=5)
-    if dim == 1:
-        plot_curve(mesh, t, label="Median")
+        plot_curve3d(mesh, c, color=colors[i], label='T%d'%(i+1), linewidth=5)
+        plot_curve3d(mesh, t, label="Median")
     plt.legend(loc='lower right')
     plt.title(title, horizontalalignment='center', verticalalignment='top', transform=ax.transAxes)
     if save and figname:
@@ -164,7 +145,7 @@ def plot_median(mesh, input_currents, t, title='', figname="", file_doc=None, sa
     if save and file_doc:
         file_doc.savefig(fig)
 
-def plot_curve_and_median(mesh, input_currents, t, title=None, figname=None, file_doc=None, save=True, lim=5):
+def plot_curve_and_median3d(mesh, input_currents, t, title=None, figname=None, file_doc=None, save=True, lim=5):
     colors= get_colors(len(input_currents))
     ax = plt.gca(projection='3d')
     fig = ax.figure
@@ -175,16 +156,16 @@ def plot_curve_and_median(mesh, input_currents, t, title=None, figname=None, fil
         ax.set_ylim(mesh.ymax + lim)
         ax.set_zlim(mesh.zmax + lim)
         plt.clf()                    
-        plot_curve(mesh, c, color=colors[i], linewidth=5, \
+        plot_curve3d(mesh, c, color=colors[i], linewidth=5, \
         label='T%d'%(i+1))
-        plot_curve(mesh, t, title, label='Median')
+        plot_curve3d(mesh, t, title, label='Median')
         plt.legend(loc='lower right')
         if save and figname:
             plt.savefig("%s-%d.png" % (figname, i), pad_inches=-1, box_inches='tight')
         if save and file_doc:
             file_doc.savefig(fig)
 
-def plot_decomposition(mesh, input_currents, t, q, r, title='', figname=None, file_doc=None, save=True, lim=5, dim=1):
+def plot_decomposition3d(mesh, input_currents, t, q, r, title='', figname=None, file_doc=None, save=True, lim=5):
     colors = get_colors(len(input_currents))
     fig = plt.figure(figsize=(8,8))
     ax = plt.gca(projection='3d')
@@ -196,25 +177,13 @@ def plot_decomposition(mesh, input_currents, t, q, r, title='', figname=None, fi
         ax.set_xlim(mesh.xmax + lim)
         ax.set_ylim(mesh.ymax + lim)
         ax.set_zlim(mesh.zmax + lim)
-        if dim == 0:
-            plot_curve(mesh, r_i, color=color)
-        elif dim == 1:
-            plot_simplices(mesh, r_i, color=color)
+        plot_simplices3d(mesh, r_i, color=color)
         if q is not None:
-            if dim == 0:
-                plot_point(mesh, q[i], title=title + ', Q%d&R%d'%(i+1,i+1), color='m', label='Q%d'%(i+1))
-            elif dim == 1:
-                plot_curve(mesh, q[i], title=title + ', Q%d&R%d'%(i+1,i+1), color='m', marker='*', linewidth=6, label='Q%d'%(i+1))
+            plot_curve3d(mesh, q[i], title=title + ', Q%d&R%d'%(i+1,i+1), color='m', marker='*', linewidth=6, label='Q%d'%(i+1))
         if t is not None:
-            if dim == 0:
-                plot_point(mesh, t, label="Median")
-            elif dim == 1:
-                plot_curve(mesh, t, linewidth=4, label="Median")
-        if i < input_currents.shape[0]:
-            if dim == 0:
-                plot_point(mesh, input_currents[i], color=colors[i], label='T%d'%(i+1))
-            elif dim == 1:
-                plot_curve(mesh, input_currents[i], color='r', ls='--', \
+            plot_curve3d(mesh, t, linewidth=4, label="Median")
+                
+        plot_curve3d(mesh, input_currents[i], color='r', ls='--', \
                 label='T%d'%(i+1))
         plt.legend(loc='lower right')
         if save and figname:
