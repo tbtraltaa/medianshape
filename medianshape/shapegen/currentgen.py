@@ -75,8 +75,6 @@ def push_curves_on_mesh(mesh, simplices, subsimplices, curves, is_closed=False):
 
 def push_curve_on_mesh(mesh, points, is_closed=False):
         closest_vertices = find_closest_vertices(mesh, points)
-        #print "Closest_vertices:\n", closest_vertices
-        #print "Function points:\n", points
         if len(closest_vertices) == 1:
             input_current = get_vertex_vector(mesh, closest_vertices)
             curve_path = closest_vertices
@@ -166,7 +164,6 @@ def find_path(mesh, path_points, is_closed=False):
             path_vertices.append(i1)
 
     path = list()
-    print "Path", len(path_vertices)
     # Generating path made of edges based on the path edges
     # The path edges are not reverse order
     for i, point in enumerate(path_vertices):
@@ -193,9 +190,7 @@ def get_edge_vector(mesh, path):
 
 def get_vertex_vector(mesh, path):
     vertex_vector = np.zeros(shape=(mesh.points.shape[0], 1))
-    print path
     vertex_vector[path] = 1
-    print np.nonzero(vertex_vector)
     return vertex_vector
             
 if __name__ == '__main__':

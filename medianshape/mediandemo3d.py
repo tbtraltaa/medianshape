@@ -30,7 +30,7 @@ def mediandemo3d(outdir='output', save=True):
     mesh, simplices, subsimplices, points, lambdas, mus, is_closed \
     = cases3d.equally_spaced_longitudes3d()
     print mesh.get_info()
-    plot3d.plotmesh3d(mesh, mesh.get_info(), 'mesh', pdf_file, save)
+    plot3d.plotmesh3d(mesh, mesh.get_info(), '%s/figures/mesh'%outdir, pdf_file, save)
     fig.tight_layout()
     plt.show()
     fig = plt.figure(figsize=(8,8))
