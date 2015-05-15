@@ -29,10 +29,12 @@ def deform2d(outdir='output', save=True):
     if save:
         pdf_file = PdfPages('%s/deform2d.pdf'%outdir)
     fig = plt.figure(figsize=(14,4))
-    mesh, simplices, subsimplices, points = cases2d.deform_example() 
+    mesh, simplices, subsimplices, points, lambdas, mus, alphas, is_closed \
+    = cases2d.ellipsesdeform2d() 
     print mesh.get_info()
+    print alphas
 
-    vertices, paths, input_currents = currentgen.push_curves_on_mesh(mesh, simplices, subsimplices, points)
+    vertices, paths, input_currents = currentgen.push_curves_on_mesh(mesh, simplices, subsimplices, points, is_closed=is_closed)
     figname = '%s/figures/%d.png'%(outdir, figcount)
     title = mesh.get_info()
     plot2d.plot_curves_approx2d(mesh, points, vertices, paths, title, figname, pdf_file, save=save)
@@ -40,20 +42,8 @@ def deform2d(outdir='output', save=True):
     plt.show()
     fig = plt.figure(figsize=(14,4))
     figcount += 1
-    lambdas = [0.01]
-    mus = [0.0001]
-    alpha1 = np.array([0])
-    alpha1 = np.append(alpha1, np.linspace(0.4999, 0.5, 10))
-    alpha1 = np.append(alpha1, np.linspace(0.5, 0.5001, 10))
-    #alpha1 = np.append(alpha1, np.linspace(0.4, 0.5, 10))
-    #alpha1 = np.append(alpha1, np.linspace(0.5, 0.6, 10))
-    alpha1 = np.append(alpha1, np.array([1]))
-    alpha1 = alpha1.reshape(alpha1.size, 1) 
-    alpha2 = (1-alpha1).reshape(alpha1.size, 1)
-    alphas = np.hstack((np.arange(2, len(alpha1)+2).reshape(-1, 1),alpha1, alpha2))
-    #alphas = np.ndarray(shape=(1,2), buffer=np.array([0.5, 0.5]))
 
-    t = rundeform2d(mesh, simplices, subsimplices, input_currents, lambdas, mus, alphas, file_doc=pdf_file, save=save)
+    rundeform2d(mesh, simplices, subsimplices, input_currents, lambdas, mus, alphas, file_doc=pdf_file, save=save)
     if save:
         pdf_file.close()
     elapsed = time.time() - start

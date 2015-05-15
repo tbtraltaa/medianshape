@@ -28,8 +28,8 @@ def runmedians2d(mesh, simplices, subsimplices, input_currents, lambdas, mus, w=
             input_currents, l, w, v, cons, mu=mu)
             if save:
                 utils.save_data(t=t, lambda_=l, mu=mu)
-            title = 'MRSMS, lambda=%.04f, mu=%.04f'  % (l, mu)
-            figname = '%s/figures/%d-%.04f-%.06f'%(outdir, figcount, l, mu)
+            title = 'MRSMS, lambda=%.06f, mu=%.06f'  % (l, mu)
+            figname = '%s/figures/%d-%.06f-%.06f'%(outdir, figcount, l, mu)
             plot2d.plot_median2d(mesh, input_currents, t, title, figname, file_doc, save=save)
             plt.show()
             fig = plt.figure(figsize=(8,8))
@@ -63,8 +63,8 @@ def runmedians3d(mesh, simplices, subsimplices, input_currents, lambdas, mus, w=
             t, q, r, norm = median.median(mesh.points, simplices, subsimplices, input_currents, l, w, v, cons, mu=mu)
             if save:
                 utils.save_data(t=t, lambda_=l, mu=mu)
-            title = 'MRSMS, lambda=%.04f, mu=%.06f'%(l, mu)
-            figname = '%s/figures/%d-%.04f-%.06f'%(outdir, figcount, l, mu)
+            title = 'MRSMS, lambda=%.06f, mu=%.06f'%(l, mu)
+            figname = '%s/figures/%d-%.06f-%.06f'%(outdir, figcount, l, mu)
             fig = plt.figure(figsize=(8,8))
             plot3d.plot_median3d(mesh, input_currents, t, title, figname, file_doc, save)
             plt.tight_layout()
@@ -102,8 +102,8 @@ def rundeform2d(mesh, simplices, subsimplices, input_currents, lambdas, mus, alp
                 input_currents, l, w, v, cons, mu=mu, alphas=alpha)
                 if save:
                     utils.save_data(t=t, lambda_=l, mu=mu)
-                title = 'MRSMS, lambda=%.04f, mu=%.06f, alpha=%s'%(l, mu, str(alpha))
-                figname = '%s/figures/%d-%.04f-%.06f'%(outdir, figcount,l, mu)
+                title = 'MRSMS, lambda=%.06f, mu=%.06f, alpha=%s'%(l, mu, str(alpha))
+                figname = '%s/figures/%d-%.06f-%.06f'%(outdir, figcount,l, mu)
                 plot2d.plot_median2d(mesh, input_currents, t, title, figname, file_doc, save=save)
                 plt.show()
                 fig = plt.figure(figsize=(14,4))

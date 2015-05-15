@@ -27,13 +27,14 @@ def mediandemo3d(outdir='output', save=True):
 
     fig = plt.figure(figsize=(8,8))
     figcount = 1
-    mesh, simplices, subsimplices, points = cases3d.equally_spaced_longitudes()
+    mesh, simplices, subsimplices, points, lambdas, mus, is_closed \
+    = cases3d.equally_spaced_longitudes3d()
     print mesh.get_info()
     plot3d.plotmesh3d(mesh, mesh.get_info(), 'mesh', pdf_file, save)
     fig.tight_layout()
     plt.show()
     fig = plt.figure(figsize=(8,8))
-    vertices, paths, input_currents = currentgen.push_curves_on_mesh(mesh, simplices, subsimplices, points, is_closed=False)
+    vertices, paths, input_currents = currentgen.push_curves_on_mesh(mesh, simplices, subsimplices, points, is_closed=is_closed)
 
     figname = '%s/figures/%d.png'%(outdir, figcount)
     title = mesh.get_info()
@@ -42,8 +43,6 @@ def mediandemo3d(outdir='output', save=True):
     figcount += 1
     fig.tight_layout()
     plt.show()
-    lambdas = [0.001]
-    mus = [0.00001]
     runmedians3d(mesh, simplices, subsimplices, input_currents, lambdas, mus, file_doc=pdf_file, save=save)
     if save:
         pdf_file.close()

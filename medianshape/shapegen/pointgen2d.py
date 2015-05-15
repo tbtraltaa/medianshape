@@ -7,7 +7,6 @@ import importlib
 import math
 
 import numpy as np
-import matplotlib.pyplot as plt
 
 import utils
 
@@ -37,7 +36,7 @@ def sample_ellipse(a, b, sample_size=None):
     return np.array([(a * math.cos(theta) +0.5 , b * math.sin(theta)+0.5)\
             for theta in (math.pi*2 * i/sample_size for i in range(sample_size))])
 
-def sample_curve1():
+def twisted_curve1():
     x = np.linspace(0,30, 5)
     x = np.append(x, np.linspace(30, 0, 5)[1:])
     x = np.append(x, np.linspace(0, 35, 5)[1:])
@@ -51,7 +50,7 @@ def sample_curve1():
     points = np.hstack((x,y))
     return points
 
-def sample_curve2():
+def twisted_curve2():
     x = np.linspace(0,15, 5)
     x = np.append(x, np.linspace(15,20, 5)[1:])
     x = np.append(x, np.linspace(20, 30, 5)[1:])
@@ -65,5 +64,5 @@ def sample_curve2():
 
 if __name__ == "__main__":
     #print sample_function_on_boundary("x5", (0,0,1,1), 20);
-    sample_curve1()
-    sample_curve2()
+    twisted_curve1()
+    twisted_curve2()

@@ -7,17 +7,6 @@ import importlib
 import math
 
 import numpy as np
-from scipy.sparse import coo_matrix
-import matplotlib.pyplot as plt
-
-def sparse_savetxt(fname, matrix, fmt='%d', delimiter=' ', is_sparse=True):
-    if not is_sparse:
-        matrix = coo_matrix(matrix)
-    else:
-        matrix = matrix.asformat('coo')
-    with open(fname, 'w') as f:
-        for i in range(len(matrix.row)):
-            f.write("%d %d %d\n" % (matrix.row[i], matrix.col[i], matrix.data[i]))
 
 def get_combination(n, vals=[1,-1]):
     if n > 1:
@@ -68,40 +57,24 @@ def small_sin1pi(x):
 def func2(x):
     return 1/2*(1+math.sin(2*math.pi*x))
 
-#def curve1(x, boundary_box):
-#    no_of_intervals = 8
-#    heights = [5, 10, 5, 5, 10, 5, 10, 5]
-#    offsets = [10, 20, 10, 10, 20, 10, 20, 10]
-#    phases = [1, 2, 1, 1, 2, 1, 2, 1]
-#    numbers = np.linspace(boundary_box[0], boundary_box[2], no_of_intervals) 
-#    intervals = [(a, numbers[i+1]) for i, a in enumerate(numbers) if i < len(numbers) - 1]
-#    interval_number = [i for i, interval in enumerate(intervals) if x >= interval[0] and x < interval[1]]
-#    j = interval_number[0]
-#    return heights[j]*math.sin(phases[j]*math.pi*x) + offsets[j]
-# green
 def curve1(x):
     return 10*math.sin(1/100* math.pi * x) * np.exp(1/180 * x)  + 25
-# red
 def curve2(x):
     return -10*math.sin(1/50* math.pi * x) * np.exp(1/200 * x) + 25
-# violate
 def curve3(x):
     return 30*math.sin(1/50* math.pi * x) * np.exp(-1/150 * x) + 20
-
 def curve4(x):
+    return 10*math.sin(1/30* math.pi * x) * np.exp(-1/200 * x) + 40
+def curve5(x):
+    return 20*math.sin(1/200* math.pi * x) + 25
+def curve6(x):
+    return 10*math.sin(1/55* math.pi * x) * np.exp(-1/200 * x) + 10
+
+def deformcurve1(x):
     return 20*math.sin(1/190* math.pi * x) + 25
 
-def curve5(x):
+def deformcurve2(x):
     return -20*math.sin(1/190* math.pi * x) + 25
-
-def curve6(x):
-    return 10*math.sin(1/30* math.pi * x) * np.exp(-1/200 * x) + 40
-
-def curve7(x):
-    return 20*math.sin(1/200* math.pi * x) + 25
-
-def curve8(x):
-    return 10*math.sin(1/55* math.pi * x) * np.exp(-1/200 * x) + 10
     
 if __name__ == "__main__":
     print  get_combination(3)

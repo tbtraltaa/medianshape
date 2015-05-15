@@ -14,8 +14,7 @@ import sys
 import os
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
 
-from utils import vectorize, sparse_savetxt
-import pointgen2d
+from utils import vectorize
 
 def push_functions_on_mesh_2d(mesh, curves, functions, is_closed=False):
         input_currents = list()
