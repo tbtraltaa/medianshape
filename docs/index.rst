@@ -1,5 +1,5 @@
 .. MedianShape documentation master file, created by
-   sphinx-quickstart on Sat Mar 21 17:40:20 2015.
+   sphinx-quickstart on Sat May 16 02:51:34 2015.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
@@ -11,14 +11,6 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
-.. autosummary::
-   :toctree: _autosummary
-   medianshape.mesh
-
-.. autoclass:: Mesh
-
-    Description of the class
-
 
 
 Indices and tables
@@ -27,6 +19,4 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
-
-
 
