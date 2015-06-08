@@ -18,6 +18,18 @@ from runmedians import runmedians3d
 import plot3d
 import cases3d
 
+def show_median3d():
+    mesh, input_currents, t, q, r = cases3d.fine_curves_on_sphere()
+    fig = plt.figure(figsize=(8,8))
+    plot3d.plotmesh3d(mesh, mesh.get_info())
+    fig.tight_layout()
+    plt.show()
+    plt.figure(figsize=(8,8))
+    plot3d.plot_median3d(mesh, input_currents, t, title="Median")
+    plt.show()
+    plot3d.plot_decomposition3d(mesh, input_currents, t, q, r, title='Flatnorn decomposition')
+
+
 def mediandemo3d(outdir='output', save=True):
     lp_times = list()
     start = time.time()
@@ -50,4 +62,5 @@ def mediandemo3d(outdir='output', save=True):
     print 'Elapsed time %f mins.' % (elapsed/60)
     
 if __name__ == '__main__':
-    mediandemo3d(save=False)
+    #mediandemo3d(save=False)
+    show_median3d()

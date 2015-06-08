@@ -64,7 +64,7 @@ def median(points, simplices, subsimplices, input_currents, lambda_, w=[], v=[],
     print "Non int", nonint
     args = np.rint(sol['x'])
     norm = sol['primal objective']
-    x = args[0:m_subsimplices] - args[m_subsimplices:2*m_subsimplices]
+    t = args[0:m_subsimplices] - args[m_subsimplices:2*m_subsimplices]
     q = np.zeros((sub_cons_count, m_subsimplices), dtype=int)
     r = np.zeros((sub_cons_count, n_simplices), dtype=int)
     qi_start = 2*m_subsimplices
@@ -75,7 +75,7 @@ def median(points, simplices, subsimplices, input_currents, lambda_, w=[], v=[],
         ri_end = ri_start + 2*n_simplices
         r[i] = (args[ri_start: ri_start+n_simplices] - args[ri_start+n_simplices: ri_end]).reshape(n_simplices, )
         qi_start = ri_end
-    return x, q, r, norm
+    return t, q, r, norm
 
 def get_lp_inputs(points, simplices, subsimplices, k_currents, w=[], v=[], b_matrix=[], cons=[]):
     m_subsimplices = subsimplices.shape[0]

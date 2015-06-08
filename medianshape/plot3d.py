@@ -125,7 +125,6 @@ def plot_curve_approx3d(mesh, input_points, closest_vertices, path, title=None, 
 
 
 def plot_median3d(mesh, input_currents, t, title='', figname="", file_doc=None, save=True, lim=5):
-    
     colors= get_colors(len(input_currents))
     ax = plt.gca(projection='3d')
     fig = ax.figure
@@ -137,7 +136,7 @@ def plot_median3d(mesh, input_currents, t, title='', figname="", file_doc=None, 
     plt.clf()
     for i, c in enumerate(input_currents):
         plot_curve3d(mesh, c, color=colors[i], label='T%d'%(i+1), linewidth=5)
-        plot_curve3d(mesh, t, label="Median")
+    plot_curve3d(mesh, t, label="Median")
     plt.legend(loc='lower right')
     plt.title(title, horizontalalignment='center', verticalalignment='top', transform=ax.transAxes)
     if save and figname:

@@ -5,6 +5,7 @@ medianshape/draft/
 medianshape/backup.py
 medianshape/output/
 medianshape/dumps/
+/medianshape/curves_on_sphere
 *.csv
 *.vtk
 *.edge
