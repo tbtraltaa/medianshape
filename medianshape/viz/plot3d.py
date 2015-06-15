@@ -177,12 +177,12 @@ def plot_decomposition3d(mesh, input_currents, t, q, r, title='', figname=None, 
         ax.set_zlim(mesh.zmax + lim)
         plot_simplices3d(mesh, r_i, color=color)
         if q is not None:
-            plot_curve3d(mesh, q[i], title=title + r', $Q%d&R%d$'%(i+1,i+1), color='m', marker='*', linewidth=6, label='$Q%d$'%(i+1))
+            plot_curve3d(mesh, q[i], title=title + r", $Q%d&R%d$"%(i+1,i+1), color='m', marker='*', linewidth=6, label='$Q%d$'%(i+1))
         if t is not None:
             plot_curve3d(mesh, t, linewidth=4, label=r"$Median$")
                 
         plot_curve3d(mesh, input_currents[i], color='r', ls='--', \
-                label=r'$T%d$'%(i+1))
+                label=r"$T%d$"%(i+1))
         plt.legend(loc='lower right')
         if save and figname:
             plt.savefig("%s-%d.png" % (figname, i), pad_inches=-1, box_inches='tight')
