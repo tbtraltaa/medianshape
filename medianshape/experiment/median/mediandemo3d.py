@@ -2,21 +2,15 @@
 
 from __future__ import absolute_import
 
-import importlib
 import time
-
 import numpy as np
-
 import matplotlib.pyplot as plt
-
 from matplotlib.backends.backend_pdf import PdfPages
 
-from mesh.utils import boundary_matrix, simpvol, get_subsimplices
-from shapegen import currentgen, utils
-from runmedians import runmedians3d
+from medianshape.simplicial import currentgen 
+from medianshape.experiment.median import runmedians as run, cases3d
 
-import plot3d
-import cases3d
+from medianshape.viz import plot3d 
 
 def show_median3d():
     mesh, input_currents, t, q, r = cases3d.fine_curves_on_sphere()
@@ -30,7 +24,7 @@ def show_median3d():
     plot3d.plot_decomposition3d(mesh, input_currents, t, q, r, title='Flatnorn decomposition')
 
 
-def mediandemo3d(outdir='output', save=True):
+def mediandemo3d(outdir='../data/output', save=True):
     lp_times = list()
     start = time.time()
     pdf_file = None
@@ -55,12 +49,12 @@ def mediandemo3d(outdir='output', save=True):
     figcount += 1
     fig.tight_layout()
     plt.show()
-    runmedians3d(mesh, simplices, subsimplices, input_currents, lambdas, mus, file_doc=pdf_file, save=save)
+    run.runmedians3d(mesh, simplices, subsimplices, input_currents, lambdas, mus, file_doc=pdf_file, save=save)
     if save:
         pdf_file.close()
     elapsed = time.time() - start
     print 'Elapsed time %f mins.' % (elapsed/60)
     
 if __name__ == '__main__':
-    #mediandemo3d(save=False)
-    show_median3d()
+    mediandemo3d(save=True)
+    #show_median3d()

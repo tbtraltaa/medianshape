@@ -1,24 +1,17 @@
 # encoding: utf-8
-
-from __future__ import absolute_import
-
-import importlib
-import random
+import os
 import time
 
 import numpy as np
-
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 
-from shapegen import currentgen, utils
-import mesh.utils as mutils
-from runmedians import runmedians2d
+from medianshape.simplicial import currentgen
+from medianshape.experiment.median import runmedians as run, cases2d
 
-import plot2d
-import cases2d
+from medianshape.viz import plot2d 
 
-def mediandemo2d(outdir='output', save=True):
+def mediandemo2d(outdir='../data/output', save=True):
     lp_times = list()
     start = time.time()
     pdf_file = None
@@ -41,7 +34,7 @@ def mediandemo2d(outdir='output', save=True):
     fig = plt.figure(figsize=(8,8))
     figcount += 1
 
-    runmedians2d(mesh, simplices, subsimplices, input_currents, lambdas, mus, file_doc=pdf_file, save=save)
+    run.runmedians2d(mesh, simplices, subsimplices, input_currents, lambdas, mus, file_doc=pdf_file, save=save)
 
     pdf_file.close()
     elapsed = time.time() - start

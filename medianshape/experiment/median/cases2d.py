@@ -1,12 +1,10 @@
 # encoding: utf-8
 from __future__ import absolute_import
-import importlib
 
 import numpy as np
-
-from shapegen import pointgen2d, utils
-from mesh.meshgen import meshgen2d
-from mesh.mesh import Mesh2D
+from medianshape.simplicial import pointgen2d
+from medianshape.simplicial.meshgen import meshgen2d
+from medianshape.simplicial.mesh import Mesh2D
 
 def triangles2d():
     mesh = Mesh2D()

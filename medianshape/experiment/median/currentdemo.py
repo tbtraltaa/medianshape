@@ -1,15 +1,11 @@
 from __future__ import absolute_import
 
-import importlib
-
 import numpy as np
-
 import matplotlib.pyplot as plt
 
-from mesh.mesh import Mesh2D
-
-from mesh.utils import boundary_matrix, simpvol, get_subsimplices
-import plot2d
+from medianshape.simplicial.mesh import Mesh2D
+from medianshape import utils 
+from medianshape.viz import plot2d
 
 def currentdemo():
     mesh = Mesh2D()
@@ -20,11 +16,11 @@ def currentdemo():
     mesh.points = np.array([[0,0], [0, 1],[1,1],[1,0]])
     mesh.simplices = np.array([[0,3,2],
                                 [0,2,1]])
-    mesh.edges = get_subsimplices(mesh.simplices)
+    mesh.edges = utils.get_subsimplices(mesh.simplices)
     mesh.orient_simplices_2D()
-    w = simpvol(mesh.points, mesh.edges)
-    v = simpvol(mesh.points, mesh.simplices)
-    b_matrix = boundary_matrix(mesh.simplices, mesh.edges)
+    w = utils.simpvol(mesh.points, mesh.edges)
+    v = utils.simpvol(mesh.points, mesh.simplices)
+    b_matrix = utils.boundary_matrix(mesh.simplices, mesh.edges)
     print mesh.get_info()
     print "Points:\n", mesh.points
     print "Triangles:\n", mesh.simplices

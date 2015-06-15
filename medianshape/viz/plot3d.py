@@ -2,12 +2,11 @@
 
 from __future__ import absolute_import
 
-import itertools
 import numpy as np
 
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.cm as cm
+from mpl_toolkits.mplot3d import Axes3D
 
 from distmesh.plotting import axes_simpplot3d
 

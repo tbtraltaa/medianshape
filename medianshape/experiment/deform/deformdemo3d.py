@@ -2,21 +2,16 @@
 
 from __future__ import absolute_import
 
-import importlib
-import random
 import time
-
 
 import numpy as np
 from scipy.sparse import csr_matrix
-
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 
-from mesh.meshgen import distmesh3d, scipy_mesh3d
-from mesh.mesh import Mesh3D
-from shapegen import pointgen3d, currentgen, utils
-import median
+from medianshape.simplicial.meshgen import distmesh3d, scipy_mesh3d
+from medianshape.simplicial.mesh import Mesh3D
+from medianshape.simplicial import pointgen3d, currentgen, utils
 
 from utils import sparse_savetxt, load, save, envelope, adjust_alphas
 from mesh.utils import boundary_matrix, simpvol, get_subsimplices
@@ -57,67 +52,8 @@ def load_mesh(boundary_box=None, l=0.2, fixed_points=None, include_corners=True,
         b_matrix = boundary_matrix(mesh.triangles, mesh.edges)
     return mesh, w, v, b_matrix
 
-def run_demo(mesh, input_currents, options, lambdas, mus, alphas, w=None, v=None, b_matrix=None, file_doc=None, save_data=True):
-    figcount = 2
-    norms = list()
-    t_lens = list()
-    if w is None:
-        w = simpvol(mesh.points, mesh.edges)
-    if v is None:
-        v = simpvol(mesh.points, mesh.triangles)
-    if b_matrix is None:
-        b_matrix = boundary_matrix(mesh.triangles, mesh.edges)
-    k_currents = len(input_currents)
-    for opt in options:
-        average_len = np.average(np.array([c.nonzero()[0].shape[0] for c in input_currents]))
-        w, v, b_matrix, cons = median.get_lp_inputs(mesh.points, mesh.triangles, mesh.edges,  k_currents, opt, w, v, b_matrix)
-        #np.savetxt('/home/altaa/dumps1/cons-%s.txt'%opt, cons, fmt='%d', delimiter=' ')
-        for l in lambdas:
-            comb=[1,1,1]
-            #for comb in combinations[:-1,:]:
-            #for comb in combinations:
-                #input_currents = currents*comb.reshape(comb.size,1) 
-            for mu in mus:
-                for alpha in alphas:
-                    t, q, r, norm = median.median(mesh.points, mesh.triangles, mesh.edges, input_currents, l, opt, w, v, cons, mu=mu, alphas=alpha)
-                    if save_data:
-                        save(t=t, opt=opt, lambda_=l)
-                    norms.append(norm)
-                    t_len = len(t.nonzero()[0])
-                    t_lens.append(t_len)
-                    title = '%s, lambda=%.04f, mu=%.06f'  % \
-                    (opt, l, mu)
-                    figname = 'output/figures/%d-%s-%.04f-%.06f'%(figcount, opt, l, mu)
-                    if save and file_doc is not None:
-                        plot3d.plot_median(mesh, input_currents, comb, t, title, figname, file_doc, save=save)
-                        #plt.show()
-                        figcount += 1
 
-                        #figname = 'output/figures/%d-%s-%.04f-%.04f'%(figcount, opt, l, mu)
-                        #plotting.plot_curve_and_median(mesh, input_currents, comb, t, title, \
-                        #figname, file_doc, save)
-                        #figcount += input_currents.shape[0]
-
-                        figname = 'output/figures/%d-%s-%.06f-%.06f'%(figcount,opt,l, mu)
-                        plot3d.plot_decomposition(mesh, input_currents, comb, t, q, r, title, \
-                        figname, file_doc, save)
-                        figcount += input_currents.shape[0]
-                        #plt.show()
-                
-                # Plotting the combination with minimum flatnorm difference
-            #title = 'Minimum flatnorm difference, %s, lambda=%.04f, %s' % (opt, l, str(comb))
-#                figname = 'output/figures/%d-%s-%.04f'%(figcount, opt, l)
-#                plotting.plot_median(mesh, min_currents, min_comb, min_t, title, \
-#                figname, file_doc)
-#                figcount += 1
-#
-#                figname = 'output/figures/%d-%s-%.04f'%(figcount,opt,l)
-#                plotting.plot_decomposition(mesh, min_currents, comb, min_t, min_q, min_r, \
-#                title, figname, file_doc)
-#                figcount += input_currents.shape[0]
-    return t
-
-def deform3d(load_data=False, save_data=True):
+def deformdemo3d(load_data=False, save_data=True):
     lp_times = list()
     start = time.time()
     pdf_file = PdfPages('output/deform3d.pdf')
@@ -164,10 +100,10 @@ def deform3d(load_data=False, save_data=True):
     mus = [0.00001]
     #alphas = np.ndarray(shape=(1,2), buffer=np.array([0.5, 0.5]))
     alphas = np.ndarray(shape=(1,3), buffer=np.array([1.0/3, 1.0/3, 1.0/3]))
-    t = run_demo(mesh, input_currents, options, lambdas, mus, alphas, w, v, b_matrix, pdf_file)
+    t = rundorms3d(mesh, input_currents, options, lambdas, mus, alphas, w, v, b_matrix, pdf_file)
     pdf_file.close()
     elapsed = time.time() - start
     print 'Elapsed time %f mins.' % (elapsed/60)
     
 if __name__ == '__main__':
-    deform3d()
+    deformdemo3d()

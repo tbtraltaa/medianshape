@@ -4,9 +4,9 @@ from __future__ import division
 
 import sys
 import importlib
-import math
 
 import numpy as np
+import math
 
 def get_combination(n, vals=[1,-1]):
     if n > 1:

@@ -1,0 +1,10 @@
+1. glpk install
+export CVXOPT_BUILD_GLPK=1
+2. build
+cd ~/Downloads
+tar -xzf glpk-4.43.tar.gz
+./configure --prefix=/usr/local # see note [1]
+make
+sudo make install
+3. to verify
+which glpsol

@@ -2,19 +2,16 @@
 
 from __future__ import division
 
-import sys
-import importlib
+import numpy as np
 import math
 
-import numpy as np
-
-import utils
+from medianshape.simplicial.utils import vectorize
 
 # Samples function with the boundary box
 def sample_function(func_str, boundary_box, sample_size):
         sample_X = np.linspace(boundary_box[0], boundary_box[2], sample_size)
         func_points = np.hstack((np.array(sample_X).reshape(len(sample_X),1), \
-        utils.vectorize(func_str, sample_X).reshape(len(sample_X),1)))
+        vectorize(func_str, sample_X).reshape(len(sample_X),1)))
         return func_points
 
 # Samples function based on the mesh given
@@ -29,7 +26,7 @@ def sample_function_mesh(mesh,  func_str, sample_size=None):
         for i in range(0, ordered_X.size, sample_step):
             sample_X.append(ordered_X[i])
         func_points = np.hstack((np.array(sample_X).reshape(len(sample_X),1), \
-        utils.vectorize(func_str, sample_X).reshape(len(sample_X),1)))
+        vectorize(func_str, sample_X).reshape(len(sample_X),1)))
         return func_points
 
 def sample_ellipse(a, b, sample_size=None):

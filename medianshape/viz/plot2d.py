@@ -2,9 +2,10 @@
 
 from __future__ import absolute_import
 
-import itertools
+import numpy as np
 
 import matplotlib.pyplot as plt
+import matplotlib.cm as cm
 
 def get_colors(n):
     '''Returns a function that maps each index in 0, 1, ... N-1 to a distinct 

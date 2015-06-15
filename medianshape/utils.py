@@ -1,161 +1,172 @@
+# encoding: utf-8
 
-from __future__ import absolute_import 
+from __future__ import absolute_import
 
-import os.path
-
+import sys
 import numpy as np
-from scipy import sparse
 
-from mesh.mesh import Mesh2D, Mesh3D
-import mesh.utils as mutils 
+from scipy.linalg import det
+from scipy.misc import factorial
+from scipy.spatial.distance import cdist, pdist
+from scipy.sparse import dok_matrix
 
 
-# Loads previously computed mesh, boundary_matrix, input currents, w and v from a directory
-def load_mesh2d(dirname='dumps'):
-    mesh = Mesh2D()
-    if os.path.exists(dirname):
-        if os.path.exists("%s/points.txt"%dirname):
-            mesh.points = np.loadtxt("%s/points.txt"%dirname, dtype=np.float) 
-            mesh.bbox = (np.amin(mesh.points[:,0]),\
-                            np.amin(mesh.points[:,1]),\
-                            np.amax(mesh.points[:,0]),\
-                            np.amax(mesh.points[:,1]))
+def get_subsimplices(simplices):
+    simplices = np.sort(simplices, axis=1)
+    subsimplices = set()
+    for j in np.arange(simplices.shape[1]):
+        idx = list(range(simplices.shape[1]))
+        idx.pop(j)
+        subsimplices = subsimplices.union(set(tuple(sub) for sub in simplices.take(idx, axis=1)))
+    return np.array([ sub for sub in subsimplices])
 
-            mesh.set_boundary_points()
-            mesh.set_diagonal()
-            mesh.set_boundary_values()
-        else:
-            print "Can't load points. <points.txt> file doesn't exist"
-        if os.path.exists("%s/edges.txt"%dirname):
-            mesh.edges= np.loadtxt("%s/edges.txt"%dirname, dtype=np.int) 
-        else:
-            print "Can't load edges. <edges.txt> file doesn't exist"
-        if os.path.exists("%s/simplices.txt"%dirname):
-            mesh.simplices = np.loadtxt("%s/simplices.txt"%dirname, dtype=np.int) 
-        else:
-            print "Can't load simplices. <simplices.txt> file doesn't exist"
+def orient_simplices(simplices):
+    direction = right_hand_rule(simplices[0])
+    simplices = np.array(range(0, len(simplices)))
+    if direction < 0:
+        simplices[0] = simplices[0,::-1]
+    for i, simplex in enumerate(simplices):
+        simplices = np.delete(simplices, np.where(simplices==i))
+        neighbors = self.mesh.neighbors[i]
+        for opposit_point in np.where(neighbors >= 0)[0]:
+            n_simplex_idx = neighbors[opposit_point]
+            if any(simplices==n_simplex_idx):
+                n_simplex = simplices[n_simplex_idx]
+                n_boundary = boundary(n_simplex)
+                subsimplex= boundary(simplex, opposit_point)
+                for n_face in n_boundary:
+                    if all((np.array(subsimplex) - np.array(n_face)) == 0):
+                        simplices[n_simplex_idx] = n_simplex[::-1]
+                simplices = np.delete(simplices, np.where(simplices==n_simplex_idx))
+    return simplices
+
+def simpvol(points, simplices):
+
+    ''' SIMPVOL Simplex volume.
+        V=SIMPVOL(points, simplices)
+        Copyright (C) 2004-2006 Per-Olof Persson. See COPYRIGHT.TXT for details.
+    '''
+    point_dim  =  points.shape[1]
+    simp_dim = simplices.shape[1]
+    # 1-simplex, edge in 1 dimension
+    if simp_dim == 1:
+        volume = np.ones(simplices.shape[0], dtype=int) 
+    elif point_dim  ==  1 and simp_dim == 2:
+        d12 = points[simplices[:,1],:] - points[simplices[:,0],:]
+        volume = np.abs(d12)
+    # 1-simplex, edge in any dimension
+    elif simp_dim == 2:
+        d12 = points[simplices[:,1],:] - points[simplices[:,0],:]
+        volume = np.sqrt(np.sum(d12**2, axis=1))
+    # 2-simplex, triangle in 2 dimension
+    elif point_dim  ==  2 and simp_dim == 3:
+        d12 = points[simplices[:,1],:] - points[simplices[:,0],:]
+        d13 = points[simplices[:,2],:] - points[simplices[:,0],:]
+        volume = (np.multiply(d12[:,0], d13[:,1]) - np.multiply(d12[:,1], d13[:,0]))*1.0/2
+    # 2-simplex, triangle in 3 dimension
+    elif point_dim == 3 and simp_dim == 3:
+        d12 = points[simplices[:,1],:] - points[simplices[:,0],:]
+        d13 = points[simplices[:,2],:] - points[simplices[:,0],:]
+        volume = np.sqrt(np.sum(np.cross(d12, d13, axis=1)**2, axis=1))*1.0/2
+    # 3-simplex, tetrahedra in 3 dimension
+    elif point_dim  ==  3 and simp_dim == 4: # 
+        d12 = points[simplices[:,1],:] - points[simplices[:,0],:]
+        d13 = points[simplices[:,2],:] - points[simplices[:,0],:]
+        d14 = points[simplices[:,3],:] - points[simplices[:,0],:]
+        volume = np.dot(np.cross(d12,d13,axis=2),d14,axis=2)*1.0/6
+    # n-simplex in n-dimention
     else:
-        print "%s directory doesn't exist"%dirname
-    return mesh
+        volume = np.zeros((simplices.shape[0],1))
+        for i in range(simplices.shape[0]):
+            A = np.zeros(points.shape[1] + 1)
+            A[:,0] = 1
+            for j in range(points.shape[1]+1):
+                A[j,1:] = points[simplices[i,j],:]
+            volume[i] = np.det(A)
+        volume = volume/np.factorial(points.shape[1])
+    return volume
 
-def load_mesh3d(dirname='dumps'):
-    mesh = Mesh3D()
-    if os.path.exists(dirname):
-        if os.path.exists("%s/points.txt"%dirname):
-            mesh.points = np.loadtxt("%s/points.txt"%dirname, dtype=np.float) 
-            mesh.bbox = (np.amin(mesh.points[:,0]),\
-                            np.amin(mesh.points[:,1]),\
-                            np.amin(mesh.points[:,2]),\
-                            np.amax(mesh.points[:,0]),\
-                            np.amax(mesh.points[:,1]),\
-                            np.amax(mesh.points[:,2]))
+# Builds a boundary matrix of given simplices. The format of a boundary matrix is as follows.
+# boundary_matrix = (number of edges) x (number of simplices)
+def boundary_matrix(simplices, subsimplices, is_oriented=True, is_sparse=True, format='coo'):
+    simplex_dim  = simplices.shape[1] 
+    #if simplex_dim - subsimplices.shape[1] != 1:
+    #    sys.stderr.write("Unable to build a boundary matrix. Please enter (d+1)-simplices and  d-subsimplices\n")
+     #   exit()
+    n_simplices = simplices.shape[0]
+    m_subsimplices = subsimplices.shape[0] 
+    if is_sparse:
+        boundary_matrix = dok_matrix((m_subsimplices, n_simplices), dtype=np.int8) 
+    else:
+        boundary_matrix = np.array((m_subsimplices, n_simplices), dtype=np.int8) 
+    if is_oriented:
+        simplices_sort_idx = np.argsort(simplices)
+        subsimplices_sort_idx = np.argsort(subsimplices)
+        simplices_parity = permutationparity(simplices_sort_idx, 2)
+        subsimplices_parity = permutationparity(subsimplices_sort_idx, 2)
+    val = 1
+    simplices = np.sort(simplices, axis=1)
+    subsimplices = np.sort(subsimplices, axis=1)
+    for i, simplex in enumerate(simplices):
+        for j in np.arange(simplex_dim):
+            idx = list(range(simplex_dim))
+            idx.pop(j)
+            subsimplex = simplex.take(idx)
+            # to check the membership of subsimplex in subsimplices
+            subsimplex_idx = np.argwhere((subsimplices==subsimplex).all(axis=1) == True)
+            if subsimplex_idx.size == 0:
+                sys.stderr.write("Unable to find subsimplex! Make sure subsimplices contains \
+                all boundary subsimplices")
+                exit()
+            subsimplex_idx = subsimplex_idx[0][0]
+            if is_oriented:
+                val = (-1)**((j + 1) + 1 + simplices_parity[i] + subsimplices_parity[subsimplex_idx])
+            boundary_matrix[subsimplex_idx, i] = val
+    if is_sparse:
+        return boundary_matrix.asformat(format)
+    else:
+        return boundary_matrix
 
-            mesh.set_boundary_points()
-            mesh.set_diagonal()
-            mesh.set_boundary_values()
-        else:
-            print "Can't load points. <points.txt> file doesn't exist"
-        if os.path.exists("%s/edges.txt"%dirname):
-            mesh.edges= np.loadtxt("%s/edges.txt"%dirname, dtype=np.int) 
-        else:
-            print "Can't load edges. <edges.txt> file doesn't exist"
-        if os.path.exists("%s/simplices.txt"%dirname):
-            mesh.simplices = np.loadtxt("%s/simplices.txt"%dirname, dtype=np.int) 
-        else:
-            print "Can't load simplices. <simplices.txt> file doesn't exist"
-        if os.path.exists("%s/triangles.txt"%dirname):
-            mesh.triangles = np.loadtxt("%s/triangles.txt"%dirname, dtype=np.int)
-        else:
-            mesh.triangles = mutils.get_subsimplices(mesh.simplices)
-            print "Can't load triangles. <triangles.txt> file doesn't exist"
+# Returns simplex boundary as faces.
+# if an index given, returns n-1 simplex by removing the element at the index.
+def boundary(simplex, idx=None):
+    boundary = list()
+    if idx == None:
+        n = len(simplex)
+        for i in xrange(0,n):
+            face = list(simplex)
+            face.pop(i)
+            if (-1)**(i+2) < 0: 
+                face = face[::-1]
+            boundary.append(face)
     else:
-        print "%s directory doesn't exist"%dirname
-    return mesh
+        face = list(simplex)
+        face.pop(idx)
+        if (-1)**(idx+2) < 0: 
+            face = face[::-1]
+        boundary = face
+    return boundary
 
-def load_weights_and_boundary(n_simplices, m_subsimplices, dirname='dumps'):
-    w = np.zeros(shape=(m_subsimplices, 1))
-    v = np.zeros(shape=(n_simplices, 1))
-    b_matrix = sparse.dok_matrix((m_subsimplices, n_simplices), dtype=np.int8)
-    if os.path.exists("%s/w.txt"%dirname):
-        w = np.loadtxt("%s/w.txt"%dirname, dtype=np.float) 
-    else:
-        print "Can't load the weight vector, w. <%s/w.txt> file doesn't exist"%dirname
-    if os.path.exists("%s/v.txt"%dirname):
-        v = np.loadtxt("%s/v.txt"%dirname, dtype=np.float) 
-    else:
-        print "Can't load the weight vector, v. <%s/v.txt> file doesn't exist"%dirname
-    if os.path.exists("%s/b_matrix.txt"%dirname):
-        with open("%s/b_matrix.txt"%dirname, 'r') as f:
-            for line in f.readlines():
-                data = line.split()
-                b_matrix[int(data[0]), int(data[1])] = np.int8(data[2])
-    else:
-        print "Can't load boundary matrix. <%s/b_matrix.txt> file doesn't exist"%dirname
-    return w, v, b_matrix
+def permutationparity(P, dim=None):
+    nRows, mCols = P.shape
+    if nRows == 1 and dim is None:
+        dim = 2
+    elif mCols == 1 and dim is None:
+        dim = 1
+    p = [0]
+    if dim == 1:
+        for i in np.arange(nRows):
+            p = np.sum(np.tile(P[i,:].reshape(-1,1), (nRows-(i+1), 1)) > P[i+1:,:], 0) + p
+    elif dim == 2:
+        for j in np.arange(mCols):
+            p = np.sum(np.tile(P[:, j].reshape(-1,1), (1, mCols-(j+1))) > P[:, j+1:], 1) + p
+    p = np.mod(p, 2)
+    return p
 
-def load_input_currents(m_subsimplices, k, dirname='dumps'):
-    input_currents = np.zeros(shape=(k, m_subsimplices), dtype=np.int) 
-    for i in range(k):
-        if os.path.isfile('%s/input_current%d.txt'%(dirname, i)):
-            with open("%s/input_current%d.txt"%(dirname, i), 'r') as f:
-                for line in f.readlines():
-                    data = line.split()
-                    input_currents[i, int(data[1])] = np.int(data[2])
-        else:
-            print "Can't load input current %d. <input_current%d.txt> doesn't exist"%(i, i)
-    return input_currents
+if __name__ == '__main__':
+    points = np.array([[0, 0, 0],[0,1,1],[0,2,0], [2,2,0]])
+    simplices = np.array([[0, 1, 2], [1,2,3], [2, 4, 3]])
+    simplices = np.array([[2, 1, 0], [3,1,2], [3, 2, 4]])
+    permutationparity(simplices)
+    simpvol1(points, simplices)
 
-def load_solutions(n_simplices, m_subsimplices, k, dirname='dumps'):
-    x = np.zeros(shape=(2*m_subsimplices + 2*k*m_subsimplices + 2*k*n_simplices,1), dtype=np.int)
-    t = np.zeros((m_subsimplices, 1), dtype=np.int) 
-    q = np.zeros((k, m_subsimplices), dtype=int)
-    r = np.zeros((k, n_simplices), dtype=int)
-    if os.path.exists('%s/x.txt'%dirname):
-        with open("%s/x.txt"%dirname, 'r') as f:
-            for line in f.readlines():
-                data = line.split()
-                x[int(data[0])] = np.int(data[1])
-        t = x[0:m_subsimplices] - x[m_subsimplices:2*m_subsimplices]
-        qi_start = 2*m_subsimplices
-        for i in range(k):
-            qi_end = qi_start + 2*m_subsimplices
-            q[i] = (x[qi_start: qi_start+m_subsimplices] - x[qi_start+m_subsimplices: qi_end]).reshape(m_subsimplices,)
-            ri_start = qi_end
-            ri_end = ri_start + 2*n_simplices
-            r[i] = (x[ri_start: ri_start+n_simplices] - x[ri_start+n_simplices: ri_end]).reshape(n_simplices, )
-            qi_start = ri_end
-    else:
-        print "Can't load the solution. <x.txt> file doesn't exist"
-    return t, q, r
-    
-# Saves mesh, input currents, boundary matrix, w and v.
-def save_data(mesh=None, input_currents=None, b_matrix=None, w=None, v=None, t=None, dirname='dumps', **kwargs):
-    if mesh is not None:
-        np.savetxt('%s/edges.txt' % dirname, mesh.edges, fmt='%d', delimiter=' ')
-        np.savetxt('%s/simplices.txt'% dirname, mesh.simplices, fmt='%d', delimiter=' ')
-        if mesh.points.shape[1] == 3:
-            np.savetxt('%s/triangles.txt'% dirname, mesh.triangles, fmt='%d', delimiter=' ')
-    if input_currents is not None:
-        for i, c in enumerate(input_currents):
-            sparse_savetxt('%s/input_current%d.txt' % (dirname,i), c)
-    if b_matrix is not None:
-        sparse_savetxt('%s/b_matrix.txt' % dirname, b_matrix)
-    if w is not None:
-        np.savetxt('%s/w.txt' % dirname, w, delimiter=' ')
-    if v is not None:
-        np.savetxt('%s/v.txt' % dirname, v, delimiter=' ')
-    if t is not None:
-        if 'mu' in kwargs and 'lambda_' in kwargs:
-            sparse_savetxt("%s/t-lambda-%s-mu-%s.txt"%(dirname, kwargs['lambda_'], kwargs['mu']), t)
-        else:
-            sparse_savetxt("%s/t.txt"%dirname, t)
-# Saves sparse matrix as text. if the input is not sparse, set is_sparse argument to False.
-def sparse_savetxt(fname, matrix, fmt='%d', delimiter=' '):
-    if sparse.issparse(matrix):
-        if matrix.getformat() !='coo':
-            matrix = matrix.asformat('coo')
-    else:
-        matrix = sparse.coo_matrix(matrix)
-    with open(fname, 'w') as f:
-        for i in range(len(matrix.row)):
-            f.write("%d %d %d\n" % (matrix.row[i], matrix.col[i], matrix.data[i]))

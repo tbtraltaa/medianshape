@@ -6,7 +6,7 @@ from scipy.spatial.distance import pdist
 import matplotlib.pyplot as plt
 from matplotlib.collections import PolyCollection
 
-from mesh.utils import boundary
+from medianshape import utils
 
 class Mesh2D():
     '''
@@ -70,13 +70,14 @@ class Mesh2D():
 
     def right_hand_rule(self, simplex):
         edges = list()
-        edges.append(boundary(simplex, 0))
-        edges.append(boundary(simplex, 1))
+        edges.append(utils.boundary(simplex, 0))
+        edges.append(utils.boundary(simplex, 1))
         edge_points = self.points[np.array(edges)]
         v1 = edge_points[0][1] - edge_points[0][0]
         v2 = edge_points[1][1] - edge_points[1][0]
         direction = np.cross(v1,v2)
         return direction
+
 
     def get_info(self):
         return "%d points, %d triangles and %d edges"% \

@@ -2,14 +2,7 @@
 
 from __future__ import division
 
-import sys
-import importlib
-import math
-
 import numpy as np
-import matplotlib.pyplot as plt
-
-import utils
 
 def curve1(bbox):
     x = np.linspace(bbox[0], bbox[3], 5).reshape(-1, 1)

@@ -10,8 +10,8 @@ import distmesh as dm
 from scipy.spatial import Delaunay
 import matplotlib.pyplot as plt
 
-import mesh.utils as mutils 
-from mesh.mesh import Mesh2D, Mesh3D
+import medianshape.utils as utils 
+from medianshape.simplicial.mesh import Mesh2D, Mesh3D
 
 def meshgen2d(boundary_box=None, l=0.02, fixed_points=None, include_corners=True):
     mesh = Mesh2D()
@@ -27,7 +27,7 @@ def meshgen2d(boundary_box=None, l=0.02, fixed_points=None, include_corners=True
         else:
             mesh.fixed_points = mesh.boundary_points
     mesh.points, mesh.simplices = distmesh2d('square', mesh.bbox, mesh.fixed_points, l=l)
-    mesh.edges = mutils.get_subsimplices(mesh.simplices)
+    mesh.edges = utils.get_subsimplices(mesh.simplices)
     mesh.orient_simplices_2D()
     return mesh
 
@@ -45,8 +45,8 @@ def meshgen3d(boundary_box=None, l=0.2, fixed_points=None, include_corners=True,
             mesh.fixed_points = mesh.boundary_points
     mesh.points, mesh.simplices= distmesh3d("sphere", mesh.bbox, mesh.fixed_points, l=l)
     #mesh.points, mesh.simplices = scipy_mesh3d(mesh.bbox, mesh.fixed_points, l)
-    mesh.triangles = mutils.get_subsimplices(mesh.simplices)
-    mesh.edges = mutils.get_subsimplices(mesh.triangles)
+    mesh.triangles = utils.get_subsimplices(mesh.simplices)
+    mesh.edges = utils.get_subsimplices(mesh.triangles)
     return mesh
 
 def scipy_mesh3d(bbox, fixed_points, l):

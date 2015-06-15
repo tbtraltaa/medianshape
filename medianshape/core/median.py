@@ -12,7 +12,7 @@ solvers.options['reltol'] = 1e-9
 solvers.options['feastol'] = 1e-10
 solvers.options['show_progress'] = False
 
-from mesh.utils import boundary_matrix, simpvol
+from medianshape import utils 
 
 def median(points, simplices, subsimplices, input_currents, lambda_, w=[], v=[], cons=[], mu=0.001, alphas=None):
     if not isinstance(input_currents, np.ndarray):
@@ -23,9 +23,9 @@ def median(points, simplices, subsimplices, input_currents, lambda_, w=[], v=[],
     sub_cons_count = k_currents 
     input_currents  = input_currents.reshape(k_currents*m_subsimplices,1)
     if w == []:
-        w = simpvol(points, subsimplices)
+        w = utils.simpvol(points, subsimplices)
     if v == []:
-        v = simpvol(points, simplices)
+        v = utils.simpvol(points, simplices)
     if cons == []:
         w, v, b_matrix, cons = get_lp_inputs(points, simplices, subsimplices, k_currents, w, v, [], cons)
     b = input_currents
@@ -81,11 +81,11 @@ def get_lp_inputs(points, simplices, subsimplices, k_currents, w=[], v=[], b_mat
     m_subsimplices = subsimplices.shape[0]
     n_simplices = simplices.shape[0]
     if w == []:
-        w = simpvol(points, subsimplices)
+        w = utils.simpvol(points, subsimplices)
     if v == []:
-        v = simpvol(points, simplices)
+        v = utils.simpvol(points, simplices)
     if b_matrix == []:
-        b_matrix = boundary_matrix(simplices, subsimplices, format='coo')
+        b_matrix = utils.boundary_matrix(simplices, subsimplices, format='coo')
     if cons == []:
         sub_cons_count = k_currents
         m_subsimplices_identity = sparse.identity(m_subsimplices, dtype=np.int8, format='coo')

@@ -1,11 +1,7 @@
 # Ignore build folder
 docs/_build
 build/
-medianshape/draft/
-medianshape/backup.py
-medianshape/output/
-medianshape/dumps/
-/medianshape/curves_on_sphere
+/dist/
 *.csv
 *.vtk
 *.edge
@@ -14,4 +10,9 @@ medianshape/dumps/
 *.swp
 *.swo
 *.egg-info
+*.egg
 pip-log.txt
+medianshape/draft/
+medianshape/backup.py
+medianshape/experiment/data/
+.DS_Store

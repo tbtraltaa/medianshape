@@ -4,9 +4,9 @@ import importlib
 
 import numpy as np
 
-from shapegen import pointgen3d 
-from mesh.meshgen import meshgen3d
-import utils
+from medianshape.simplicial import pointgen3d
+from medianshape.simplicial.meshgen import meshgen3d
+import medianshape.experiment.inout as inout
 
 def equally_spaced_longitudes3d(): 
     # l - initial length of triangle sides. Change it to vary traingle size
@@ -39,8 +39,9 @@ def differently_spaced_longitudes3d():
     return mesh, mesh.triangles, mesh.edges, points, lambdas, mus, is_closed
 
 def fine_curves_on_sphere(): 
-    mesh = utils.load_mesh3d(dirname="curves_on_sphere")
-    input_currents = utils.load_input_currents(len(mesh.edges), 3, dirname='curves_on_sphere')
-    t, q, r = utils.load_solutions(len(mesh.triangles), len(mesh.edges), 3, dirname='curves_on_sphere')
+    dirname = '../data/curves_on_sphere'
+    mesh = inout.load_mesh3d(dirname=dirname)
+    input_currents = inout.load_input_currents(len(mesh.edges), 3, dirname=dirname)
+    t, q, r = inout.load_solutions(len(mesh.triangles), len(mesh.edges), 3, dirname=dirname)
     return mesh, input_currents, t, q, r
 

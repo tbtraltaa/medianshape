@@ -2,19 +2,16 @@
 
 from __future__ import division
 
+import sys
+import os
 import importlib
-import math
 
 import numpy as np
 from scipy.sparse.csgraph import dijkstra
 from scipy.sparse import csr_matrix, dok_matrix
 from scipy.spatial.distance import pdist, cdist
 
-import sys
-import os
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
-
-from utils import vectorize
+from medianshape.simplicial.utils import vectorize
 
 def push_functions_on_mesh_2d(mesh, curves, functions, is_closed=False):
         input_currents = list()
