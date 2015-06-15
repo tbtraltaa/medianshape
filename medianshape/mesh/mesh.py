@@ -151,7 +151,7 @@ class Mesh3D():
         return simplices 
 
     def get_info(self):
-        return "%d points, %d tetrahedras, %d triangles and %d edges"% \
+        return r"$%d$ $points$, $%d$ $tetrahedras$, $%d$ $triangles$ $and$ $%d$ $edges$"% \
         (len(self.points), len(self.simplices), len(self.triangles), len(self.edges))
 
     def print_detail(self):
