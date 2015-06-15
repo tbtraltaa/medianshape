@@ -19,7 +19,7 @@ def show_median3d():
     fig.tight_layout()
     plt.show()
     plt.figure(figsize=(8,8))
-    title = r"$MRSMS$, $\lambda=0.0010$, $\mu=0.000010"
+    title = r"$MRSMS$, $\lambda=0.0010$, $\mu=0.000010$"
     plot3d.plot_median3d(mesh, input_currents, t, title=title) 
     plt.show()
     plot3d.plot_decomposition3d(mesh, input_currents, t, q, r, title=title)
