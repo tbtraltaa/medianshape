@@ -134,8 +134,8 @@ def plot_median3d(mesh, input_currents, t, title='', figname="", file_doc=None, 
     ax.set_zlim(mesh.zmax + lim)
     plt.clf()
     for i, c in enumerate(input_currents):
-        plot_curve3d(mesh, c, color=colors[i], label='T%d'%(i+1), linewidth=5)
-    plot_curve3d(mesh, t, label="Median")
+        plot_curve3d(mesh, c, color=colors[i], label=r'$T%d$'%(i+1), linewidth=5)
+    plot_curve3d(mesh, t, label="$Median$")
     plt.legend(loc='lower right')
     plt.title(title, horizontalalignment='center', verticalalignment='top', transform=ax.transAxes)
     if save and figname:
@@ -155,7 +155,7 @@ def plot_curve_and_median3d(mesh, input_currents, t, title=None, figname=None, f
         ax.set_zlim(mesh.zmax + lim)
         plt.clf()                    
         plot_curve3d(mesh, c, color=colors[i], linewidth=5, \
-        label='T%d'%(i+1))
+        label=r'$T%d$'%(i+1))
         plot_curve3d(mesh, t, title, label='Median')
         plt.legend(loc='lower right')
         if save and figname:
@@ -177,12 +177,12 @@ def plot_decomposition3d(mesh, input_currents, t, q, r, title='', figname=None, 
         ax.set_zlim(mesh.zmax + lim)
         plot_simplices3d(mesh, r_i, color=color)
         if q is not None:
-            plot_curve3d(mesh, q[i], title=title + ', Q%d&R%d'%(i+1,i+1), color='m', marker='*', linewidth=6, label='Q%d'%(i+1))
+            plot_curve3d(mesh, q[i], title=title + r', $Q%d&R%d$'%(i+1,i+1), color='m', marker='*', linewidth=6, label='$Q%d$'%(i+1))
         if t is not None:
-            plot_curve3d(mesh, t, linewidth=4, label="Median")
+            plot_curve3d(mesh, t, linewidth=4, label=r"$Median$")
                 
         plot_curve3d(mesh, input_currents[i], color='r', ls='--', \
-                label='T%d'%(i+1))
+                label=r'$T%d$'%(i+1))
         plt.legend(loc='lower right')
         if save and figname:
             plt.savefig("%s-%d.png" % (figname, i), pad_inches=-1, box_inches='tight')
