@@ -11,7 +11,7 @@ from medianshape.experiment.median import runmedians as run, cases2d
 
 from medianshape.viz import plot2d 
 
-def mediandemo2d(outdir='../data/output', save=True):
+def mediandemo2d(outdir='data/output', save=True):
     lp_times = list()
     start = time.time()
     pdf_file = None

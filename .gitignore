@@ -14,5 +14,5 @@ build/
 pip-log.txt
 medianshape/draft/
 medianshape/backup.py
-medianshape/experiment/data/
+medianshape/experiment/median/data/
 .DS_Store

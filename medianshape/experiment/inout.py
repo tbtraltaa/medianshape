@@ -9,7 +9,7 @@ import medianshape.utils as utils
 
 
 # Loads previously computed mesh, boundary_matrix, input currents, w and v from a directory
-def load_mesh2d(dirname='dumps'):
+def load_mesh2d(dirname='data/dumps'):
     mesh = Mesh2D()
     if os.path.exists(dirname):
         if os.path.exists("%s/points.txt"%dirname):
@@ -36,7 +36,7 @@ def load_mesh2d(dirname='dumps'):
         print "%s directory doesn't exist"%dirname
     return mesh
 
-def load_mesh3d(dirname='dumps'):
+def load_mesh3d(dirname='data/dumps'):
     mesh = Mesh3D()
     if os.path.exists(dirname):
         if os.path.exists("%s/points.txt"%dirname):
@@ -70,7 +70,7 @@ def load_mesh3d(dirname='dumps'):
         print "%s directory doesn't exist"%dirname
     return mesh
 
-def load_weights_and_boundary(n_simplices, m_subsimplices, dirname='dumps'):
+def load_weights_and_boundary(n_simplices, m_subsimplices, dirname='data/dumps'):
     w = np.zeros(shape=(m_subsimplices, 1))
     v = np.zeros(shape=(n_simplices, 1))
     b_matrix = sparse.dok_matrix((m_subsimplices, n_simplices), dtype=np.int8)
@@ -91,7 +91,7 @@ def load_weights_and_boundary(n_simplices, m_subsimplices, dirname='dumps'):
         print "Can't load boundary matrix. <%s/b_matrix.txt> file doesn't exist"%dirname
     return w, v, b_matrix
 
-def load_input_currents(m_subsimplices, k, dirname='dumps'):
+def load_input_currents(m_subsimplices, k, dirname='data/dumps'):
     input_currents = np.zeros(shape=(k, m_subsimplices), dtype=np.int) 
     for i in range(k):
         if os.path.isfile('%s/input_current%d.txt'%(dirname, i)):
@@ -103,7 +103,7 @@ def load_input_currents(m_subsimplices, k, dirname='dumps'):
             print "Can't load input current %d. <input_current%d.txt> doesn't exist"%(i, i)
     return input_currents
 
-def load_solutions(n_simplices, m_subsimplices, k, dirname='dumps'):
+def load_solutions(n_simplices, m_subsimplices, k, dirname='data/dumps'):
     x = np.zeros(shape=(2*m_subsimplices + 2*k*m_subsimplices + 2*k*n_simplices,1), dtype=np.int)
     t = np.zeros((m_subsimplices, 1), dtype=np.int) 
     q = np.zeros((k, m_subsimplices), dtype=int)
@@ -127,7 +127,7 @@ def load_solutions(n_simplices, m_subsimplices, k, dirname='dumps'):
     return t, q, r
     
 # Saves mesh, input currents, boundary matrix, w and v.
-def save_data(mesh=None, input_currents=None, b_matrix=None, w=None, v=None, t=None, dirname='/Users/altaa/Develop/medianshape/medianshape/experiment/data/dumps', **kwargs):
+def save_data(mesh=None, input_currents=None, b_matrix=None, w=None, v=None, t=None, dirname=os.path.abspath('data/dumps'), **kwargs):
     if mesh is not None:
         np.savetxt('%s/edges.txt' % dirname, mesh.edges, fmt='%d', delimiter=' ')
         np.savetxt('%s/simplices.txt'% dirname, mesh.simplices, fmt='%d', delimiter=' ')

@@ -25,7 +25,7 @@ def show_median3d():
     plot3d.plot_decomposition3d(mesh, input_currents, t, q, r, title=title)
 
 
-def mediandemo3d(outdir='../data/output', save=True):
+def mediandemo3d(outdir='data/output', save=True):
     lp_times = list()
     start = time.time()
     pdf_file = None
@@ -57,5 +57,5 @@ def mediandemo3d(outdir='../data/output', save=True):
     print 'Elapsed time %f mins.' % (elapsed/60)
     
 if __name__ == '__main__':
-    #mediandemo3d(save=True)
-    show_median3d()
+    mediandemo3d(save=True)
+    #show_median3d()

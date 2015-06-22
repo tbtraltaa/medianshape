@@ -5,7 +5,12 @@ import time
 
 import numpy as np
 from scipy import sparse
-import cplex
+
+from cvxopt import matrix, spmatrix, solvers
+solvers.options['abstol'] = 1e-10
+solvers.options['reltol'] = 1e-9
+solvers.options['feastol'] = 1e-10
+solvers.options['show_progress'] = False
 
 from medianshape import utils 
 
@@ -39,34 +44,26 @@ def median(points, simplices, subsimplices, input_currents, lambda_, w=[], v=[],
     c = np.append(c, k_sub_c)
     #np.savetxt("output/dumps/b-%s.txt"%opt, input_currents, fmt="%d", delimiter=" ")
     #np.savetxt("output/dumps/c-%s.txt"%opt, c, delimiter=" ")
+    g = -sparse.identity(len(c), dtype=np.int8, format='coo')
+    h = np.zeros(len(c))
+    G = spmatrix(g.data.tolist(), g.row, g.col, g.shape,  tc='d')
+    h = matrix(h)
+    c = matrix(c)
+    cons = spmatrix(cons.data.tolist(), cons.row, cons.col, cons.shape, tc='d')
+    b = matrix(b)
 
-    print b.shape
-    prob = cplex.Cplex()
-    prob.objective.set_sense(prob.objective.sense.minimize)
-    prob.linear_constraints.add(rhs=b.reshape(-1,))
-    print prob.linear_constraints.get_num()
-    print c.shape
-    prob.variables.add(obj=c)
-    print prob.variables.get_num()
-    print cons.nnz
-    prob.linear_constraints.set_coefficients(zip(cons.row, cons.col, cons.data.astype(float)))
-    
     start = time.time()
-    prob.solve()
-    status = prob.solution.get_status()
-    norm = prob.solution.get_objective_value()
+    sol = solvers.lp(c, G, h, cons, b, solver='glpk')
     elapsed = time.time() - start
+    print 'LP time %f mins.' % (elapsed/60)
 
-    args = np.array(prob.solution.get_values())
+    args = np.array(sol['x'])
     args1 = args[np.where(args >=1e-5)]
     args2 = args1[np.where(args1 <= 0.99999)]
     nonint = args2.shape[0]
-
-    print 'LP status:', status
-    print 'LP objective value:', norm
-    print 'LP time %f mins.' % (elapsed/60)
     print "Non int", nonint
-    args = np.rint(args)
+    args = np.rint(sol['x'])
+    norm = sol['primal objective']
     t = args[0:m_subsimplices] - args[m_subsimplices:2*m_subsimplices]
     q = np.zeros((sub_cons_count, m_subsimplices), dtype=int)
     r = np.zeros((sub_cons_count, n_simplices), dtype=int)
