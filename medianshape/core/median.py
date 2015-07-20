@@ -5,7 +5,14 @@ import time
 
 import numpy as np
 from scipy import sparse
-import cplex
+
+from sys import platform as _platform
+
+from cvxopt import matrix, spmatrix, solvers
+solvers.options['abstol'] = 1e-10
+solvers.options['reltol'] = 1e-9
+solvers.options['feastol'] = 1e-10
+solvers.options['show_progress'] = False
 
 from medianshape import utils 
 
@@ -41,28 +48,13 @@ def median(points, simplices, subsimplices, input_currents, lambda_, w=[], v=[],
     #np.savetxt("output/dumps/c-%s.txt"%opt, c, delimiter=" ")
 
     print b.shape
-    prob = cplex.Cplex()
-    prob.objective.set_sense(prob.objective.sense.minimize)
-    prob.linear_constraints.add(rhs=b.reshape(-1,))
-    print prob.linear_constraints.get_num()
-    print c.shape
-    prob.variables.add(obj=c)
-    print prob.variables.get_num()
-    print cons.nnz
-    prob.linear_constraints.set_coefficients(zip(cons.row, cons.col, cons.data.astype(float)))
-    
     start = time.time()
-    prob.solve()
-    status = prob.solution.get_status()
-    norm = prob.solution.get_objective_value()
+    args, norm = lp_solver(c, cons, b)
     elapsed = time.time() - start
-
-    args = np.array(prob.solution.get_values())
     args1 = args[np.where(args >=1e-5)]
     args2 = args1[np.where(args1 <= 0.99999)]
     nonint = args2.shape[0]
 
-    print 'LP status:', status
     print 'LP objective value:', norm
     print 'LP time %f mins.' % (elapsed/60)
     print "Non int", nonint
@@ -118,3 +110,38 @@ def get_lp_inputs(points, simplices, subsimplices, k_currents, w=[], v=[], b_mat
                 cons = sparse.vstack((cons, cons_row))
         cons = sparse.hstack((k_identity_cons, cons))
     return w, v, b_matrix, cons
+
+def lp_solver(c, cons, b, solver='cvxopt'):
+    if solver == 'cvxopt':
+        print 'hi'
+        g = -sparse.identity(len(c), dtype=np.int8, format='coo')
+        h = np.zeros(len(c))
+        G = spmatrix(g.data.tolist(), g.row, g.col, g.shape,  tc='d')
+        h = matrix(h)
+        c = matrix(c)
+        cons = spmatrix(cons.data.tolist(), cons.row, cons.col, cons.shape, tc='d')
+        b = matrix(b)
+        sol = solvers.lp(c, G, h, cons, b, solver='glpk')
+        args = np.array(sol['x'])
+        norm = sol['primal objective']
+    elif solver == 'cplex':
+        if _platform == "darwin":
+            print "Cplex is not installed yet."
+            exit()
+        prob = cplex.Cplex()
+        prob.objective.set_sense(prob.objective.sense.minimize)
+        prob.linear_constraints.add(rhs=b.reshape(-1,))
+        print prob.linear_constraints.get_num()
+        print c.shape
+        prob.variables.add(obj=c)
+        print prob.variables.get_num()
+        print cons.nnz
+        prob.linear_constraints.set_coefficients(zip(cons.row, cons.col, cons.data.astype(float)))
+        
+        prob.solve()
+        status = prob.solution.get_status()
+        norm = prob.solution.get_objective_value()
+        args = np.array(prob.solution.get_values())
+        print 'LP status:', status
+    return args, norm
+        

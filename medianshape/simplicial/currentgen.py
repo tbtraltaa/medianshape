@@ -8,7 +8,7 @@ import importlib
 
 import numpy as np
 from scipy.sparse.csgraph import dijkstra
-from scipy.sparse import csr_matrix, dok_matrix
+from scipy.sparse import dok_matrix
 from scipy.spatial.distance import pdist, cdist
 
 from medianshape.simplicial.utils import vectorize
