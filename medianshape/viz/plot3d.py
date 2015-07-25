@@ -102,7 +102,7 @@ def plot_curves_approx3d(mesh, points, vertices, paths, title="", figname=None, 
     plt.clf()
     #plotmesh3d(mesh)
     for i, path in enumerate(paths):
-        plot_curve_approx3d(mesh, points[i], vertices[i], path, color=colors[i], label="T%d"%(i+1))
+        plot_curve_approx3d(mesh, points[i], vertices[i], path, color=colors[i], label=r"$T_{%d}$"%(i+1))
     plt.title(title, horizontalalignment='center', verticalalignment='top', transform=ax.transAxes)
     if save and figname:
         plt.savefig('%s.png'%figname, pad_inches=-1, box_inches='tight')
@@ -111,14 +111,16 @@ def plot_curves_approx3d(mesh, points, vertices, paths, title="", figname=None, 
 
 def plot_curve_approx3d(mesh, input_points, closest_vertices, path, title=None, color="red", linewidth=3, label=""):
     ax = plt.gca(projection='3d')
-    ax.plot(input_points[:,0], input_points[:,1], input_points[:,2], c=color, ls="--", label='Input points')
+    #ax.plot(input_points[:,0], input_points[:,1], input_points[:,2], c=color, ls="--", label='Input points')
+    ax.plot(input_points[:,0], input_points[:,1], input_points[:,2], c=color, ls="--")
     if title is not None:
         ax.set_title(title, horizontalalignment='center', verticalalignment='top', transform=ax.transAxes)
     for i, edge in enumerate(path):
         points = mesh.points[edge]
         if len(path) != 1:
             ax.plot(points[:,0], points[:,1], points[:,2], c=color, linewidth=linewidth, label=label if i==0 else "")
-    ax.scatter(mesh.points[closest_vertices][:,0], mesh.points[closest_vertices][:,1], mesh.points[closest_vertices][:,2], s=100, c=color, label="Closest vertices")
+    #ax.scatter(mesh.points[closest_vertices][:,0], mesh.points[closest_vertices][:,1], mesh.points[closest_vertices][:,2], s=100, c=color, label="Closest vertices")
+    ax.scatter(mesh.points[closest_vertices][:,0], mesh.points[closest_vertices][:,1], mesh.points[closest_vertices][:,2], s=100, c=color)
     ax.scatter(input_points[:,0], input_points[:,1], input_points[:,2], c=color)
     plt.legend(loc='lower right')
 
@@ -134,8 +136,8 @@ def plot_median3d(mesh, input_currents, t, title='', figname="", file_doc=None, 
     ax.set_zlim(mesh.zmax + lim)
     plt.clf()
     for i, c in enumerate(input_currents):
-        plot_curve3d(mesh, c, color=colors[i], label=r'$T%d$'%(i+1), linewidth=5)
-    plot_curve3d(mesh, t, label="$Median$")
+        plot_curve3d(mesh, c, color=colors[i], label=r'$T_{%d}$'%(i+1), linewidth=5)
+    plot_curve3d(mesh, t, label=r"$Median$")
     plt.legend(loc='lower right')
     plt.title(title, horizontalalignment='center', verticalalignment='top', transform=ax.transAxes)
     if save and figname:
@@ -177,12 +179,12 @@ def plot_decomposition3d(mesh, input_currents, t, q, r, title='', figname=None, 
         ax.set_zlim(mesh.zmax + lim)
         plot_simplices3d(mesh, r_i, color=color)
         if q is not None:
-            plot_curve3d(mesh, q[i], title=title + r", $Q%d&R%d$"%(i+1,i+1), color='m', marker='*', linewidth=6, label='$Q%d$'%(i+1))
+            plot_curve3d(mesh, q[i], title=title + r", $Q_{%d}&R_{%d}$"%(i+1,i+1), color='m', marker='*', linewidth=6, label='$Q_{%d}$'%(i+1))
         if t is not None:
             plot_curve3d(mesh, t, linewidth=4, label=r"$Median$")
                 
         plot_curve3d(mesh, input_currents[i], color='r', ls='--', \
-                label=r"$T%d$"%(i+1))
+                label=r"$T_{%d}$"%(i+1))
         plt.legend(loc='lower right')
         if save and figname:
             plt.savefig("%s-%d.png" % (figname, i), pad_inches=-1, box_inches='tight')

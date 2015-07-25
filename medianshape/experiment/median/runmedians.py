@@ -23,10 +23,10 @@ def runmedians2d(mesh, simplices, subsimplices, input_currents, lambdas, mus, w=
             input_currents, l, w, v, cons, mu=mu)
             if save:
                 inout.save_data(t=t, lambda_=l, mu=mu)
-            title = 'MRSMS, lambda=%.06f, mu=%.06f'  % (l, mu)
+            title = r"$MRSMS$, $\lambda=%.06f$, $\mu=%.06f$" % (l, mu)
             figname = '%s/figures/%d-%.06f-%.06f'%(outdir, figcount, l, mu)
             plot2d.plot_median2d(mesh, input_currents, t, title, figname, file_doc, save=save)
-            plt.show()
+            #plt.show()
             fig = plt.figure(figsize=(8,8))
             figcount += 1
 
@@ -42,8 +42,7 @@ def runmedians2d(mesh, simplices, subsimplices, input_currents, lambdas, mus, w=
     if save:
         inout.save_data(mesh, input_currents, b_matrix, w, v)
 
-def runmedians3d(mesh, simplices, subsimplices, input_currents, lambdas, mus, w=None, v=None, b_matrix=None, file_doc=None, save=True, outdir='data/output'):
-    figcount = 2
+def runmedians3d(mesh, simplices, subsimplices, input_currents, lambdas, mus, w=None, v=None, b_matrix=None, file_doc=None, save=True, outdir='data/output', figcount=1):
     if w is None:
         w = utils.simpvol(mesh.points, subsimplices)
     if v is None:
@@ -58,12 +57,12 @@ def runmedians3d(mesh, simplices, subsimplices, input_currents, lambdas, mus, w=
             t, q, r, norm = median.median(mesh.points, simplices, subsimplices, input_currents, l, w, v, cons, mu=mu)
             if save:
                 inout.save_data(t=t, lambda_=l, mu=mu)
-            title = 'MRSMS, lambda=%.06f, mu=%.06f'%(l, mu)
-            figname = '%s/figures/%d-%.06f-%.06f'%(outdir, figcount, l, mu)
+            title = r"$MRSMS$, $\lambda=%.06f$, $\mu=%.06f$" % (l, mu)
+            figname = '%s/figures/%d'%(outdir, figcount)
             fig = plt.figure(figsize=(8,8))
             plot3d.plot_median3d(mesh, input_currents, t, title, figname, file_doc, save)
             plt.tight_layout()
-            plt.show()
+            #plt.show()
             fig = plt.figure(figsize=(8,8))
             figcount += 1
 
@@ -72,7 +71,7 @@ def runmedians3d(mesh, simplices, subsimplices, input_currents, lambdas, mus, w=
             #figname, file_doc, save)
             #figcount += input_currents.shape[0]
 
-            figname = '%s/figures/%d-%.06f-%.06f'%(outdir, figcount, l, mu)
+            figname = '%s/figures/%d'%(outdir, figcount)
             plot3d.plot_decomposition3d(mesh, input_currents, t, q, r, title, \
             figname, file_doc, save)
             figcount += input_currents.shape[0]

@@ -42,6 +42,13 @@ def median(points, simplices, subsimplices, input_currents, lambda_, w=[], v=[],
 
     print b.shape
     prob = cplex.Cplex()
+
+    #prob.parameters.simplex.tolerances.markowitz.set(0.009)
+    #prob.parameters.simplex.tolerances.optimality.set(0.0001)
+    #prob.parameters.simplex.tolerances.feasibility.set(0.0001)
+    #prob.parameters.simplex.perturbation.constant.set(0.0001)
+    #prob.parameters.barrier.convergetol.set(0.0001)
+
     prob.objective.set_sense(prob.objective.sense.minimize)
     prob.linear_constraints.add(rhs=b.reshape(-1,))
     print prob.linear_constraints.get_num()

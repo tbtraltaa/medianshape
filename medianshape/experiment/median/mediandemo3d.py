@@ -37,20 +37,21 @@ def mediandemo3d(outdir='data/output', save=True):
     mesh, simplices, subsimplices, points, lambdas, mus, is_closed \
     = cases3d.equally_spaced_longitudes3d()
     print mesh.get_info()
-    plot3d.plotmesh3d(mesh, mesh.get_info(), '%s/figures/mesh'%outdir, pdf_file, save)
+    plot3d.plotmesh3d(mesh, mesh.get_info(), '%s/figures/%d'%(outdir, figcount), pdf_file, save)
+    figcount += 1
     fig.tight_layout()
-    plt.show()
+    #plt.show()
     fig = plt.figure(figsize=(8,8))
     vertices, paths, input_currents = currentgen.push_curves_on_mesh(mesh, simplices, subsimplices, points, is_closed=is_closed)
 
-    figname = '%s/figures/%d.png'%(outdir, figcount)
+    figname = '%s/figures/%d'%(outdir, figcount)
     title = mesh.get_info()
-    title = 'Curve approximation'
+    title = r'$Curve$ $approximation$'
     plot3d.plot_curves_approx3d(mesh, points, vertices, paths, title, figname, pdf_file, save)
     figcount += 1
     fig.tight_layout()
-    plt.show()
-    run.runmedians3d(mesh, simplices, subsimplices, input_currents, lambdas, mus, file_doc=pdf_file, save=save)
+   # plt.show()
+    run.runmedians3d(mesh, simplices, subsimplices, input_currents, lambdas, mus, file_doc=pdf_file, save=save, figcount=figcount)
     if save:
         pdf_file.close()
     elapsed = time.time() - start
