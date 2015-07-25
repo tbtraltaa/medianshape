@@ -11,7 +11,7 @@ import medianshape.experiment.inout as inout
 def equally_spaced_longitudes3d(): 
     # l - initial length of triangle sides. Change it to vary traingle size
     boundary_box = [0,0,0,20,20,20]
-    l = 0.5 
+    l = 3 
     mesh = meshgen3d(boundary_box, l, include_corners=False)
     curve1 = pointgen3d.sphere_arc(mesh.bbox, 0, 10)
     curve2 = pointgen3d.sphere_arc(mesh.bbox, 2*np.pi/3, 10)
