@@ -1,6 +1,0 @@
-===========
-Experiments
-===========
-
-.. toctree:: 
-    median/median
