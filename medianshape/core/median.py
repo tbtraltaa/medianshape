@@ -1,22 +1,32 @@
 # encoding: utf-8
+'''
+================================================
+Mass Regularized Simplicial Median Shape (MRSMS)
+================================================
+'''
 
 from __future__ import absolute_import
 import time
+from sys import platform as _platform
 
 import numpy as np
 from scipy import sparse
 
-from sys import platform as _platform
-
+import cplex
 from cvxopt import matrix, spmatrix, solvers
 solvers.options['abstol'] = 1e-10
 solvers.options['reltol'] = 1e-9
 solvers.options['feastol'] = 1e-10
 solvers.options['show_progress'] = False
 
+
 from medianshape import utils 
 
 def median(points, simplices, subsimplices, input_currents, lambda_, w=[], v=[], cons=[], mu=0.001, alphas=None):
+    '''
+    Accepts simplicial settings, input currents, multiscale factor(:math:`\lambda`) and mass regularizing factor(:math:`\mu`). Returns median shape and flat norm decomposition in the given
+    simplicial settings.
+    '''
     if not isinstance(input_currents, np.ndarray):
         input_currents = np.array(input_currents)
     m_subsimplices = subsimplices.shape[0]
@@ -73,6 +83,9 @@ def median(points, simplices, subsimplices, input_currents, lambda_, w=[], v=[],
     return t, q, r, norm
 
 def get_lp_inputs(points, simplices, subsimplices, k_currents, w=[], v=[], b_matrix=[], cons=[]):
+    '''
+    Accepts simplicial settings as input parameters and returns weights, boundary matrix and LP contraint matrix.
+    '''
     m_subsimplices = subsimplices.shape[0]
     n_simplices = simplices.shape[0]
     if w == []:
@@ -111,9 +124,11 @@ def get_lp_inputs(points, simplices, subsimplices, k_currents, w=[], v=[], b_mat
         cons = sparse.hstack((k_identity_cons, cons))
     return w, v, b_matrix, cons
 
-def lp_solver(c, cons, b, solver='cvxopt'):
+def lp_solver(c, cons, b, solver='cplex'):
+    '''
+        Linear program solver. 
+    '''
     if solver == 'cvxopt':
-        print 'hi'
         g = -sparse.identity(len(c), dtype=np.int8, format='coo')
         h = np.zeros(len(c))
         G = spmatrix(g.data.tolist(), g.row, g.col, g.shape,  tc='d')

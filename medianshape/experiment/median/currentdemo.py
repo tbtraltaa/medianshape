@@ -8,6 +8,9 @@ from medianshape import utils
 from medianshape.viz import plot2d
 
 def currentdemo():
+    '''
+    Hi
+    '''
     mesh = Mesh2D()
     mesh.bbox = (0,0,1,1)
     mesh.set_boundary_points()

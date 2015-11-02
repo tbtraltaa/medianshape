@@ -15,7 +15,10 @@ from medianshape.core.msfn import msfn
 
 import distmesh as dm
 
-if __name__ == "__main__":
+def msfndemo3d():
+    '''
+    Hi
+    '''
     fig = plt.figure(figsize=(19,8))
     mesh = Mesh3D()
     # l - initial length of triangle sides. Change it to vary traingle size
@@ -43,3 +46,6 @@ if __name__ == "__main__":
             x, s, norm = msfn(mesh.points, mesh.triangles, mesh.edges, input_current, l)
             plot3d.plot_decomposition(mesh, input_currents, comb, x.T, None, s, title)
             plt.show()
+
+if __name__ == "__main__":
+    msfndemo3d()

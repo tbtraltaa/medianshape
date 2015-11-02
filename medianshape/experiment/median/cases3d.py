@@ -1,4 +1,8 @@
 # encoding: utf-8
+'''
+3D experiment cases
+-------------------
+'''
 from __future__ import absolute_import
 import importlib
 
@@ -9,9 +13,12 @@ from medianshape.simplicial.meshgen import meshgen3d
 import medianshape.experiment.inout as inout
 
 def equally_spaced_longitudes3d(): 
+    '''
+    Hi
+    '''
     # l - initial length of triangle sides. Change it to vary traingle size
     boundary_box = [0,0,0,20,20,20]
-    l = 3 
+    l = 4 
     mesh = meshgen3d(boundary_box, l, include_corners=False)
     curve1 = pointgen3d.sphere_arc(mesh.bbox, 0, 10)
     curve2 = pointgen3d.sphere_arc(mesh.bbox, 2*np.pi/3, 10)
@@ -26,6 +33,9 @@ def equally_spaced_longitudes3d():
     return mesh, mesh.triangles, mesh.edges, points, lambdas, mus, is_closed
 
 def differently_spaced_longitudes3d(): 
+    '''
+    Hi
+    '''
     # l - initial length of triangle sides. Change it to vary traingle size
     boundary_box = [0,0,0,20,20,20]
     l = 4
@@ -41,6 +51,9 @@ def differently_spaced_longitudes3d():
     return mesh, mesh.triangles, mesh.edges, points, lambdas, mus, is_closed
 
 def fine_curves_on_sphere(): 
+    '''
+    Hi
+    '''
     dirname = 'data/curves_on_sphere'
     mesh = inout.load_mesh3d(dirname=dirname)
     input_currents = inout.load_input_currents(len(mesh.edges), 3, dirname=dirname)

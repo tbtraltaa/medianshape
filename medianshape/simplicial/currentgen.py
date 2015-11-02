@@ -1,4 +1,9 @@
 # encoding: utf-8
+'''
+Current generation
+==================
+
+'''
 
 from __future__ import division
 
@@ -14,73 +19,88 @@ from scipy.spatial.distance import pdist, cdist
 from medianshape.simplicial.utils import vectorize
 
 def push_functions_on_mesh_2d(mesh, curves, functions, is_closed=False):
-        input_currents = list()
-        paths = list()
-        vertices = list()
-        for i, curve_points in enumerate(curves):
-            func_str = functions[i]
-            input_current, path, closest_vertices = \
-            push_function_on_mesh(mesh, curve_points, func_str=func_str, is_closed=is_closed) 
-            vertices.append(closest_vertices)
-            paths.append(path)
-            input_currents.append(input_current)
-        input_currents = np.array(input_currents).reshape(len(curves), mesh.edges.shape[0])
-        return vertices, paths, input_currents
+    '''
+    Hi
+    '''
+    input_currents = list()
+    paths = list()
+    vertices = list()
+    for i, curve_points in enumerate(curves):
+        func_str = functions[i]
+        input_current, path, closest_vertices = \
+        push_function_on_mesh(mesh, curve_points, func_str=func_str, is_closed=is_closed) 
+        vertices.append(closest_vertices)
+        paths.append(path)
+        input_currents.append(input_current)
+    input_currents = np.array(input_currents).reshape(len(curves), mesh.edges.shape[0])
+    return vertices, paths, input_currents
 
 def push_function_on_mesh(mesh, points, interval_size=10, func_str=None, is_closed=False):
-        closest_vertices = list()
-        for point in points:
-            min_dist = mesh.diagonal
-            closest_vertex = -1
-            min_idx = 0
-            ordered_X = np.sort(np.unique(mesh.points[:,0]))
-            interval_X = find_interval_X(point, ordered_X, interval_size)
-            func_values = vectorize(func_str, interval_X)
-            func_points = np.hstack((interval_X, func_values))
-            for i, x in enumerate(interval_X):
-                #Assigning candidate indices out of a tuple with 2 elements where the second one is empty
-                candidate_idx = np.where(mesh.points[:,0]==x)[0]     
-                candidate_idx = [c_idx for c_idx in candidate_idx if c_idx not in closest_vertices]
-                if len(candidate_idx) != 0:
-                    candidate_points = mesh.points[candidate_idx]
-                    distances = cdist(candidate_points, func_points[i].reshape(1,-1))
-                    min_idx = np.argmin(distances)  
-                    dist = distances[min_idx]
-                    if min_idx.size > 1:
-                        min_idx = random.sample(min_idx, 1)
-                    if dist < min_dist:
-                        min_dist = dist
-                        closest_vertex = candidate_idx[min_idx]
-            closest_vertices.append(closest_vertex)
-        closest_vertices = np.array(closest_vertices)
-        curve_path = find_path(mesh, closest_vertices, is_closed)
-        edge_vector = get_edge_vector(mesh, curve_path)
-        return edge_vector, curve_path, closest_vertices
+    '''
+    HI
+    '''
+    closest_vertices = list()
+    for point in points:
+        min_dist = mesh.diagonal
+        closest_vertex = -1
+        min_idx = 0
+        ordered_X = np.sort(np.unique(mesh.points[:,0]))
+        interval_X = find_interval_X(point, ordered_X, interval_size)
+        func_values = vectorize(func_str, interval_X)
+        func_points = np.hstack((interval_X, func_values))
+        for i, x in enumerate(interval_X):
+            #Assigning candidate indices out of a tuple with 2 elements where the second one is empty
+            candidate_idx = np.where(mesh.points[:,0]==x)[0]     
+            candidate_idx = [c_idx for c_idx in candidate_idx if c_idx not in closest_vertices]
+            if len(candidate_idx) != 0:
+                candidate_points = mesh.points[candidate_idx]
+                distances = cdist(candidate_points, func_points[i].reshape(1,-1))
+                min_idx = np.argmin(distances)  
+                dist = distances[min_idx]
+                if min_idx.size > 1:
+                    min_idx = random.sample(min_idx, 1)
+                if dist < min_dist:
+                    min_dist = dist
+                    closest_vertex = candidate_idx[min_idx]
+        closest_vertices.append(closest_vertex)
+    closest_vertices = np.array(closest_vertices)
+    curve_path = find_path(mesh, closest_vertices, is_closed)
+    edge_vector = get_edge_vector(mesh, curve_path)
+    return edge_vector, curve_path, closest_vertices
 
 def push_curves_on_mesh(mesh, simplices, subsimplices, curves, is_closed=False):
-        input_currents = list()
-        paths = list()
-        vertices = list()
-        for i, curve_points in enumerate(curves):
-            input_current, path, closest_vertices = \
-            push_curve_on_mesh(mesh, curve_points, is_closed=is_closed) 
-            vertices.append(closest_vertices)
-            paths.append(path)
-            input_currents.append(input_current)
-        input_currents = np.array(input_currents).reshape(len(curves), subsimplices.shape[0])
-        return vertices, paths, input_currents
+    '''
+    Hi
+    '''
+    input_currents = list()
+    paths = list()
+    vertices = list()
+    for i, curve_points in enumerate(curves):
+        input_current, path, closest_vertices = \
+        push_curve_on_mesh(mesh, curve_points, is_closed=is_closed) 
+        vertices.append(closest_vertices)
+        paths.append(path)
+        input_currents.append(input_current)
+    input_currents = np.array(input_currents).reshape(len(curves), subsimplices.shape[0])
+    return vertices, paths, input_currents
 
 def push_curve_on_mesh(mesh, points, is_closed=False):
-        closest_vertices = find_closest_vertices(mesh, points)
-        if len(closest_vertices) == 1:
-            input_current = get_vertex_vector(mesh, closest_vertices)
-            curve_path = closest_vertices
-        else:
-            curve_path = find_path(mesh, closest_vertices, is_closed)
-            input_current = get_edge_vector(mesh, curve_path)
-        return input_current, curve_path, closest_vertices
+    '''
+    Hi
+    '''
+    closest_vertices = find_closest_vertices(mesh, points)
+    if len(closest_vertices) == 1:
+        input_current = get_vertex_vector(mesh, closest_vertices)
+        curve_path = closest_vertices
+    else:
+        curve_path = find_path(mesh, closest_vertices, is_closed)
+        input_current = get_edge_vector(mesh, curve_path)
+    return input_current, curve_path, closest_vertices
 
 def find_closest_vertices(mesh, points):
+    '''
+    Hi
+    '''
     closest_vertices = list()
     for point in points:
             closest_vertex = find_closest_vertex(mesh, point, closest_vertices)
@@ -88,6 +108,9 @@ def find_closest_vertices(mesh, points):
     return  np.array(closest_vertices)
 
 def find_closest_vertex(mesh, point, selected_points):
+    '''
+    Hi
+    '''
     min_dist = mesh.diagonal
     closest_vertex = -1
     min_idx = 0
@@ -101,6 +124,9 @@ def find_closest_vertex(mesh, point, selected_points):
     return closest_vertex
 
 def find_interval_X(point, ordered_X, interval_size=5):
+    '''
+    Hi
+    '''
     x_idx = np.where(ordered_X==point[0])
     if len(x_idx[0]):
         x_idx = ordered_X.tolist().index(point[0])
@@ -126,6 +152,9 @@ def find_interval_X(point, ordered_X, interval_size=5):
     return interval_X.reshape(interval_X.size, 1)
 
 def find_path(mesh, path_points, is_closed=False):
+    '''
+    Hi
+    '''
     no_of_points = mesh.points.shape[0] 
     adjacency_matrix = dok_matrix((no_of_points, no_of_points), dtype=np.float64)  
     if is_closed:
@@ -174,6 +203,9 @@ def find_path(mesh, path_points, is_closed=False):
 #        [point_idx]:self.mesh.vertex_neighbor_vertices[0][point_idx+1]]
 
 def get_edge_vector(mesh, path):
+    '''
+    Hi
+    '''
     edge_vector = np.zeros(shape=(mesh.edges.shape[0], 1))
     temp_edges = [ tuple(edge) for edge in mesh.edges]
     for path_edge in path:
@@ -186,6 +218,9 @@ def get_edge_vector(mesh, path):
     return edge_vector
 
 def get_vertex_vector(mesh, path):
+    '''
+    Hi
+    '''
     vertex_vector = np.zeros(shape=(mesh.points.shape[0], 1))
     vertex_vector[path] = 1
     return vertex_vector

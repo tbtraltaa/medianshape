@@ -1,4 +1,9 @@
 # encoding: utf-8
+'''
+Mesh generation
+===============
+
+'''
 
 from __future__ import absolute_import
 
@@ -14,6 +19,9 @@ import medianshape.utils as utils
 from medianshape.simplicial.mesh import Mesh2D, Mesh3D
 
 def meshgen2d(boundary_box=None, l=0.02, fixed_points=None, include_corners=True):
+    '''
+    HI
+    '''
     mesh = Mesh2D()
     #l - initial length of triangle sides. Change it to vary traingle size
     mesh.bbox = boundary_box
@@ -32,6 +40,9 @@ def meshgen2d(boundary_box=None, l=0.02, fixed_points=None, include_corners=True
     return mesh
 
 def meshgen3d(boundary_box=None, l=0.2, fixed_points=None, include_corners=True, load_data=False):
+    '''
+    HI
+    '''
     mesh = Mesh3D()
     mesh.bbox = boundary_box
     mesh.set_boundary_points()
@@ -50,6 +61,9 @@ def meshgen3d(boundary_box=None, l=0.2, fixed_points=None, include_corners=True,
     return mesh
 
 def scipy_mesh3d(bbox, fixed_points, l):
+    '''
+    HI
+    '''
     bbox = np.array(bbox).reshape(2, -1)
     dim = bbox.shape[1]
     points = np.mgrid[tuple(slice(min, max+l, l) for min, max in bbox.T)]
@@ -72,16 +86,25 @@ def scipy_mesh3d(bbox, fixed_points, l):
 #    return np.array(mesh.points), np.array(mesh.elements)
 
 def distmesh2d(shape, bbox, fixed_points, l=0.1):
+    '''
+    HI
+    '''
     if shape == "square":
         return square_mesh(bbox, fixed_points, l)
 
 def distmesh3d(shape, bbox, fixed_points, l=0.1):
+    '''
+    HI
+    '''
     #if shape == "cuboid":
         #return cuboid_mesh(bbox, fixed_points, l)
     if shape == "sphere":
         return sphere_mesh(bbox, fixed_points, l=l)
 
 def square_mesh(bbox, fixed_points, l=0.1):
+    '''
+    HI
+    '''
     """Square, with size function point and line sources"""
     dist_function = lambda p: dm.drectangle(p, bbox[0], bbox[2], \
                                                 bbox[1],bbox[3])
@@ -138,6 +161,9 @@ def dcuboid(p, x1, y1, z1, x2, y2, z2):
     return d
 
 def sphere_mesh(bbox, fixed_points, l):
+    '''
+    HI
+    '''
     r = np.abs(bbox[3] - bbox[0])*1.0/2  
     center = [(bbox[0]+bbox[3])*1.0/2, (bbox[1] + bbox[4])*1.0/2, (bbox[2]+bbox[5])*1.0/2]
     dist_function = lambda p: dm.dsphere(p, center[0], center[1], center[2], r)

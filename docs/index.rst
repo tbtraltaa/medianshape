@@ -9,8 +9,14 @@ Welcome to MedianShape's documentation!
 Contents:
 
 .. toctree::
-   :maxdepth: 2
-
+    :maxdepth:3
+    getting-started
+    core/median
+    core/msfn
+    simplicial/simplicial-settings
+    experiments/experiments
+    viz/viz
+    summary
 
 
 Indices and tables

@@ -1,4 +1,9 @@
 # encoding: utf-8
+'''
+Mesh
+====
+
+'''
 from __future__ import absolute_import
 
 import numpy as np
@@ -10,7 +15,7 @@ from medianshape import utils
 
 class Mesh2D():
     '''
-
+    Hi
     '''
     def __init__(self, *args, **kwargs):
         self.points = kwargs.get('points', None)
@@ -80,7 +85,7 @@ class Mesh2D():
 
 
     def get_info(self):
-        return "%d points, %d triangles and %d edges"% \
+        return r"$%d$ $points$, $%d$ $triangles$ $and$ $%d$ $edges$"% \
         (len(self.points), len(self.simplices), len(self.edges))
 
     def print_detail(self):
@@ -97,7 +102,7 @@ class Mesh2D():
 
 class Mesh3D():
     '''
-
+    Hi
     '''
     def __init__(self, *args, **kwargs):
         self.points = kwargs.get('points', [])

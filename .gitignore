@@ -15,4 +15,5 @@ pip-log.txt
 medianshape/draft/
 medianshape/backup.py
 medianshape/experiment/median/data/
+medianshape/experiment/deform/data/
 .DS_Store

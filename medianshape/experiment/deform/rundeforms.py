@@ -7,8 +7,12 @@ import matplotlib.pyplot as plt
 from medianshape.core import median
 import medianshape.utils as utils 
 from medianshape.viz import plot2d, plot3d
+import medianshape.experiment.inout as inout
 
-def rundeform2d(mesh, simplices, subsimplices, input_currents, lambdas, mus, alphas, w=None, v=None, b_matrix=None, file_doc=None, save=True, outdir='output'):
+def rundeform2d(mesh, simplices, subsimplices, input_currents, lambdas, mus, alphas, w=None, v=None, b_matrix=None, file_doc=None, save=True, outdir='data/output'):
+    '''
+    Hi
+    '''
     figcount = 2
     if w is None:
         w = utils.simpvol(mesh.points, subsimplices)
@@ -25,12 +29,10 @@ def rundeform2d(mesh, simplices, subsimplices, input_currents, lambdas, mus, alp
                 t, q, r, norm = median.median(mesh.points, simplices, subsimplices, \
                 input_currents, l, w, v, cons, mu=mu, alphas=alpha)
                 if save:
-                    utils.save_data(t=t, lambda_=l, mu=mu)
-                title = 'MRSMS, lambda=%.06f, mu=%.06f, alpha=%s'%(l, mu, str(alpha))
-                figname = '%s/figures/%d-%.06f-%.06f'%(outdir, figcount,l, mu)
+                    inout.save_data(t=t, lambda_=l, mu=mu)
+                title = r'$MRSMS$, $\lambda=%.06f$, $\mu=%.06f$, $\alpha=[%.06f$ $%.06f]$'%(l, mu, alpha[0], alpha[1])
+                figname = '%s/figures/%d'%(outdir, figcount)
                 plot2d.plot_median2d(mesh, input_currents, t, title, figname, file_doc, save=save)
-                plt.show()
-                fig = plt.figure(figsize=(14,4))
                 figcount += 1
 
                 #figname = '%s/figures/%d-%.04f-%.04f'%(outdir, figcount, l, mu)
@@ -44,6 +46,9 @@ def rundeform2d(mesh, simplices, subsimplices, input_currents, lambdas, mus, alp
                 #figcount += input_currents.shape[0]
 
 def rundeforms3d(mesh, input_currents, options, lambdas, mus, alphas, w=None, v=None, b_matrix=None, file_doc=None, save_data=True):
+    '''
+    Hi
+    '''
     figcount = 2
     norms = list()
     t_lens = list()

@@ -1,4 +1,8 @@
 #encoding: utf-8
+'''
+Median shape demo 3D
+--------------------
+'''
 
 from __future__ import absolute_import
 
@@ -13,6 +17,9 @@ from medianshape.experiment.median import runmedians as run, cases3d
 from medianshape.viz import plot3d 
 
 def show_median3d():
+    '''
+    Hi
+    '''
     mesh, input_currents, t, q, r = cases3d.fine_curves_on_sphere()
     fig = plt.figure(figsize=(8,8))
     plot3d.plotmesh3d(mesh, mesh.get_info())
@@ -26,6 +33,9 @@ def show_median3d():
 
 
 def mediandemo3d(outdir='data/output', save=True):
+    '''
+    Hi
+    '''
     lp_times = list()
     start = time.time()
     pdf_file = None
@@ -45,8 +55,6 @@ def mediandemo3d(outdir='data/output', save=True):
     vertices, paths, input_currents = currentgen.push_curves_on_mesh(mesh, simplices, subsimplices, points, is_closed=is_closed)
 
     figname = '%s/figures/%d'%(outdir, figcount)
-    title = mesh.get_info()
-    title = r'$Curve$ $approximation$'
     plot3d.plot_curves_approx3d(mesh, points, vertices, paths, title, figname, pdf_file, save)
     figcount += 1
     fig.tight_layout()

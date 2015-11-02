@@ -1,4 +1,7 @@
-
+'''
+Running MRSMS for several :math:`\lambda`'s and :math:`\mu`'s
+-------------------------------------------------------------
+'''
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -8,6 +11,9 @@ from medianshape.viz import plot2d, plot3d
 import medianshape.experiment.inout as inout
 
 def runmedians2d(mesh, simplices, subsimplices, input_currents, lambdas, mus, w=None, v=None, b_matrix=None, file_doc=None, save=True, outdir='data/output'):
+    '''
+    Hi
+    '''
     figcount = 2
     if w is None:
         w = utils.simpvol(mesh.points, subsimplices)
@@ -24,10 +30,9 @@ def runmedians2d(mesh, simplices, subsimplices, input_currents, lambdas, mus, w=
             if save:
                 inout.save_data(t=t, lambda_=l, mu=mu)
             title = r"$MRSMS$, $\lambda=%.06f$, $\mu=%.06f$" % (l, mu)
-            figname = '%s/figures/%d-%.06f-%.06f'%(outdir, figcount, l, mu)
+            figname = '%s/figures/%d'%(outdir, figcount)
             plot2d.plot_median2d(mesh, input_currents, t, title, figname, file_doc, save=save)
             #plt.show()
-            fig = plt.figure(figsize=(8,8))
             figcount += 1
 
             #figname = '%s/figures/%d-%.04f-%.04f'%(outdir, figcount, l, mu)
@@ -35,7 +40,7 @@ def runmedians2d(mesh, simplices, subsimplices, input_currents, lambdas, mus, w=
             #figname, file_doc, save=save)
             #figcount += input_currents.shape[0]
 
-            figname = '%s/figures/%d-%.06f-%.06f'%(outdir, figcount, l, mu)
+            figname = '%s/figures/%d'%(outdir, figcount)
             plot2d.plot_decomposition2d(mesh, input_currents, t, q, r, title, \
             figname, file_doc, save)
             figcount += input_currents.shape[0]
@@ -43,6 +48,9 @@ def runmedians2d(mesh, simplices, subsimplices, input_currents, lambdas, mus, w=
         inout.save_data(mesh, input_currents, b_matrix, w, v)
 
 def runmedians3d(mesh, simplices, subsimplices, input_currents, lambdas, mus, w=None, v=None, b_matrix=None, file_doc=None, save=True, outdir='data/output', figcount=1):
+    '''
+    Hi
+    '''
     if w is None:
         w = utils.simpvol(mesh.points, subsimplices)
     if v is None:

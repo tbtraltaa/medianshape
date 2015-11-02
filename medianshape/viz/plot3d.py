@@ -109,7 +109,7 @@ def plot_curves_approx3d(mesh, points, vertices, paths, title="", figname=None, 
     if save and file_doc:
         file_doc.savefig(fig)
 
-def plot_curve_approx3d(mesh, input_points, closest_vertices, path, title=None, color="red", linewidth=3, label=""):
+def plot_curve_approx3d(mesh, input_points, closest_vertices, path, title=r'$Curve$ $approximation$', color="red", linewidth=3, label=""):
     ax = plt.gca(projection='3d')
     #ax.plot(input_points[:,0], input_points[:,1], input_points[:,2], c=color, ls="--", label='Input points')
     ax.plot(input_points[:,0], input_points[:,1], input_points[:,2], c=color, ls="--")

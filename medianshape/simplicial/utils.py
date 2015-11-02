@@ -1,4 +1,8 @@
 # encoding: utf-8
+'''
+Utils
+=====
+'''
 
 from __future__ import division
 
@@ -9,6 +13,9 @@ import numpy as np
 import math
 
 def get_combination(n, vals=[1,-1]):
+    '''
+    HI
+    '''
     if n > 1:
         comb = np.array([])
         successors = get_combination(n-1, vals)
@@ -24,6 +31,9 @@ def get_combination(n, vals=[1,-1]):
         return vals
 
 def vectorize(func_str, X):
+    '''
+    Hi
+    '''
     func_points = []
     if func_str.find(".") != -1:
         mod_name, func_name = func_str.rsplit('.', 1)
@@ -39,45 +49,95 @@ def vectorize(func_str, X):
     return func_values
 
 def x(x):
+    '''
+    Hi
+    '''
     return x
 def x2(x):
+    '''
+    Hi
+    '''
     return x**2
 def x5(x):
+    '''
+    Hi
+    '''
     return x**5
 def func1(x):
+    '''
+    Hi
+    '''
     return 2/math.pi*math.acos(x)
 def sin2pi(x):
+    '''
+    Hi
+    '''
     return np.abs(math.sin(2*math.pi*x))
 def sin1pi(x):
+    '''
+    Hi
+    '''
     return np.abs(math.sin(math.pi*x))
 def half_sin1pi(x):
+    '''
+    Hi
+    '''
     return 1.0/2*np.abs(math.sin(math.pi*x)) 
 def small_sin1pi(x):
+    '''
+    Hi
+    '''
     return np.abs(math.sin(math.pi*x))/4
 def func2(x):
+    '''
+    Hi
+    '''
     return 1/2*(1+math.sin(2*math.pi*x))
 
 def curve1(x):
+    '''
+    Hi
+    '''
     return 10*math.sin(1/100* math.pi * x) * np.exp(1/180 * x)  + 25
 def curve2(x):
+    '''
+    Hi
+    '''
     return -10*math.sin(1/50* math.pi * x) * np.exp(1/200 * x) + 25
 def curve3(x):
+    '''
+    Hi
+    '''
     return 30*math.sin(1/50* math.pi * x) * np.exp(-1/150 * x) + 20
 def curve4(x):
+    '''
+    Hi
+    '''
     return 10*math.sin(1/30* math.pi * x) * np.exp(-1/200 * x) + 40
 def curve5(x):
+    '''
+    Hi
+    '''
     return 20*math.sin(1/200* math.pi * x) + 25
 def curve6(x):
+    '''
+    Hi
+    '''
     return 10*math.sin(1/55* math.pi * x) * np.exp(-1/200 * x) + 10
 
 def deformcurve1(x):
+    '''
+    Hi
+    '''
     return 20*math.sin(1/190* math.pi * x) + 25
 
 def deformcurve2(x):
+    '''
+    Hi
+    '''
     return -20*math.sin(1/190* math.pi * x) + 25
     
 if __name__ == "__main__":
-    print  get_combination(3)
     Xs = np.linspace(0, 200, 20)
     Ys = list()
     Ys2 = list()

@@ -54,6 +54,9 @@ def load_mesh(boundary_box=None, l=0.2, fixed_points=None, include_corners=True,
 
 
 def deformdemo3d(load_data=False, save_data=True):
+    '''
+    Hi
+    '''
     lp_times = list()
     start = time.time()
     pdf_file = PdfPages('output/deform3d.pdf')

@@ -14,7 +14,10 @@ from medianshape.simplicial import pointgen2d, currentgen
 from medianshape.viz import plot2d
 from medianshape.core.msfn import msfn
 
-if __name__ == "__main__":
+def msfndemo2d():
+    '''
+    Hi
+    '''
     start = time.time()
     fig = plt.figure(figsize=(8,8))
     mesh = Mesh2D()
@@ -46,3 +49,6 @@ if __name__ == "__main__":
             plt.title(title)
             plt.show()
             fig = plt.figure(figsize=(8,8))
+
+if __name__ == "__main__":
+    msfndemo2d()

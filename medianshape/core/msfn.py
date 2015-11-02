@@ -1,4 +1,8 @@
 # encoding: utf-8
+'''
+MSFN - Multiscale flat norm
+---------------------------
+'''
 
 from __future__ import absolute_import
 
@@ -6,17 +10,20 @@ import numpy as np
 from scipy import sparse
 from cvxopt import matrix, spmatrix, solvers
 
-from mesh.utils import boundary_matrix, simpvol
+from medianshape import utils
 
 def msfn(points, simplices, subsimplices, input_current, lambda_, w=[], v=[], cons=[]):
+    '''
+    MSFN - Multiscale flat norm
+    '''
     m_subsimplices = subsimplices.shape[0]
     n_simplices = simplices.shape[0]
     if w == []:
-        w = simpvol(points, subsimplices)
+        w = utils.simpvol(points, subsimplices)
     if v == []:
-        v = simpvol(points, simplices)
+        v = utils.simpvol(points, simplices)
     if cons == []:
-        b_matrix = boundary_matrix(simplices, subsimplices, format='coo')
+        b_matrix = utils.boundary_matrix(simplices, subsimplices, format='coo')
         m_subsimplices_identity = sparse.identity(m_subsimplices, dtype=np.int8, format='coo')
         cons = sparse.hstack((m_subsimplices_identity, -m_subsimplices_identity, b_matrix, -b_matrix))
     c = np.concatenate((abs(w), abs(w), lambda_*abs(v), lambda_*abs(v))) 

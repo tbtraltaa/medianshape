@@ -1,4 +1,9 @@
 # encoding: utf-8
+'''
+Median shape demo 2D
+--------------------
+
+'''
 import os
 import time
 
@@ -12,6 +17,9 @@ from medianshape.experiment.median import runmedians as run, cases2d
 from medianshape.viz import plot2d 
 
 def mediandemo2d(outdir='data/output', save=True):
+    '''
+    Hi
+    '''
     lp_times = list()
     start = time.time()
     pdf_file = None
@@ -21,21 +29,19 @@ def mediandemo2d(outdir='data/output', save=True):
     figcount = 1
 
     mesh, simplices, subsimplices, points, lambdas, mus, is_closed \
-    = cases2d.multicurves2d() 
+    = cases2d.two_curves2d()
+    #= cases2d.multicurves2d() 
     print mesh.get_info()
 
     #vertices, paths, input_currents = currentgen.push_functions_on_mesh_2d(mesh, points, is_closed=False, functions=functions)
     vertices, paths, input_currents = currentgen.push_curves_on_mesh(mesh, simplices, subsimplices, points, is_closed=is_closed)
 
-    figname = '%s/figures/%d.png'%(outdir, figcount)
-    title = mesh.get_info()
+    figname = '%s/figures/%d'%(outdir, figcount)
+    title = mesh.get_info() + r' - $Curve$ $approximation$'
     plot2d.plot_curves_approx2d(mesh, points, vertices, paths, title, figname, pdf_file, save)
-    plt.show()
-    fig = plt.figure(figsize=(8,8))
     figcount += 1
 
     run.runmedians2d(mesh, simplices, subsimplices, input_currents, lambdas, mus, file_doc=pdf_file, save=save)
-
     pdf_file.close()
     elapsed = time.time() - start
     print 'Elapsed time %f mins.' % (elapsed/60)
