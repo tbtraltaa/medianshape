@@ -23,6 +23,8 @@ def runmedians2d(mesh, simplices, subsimplices, input_currents, lambdas, mus, w=
         b_matrix = utils.boundary_matrix(simplices, subsimplices)
     k_currents = len(input_currents)
     w, v, b_matrix, cons = median.get_lp_inputs(mesh.points, simplices, subsimplices,  k_currents, w, v, b_matrix)
+    if save:
+        inout.save_data(mesh, input_currents, b_matrix, w, v)
     for l in lambdas:
         for mu in mus:
             t, q, r, norm = median.median(mesh.points, mesh.simplices, mesh.edges, \
@@ -44,8 +46,6 @@ def runmedians2d(mesh, simplices, subsimplices, input_currents, lambdas, mus, w=
             plot2d.plot_decomposition2d(mesh, input_currents, t, q, r, title, \
             figname, file_doc, save)
             figcount += input_currents.shape[0]
-    if save:
-        inout.save_data(mesh, input_currents, b_matrix, w, v)
 
 def runmedians3d(mesh, simplices, subsimplices, input_currents, lambdas, mus, w=None, v=None, b_matrix=None, file_doc=None, save=True, outdir='data/output', figcount=1):
     '''
@@ -57,6 +57,8 @@ def runmedians3d(mesh, simplices, subsimplices, input_currents, lambdas, mus, w=
         v = utils.simpvol(mesh.points, simplices)
     if b_matrix is None:
         b_matrix = utils.boundary_matrix(simplices, subsimplices)
+    if save:
+        inout.save_data(mesh, input_currents, b_matrix, w, v)
     k_currents = len(input_currents)
     w, v, b_matrix, cons = median.get_lp_inputs(mesh.points, simplices, subsimplices,  k_currents, w, v, b_matrix)
     #np.savetxt('%s/dumps/cons-%s.txt'%cons, fmt='%d', delimiter=' ')
@@ -83,5 +85,3 @@ def runmedians3d(mesh, simplices, subsimplices, input_currents, lambdas, mus, w=
             plot3d.plot_decomposition3d(mesh, input_currents, t, q, r, title, \
             figname, file_doc, save)
             figcount += input_currents.shape[0]
-    if save:
-        inout.save_data(mesh, input_currents, b_matrix, w, v)

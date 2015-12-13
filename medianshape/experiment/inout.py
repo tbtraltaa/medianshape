@@ -81,6 +81,7 @@ def load_weights_and_boundary(n_simplices, m_subsimplices, dirname='data/dumps')
     Hi
     '''
     w = np.zeros(shape=(m_subsimplices, 1))
+    ad
     v = np.zeros(shape=(n_simplices, 1))
     b_matrix = sparse.dok_matrix((m_subsimplices, n_simplices), dtype=np.int8)
     if os.path.exists("%s/w.txt"%dirname):
@@ -140,7 +141,56 @@ def load_solutions(n_simplices, m_subsimplices, k, dirname='data/dumps'):
     else:
         print "Can't load the solution. <x.txt> file doesn't exist"
     return t, q, r
-    
+
+# Loads LP settings as a sparse dok_matrix
+def load_lp(dirname='data/dumps'):
+    A = None
+    b = None
+    c = None
+    if os.path.exists("%s/A.txt"%dirname):
+        with open("%s/A.txt"%dirname, 'r') as f:
+            for i, line in enumerate(f.readlines()):
+                if i == 0:
+                    data = line.split()
+                    A = sparse.dok_matrix((int(data[0]), int(data[1])), dtype=np.int8)
+                else:
+                    data = line.split()
+                    A[int(data[0]), int(data[1])] = np.int8(data[2])
+    else:
+        print "Can't load <A>. <A.txt> doesn't exist"
+    if os.path.isfile('%s/b.txt'%dirname):
+        with open("%s/b.txt"%dirname, 'r') as f:
+            for i, line in enumerate(f.readlines()):
+                if i == 0:
+                    data = line.split()
+                    b = sparse.dok_matrix((int(data[0]), int(data[1])), dtype=np.int8)
+                else:
+                    data = line.split()
+                    b[int(data[0])] = np.int(data[2])
+    else:
+        print "Can't load <b>. <b.txt> doesn't exist"
+    if os.path.isfile('%s/c.txt'%dirname):
+        with open("%s/c.txt"%dirname, 'r') as f:
+            for i, line in enumerate(f.readlines()):
+                if i == 0:
+                    data = line.split()
+                    c = sparse.dok_matrix((int(data[0]), int(data[1])), dtype=np.float64)
+                else:
+                    data = line.split()
+                    c[int(data[0])] = data[2]
+    else:
+        print "Can't load <c>. <c.txt> doesn't exist"
+    return A, b, c
+
+# saves LP settings
+def dump_lp(A=None, b=None, c=None, dirname=os.path.abspath('data/dumps'), **kwargs):
+    if A is not None:
+        sparse_savetxt('%s/A.txt' % dirname, A, include_dim=True)
+    if b is not None:
+        sparse_savetxt('%s/b.txt' % dirname, b.reshape(-1,1), include_dim=True)
+    if c is not None:
+        sparse_savetxt('%s/c.txt' % dirname, c.reshape(-1,1), fmt='%0.9f', include_dim=True)
+
 # Saves mesh, input currents, boundary matrix, w and v.
 def save_data(mesh=None, input_currents=None, b_matrix=None, w=None, v=None, t=None, dirname=os.path.abspath('data/dumps'), **kwargs):
     '''
@@ -166,7 +216,7 @@ def save_data(mesh=None, input_currents=None, b_matrix=None, w=None, v=None, t=N
         else:
             sparse_savetxt("%s/t.txt"%dirname, t)
 # Saves sparse matrix as text. if the input is not sparse, set is_sparse argument to False.
-def sparse_savetxt(fname, matrix, fmt='%d', delimiter=' '):
+def sparse_savetxt(fname, matrix, fmt='%d', include_dim=False):
     '''
     Hi
     '''
@@ -174,7 +224,10 @@ def sparse_savetxt(fname, matrix, fmt='%d', delimiter=' '):
         if matrix.getformat() !='coo':
             matrix = matrix.asformat('coo')
     else:
-        matrix = sparse.coo_matrix(matrix)
+        matrix = sparse.coo_matrix(matrix, dtype=matrix.dtype)
     with open(fname, 'w') as f:
+        if include_dim:
+            f.write("%d %d \n" % (matrix.shape[0], matrix.shape[1]))
         for i in range(len(matrix.row)):
-            f.write("%d %d %d\n" % (matrix.row[i], matrix.col[i], matrix.data[i]))
+            fmt_str = "%d %d " + fmt + "\n"
+            f.write(fmt_str % (matrix.row[i], matrix.col[i], matrix.data[i]))
