@@ -29,7 +29,8 @@ def mediandemo2d(outdir='data/output', save=True):
     figcount = 1
 
     mesh, simplices, subsimplices, points, lambdas, mus, is_closed \
-    = cases2d.two_curves2d()
+    = cases2d.triangles2d()
+    #= cases2d.two_curves2d()
     #= cases2d.multicurves2d() 
     print mesh.get_info()
 

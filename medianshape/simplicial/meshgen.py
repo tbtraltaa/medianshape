@@ -8,15 +8,66 @@ Mesh generation
 from __future__ import absolute_import
 
 import importlib
+import copy
 
 import numpy as np
+from scipy.spatial import Delaunay
+import scipy.sparse as sparse
+import matplotlib.pyplot as plt
+import medianshape.viz.plot3d as plt3d
 
 import distmesh as dm
-from scipy.spatial import Delaunay
-import matplotlib.pyplot as plt
 
-import medianshape.utils as utils 
 from medianshape.simplicial.mesh import Mesh2D, Mesh3D
+import medianshape.utils as utils 
+
+def get_mesh_surface(mesh):
+    smesh = copy.copy(mesh)
+    b_matrix = np.abs(utils.boundary_matrix(mesh.triangles, mesh.edges, format='dok'))
+    s_edges_idx = np.where(b_matrix.sum(axis=1)==3)[0]
+    s_edges_idx = np.hstack((s_edges_idx, np.where(b_matrix.sum(axis=1)==4)[0]))
+
+    interior_edges_idx = np.array([i for i in np.arange(mesh.edges.shape[0]) if i not in s_edges_idx])
+
+    s_edges = mesh.edges[s_edges_idx.tolist()]
+    surface_points= np.unique(s_edges.flatten())
+
+    interior_edges = mesh.edges[interior_edges_idx.tolist()]
+    tmp = list()
+    for i, p_idx in enumerate(surface_points):
+        k = len(np.argwhere(interior_edges[:,0]==p_idx))
+        k += len(np.argwhere(interior_edges[:,1]==p_idx))
+        s = len(np.argwhere(s_edges[:,0]==p_idx))
+        s += len(np.argwhere(s_edges[:,1]==p_idx))
+        if k > s:
+            pass
+            #print len(s_edges)
+            #s_edges = np.array([e for e in s_edges if p_idx not in e]).reshape(-1,2)
+            #print len(s_edges)
+        else:
+            tmp.append(p_idx)
+    surface_points = tmp
+
+    s_triangles = np.array([0,0,0]).reshape(1,3)
+    t_idx = list()
+    for i, t in enumerate(mesh.triangles):
+        counter = 0
+        for p in surface_points:
+            if np.any(t==p):
+                counter += 1
+        if counter == 3:
+            s_triangles = np.vstack((s_triangles, t.reshape(1,3)))
+            t_idx.append(i)
+    smesh.triangles = s_triangles[1:,:]
+    smesh.edges = utils.get_subsimplices(smesh.triangles)
+    smesh.surf_points = surface_points
+    '''
+    plt3d.plot_simplices3d(smesh, np.array(t_idx))
+    plt.show()
+    plt3d.plot_curve3d(smesh, np.ones(len(smesh.edges)))
+    plt.show()
+    '''
+    return smesh
 
 def meshgen2d(boundary_box=None, l=0.02, fixed_points=None, include_corners=True):
     '''
@@ -39,12 +90,12 @@ def meshgen2d(boundary_box=None, l=0.02, fixed_points=None, include_corners=True
     mesh.orient_simplices_2D()
     return mesh
 
-def meshgen3d(boundary_box=None, l=0.2, fixed_points=None, include_corners=True, load_data=False):
+def meshgen3d(bbox=None, l=0.2, fixed_points=None, include_corners=True, load_data=False, shape="ball"):
     '''
     HI
     '''
     mesh = Mesh3D()
-    mesh.bbox = boundary_box
+    mesh.bbox = bbox
     mesh.set_boundary_points()
     mesh.set_diagonal()
     mesh.set_boundary_values()
@@ -54,7 +105,7 @@ def meshgen3d(boundary_box=None, l=0.2, fixed_points=None, include_corners=True,
             mesh.fixed_points = np.vstack((mesh.fixed_points, mesh.boundary_points))
         else:
             mesh.fixed_points = mesh.boundary_points
-    mesh.points, mesh.simplices= distmesh3d("sphere", mesh.bbox, mesh.fixed_points, l=l)
+    mesh.points, mesh.simplices= distmesh3d(mesh.bbox, mesh.fixed_points, l, shape)
     #mesh.points, mesh.simplices = scipy_mesh3d(mesh.bbox, mesh.fixed_points, l)
     mesh.triangles = utils.get_subsimplices(mesh.simplices)
     mesh.edges = utils.get_subsimplices(mesh.triangles)
@@ -92,14 +143,28 @@ def distmesh2d(shape, bbox, fixed_points, l=0.1):
     if shape == "square":
         return square_mesh(bbox, fixed_points, l)
 
-def distmesh3d(shape, bbox, fixed_points, l=0.1):
+def distmesh3d(bbox, fixed_points, l=0.1, shape="ball"):
     '''
     HI
     '''
     #if shape == "cuboid":
         #return cuboid_mesh(bbox, fixed_points, l)
+    if shape == "ball":
+        r = np.abs(bbox[3] - bbox[0])*1.0/2  
+        center = [(bbox[0]+bbox[3])*1.0/2, (bbox[1] + bbox[4])*1.0/2, (bbox[2]+bbox[5])*1.0/2]
+        dist_function = lambda p: dm.dsphere(p, center[0], center[1], center[2], r)
+        points, simplices = dm.distmeshnd(dist_function, dm.huniform, l, bbox, fixed_points, fig=None) 
     if shape == "sphere":
-        return sphere_mesh(bbox, fixed_points, l=l)
+        r = np.abs(bbox[3] - bbox[0])*1.0/2  
+        center = [(bbox[0]+bbox[3])*1.0/2, (bbox[1] + bbox[4])*1.0/2, (bbox[2]+bbox[5])*1.0/2]
+        dist_function = lambda p: dm.dsphere(p, center[0], center[1], center[2],r);
+        points, simplices = dm.distmeshnd(dist_function, dm.huniform, l, bbox, fixed_points, fig=None) 
+    if shape == "torus":
+        distance_function = lambda p: ((p**2).sum(axis=1)+.8**2-.2**2)**2-4*.8**2*(p[:,0]**2+p[:,1]**2);
+        points, simplices=dm.distmeshnd(dist_function, dm.huniform, l ,[-1.1,-1.1,-.25,1.1,1.1,.25], fixed_points, fig=None);
+        points, simplices = fixmesh(points, simplices) 
+        pass
+    return points, simplices
 
 def square_mesh(bbox, fixed_points, l=0.1):
     '''
@@ -159,14 +224,3 @@ def dcuboid(p, x1, y1, z1, x2, y2, z2):
     ix = (d2>0)*(d4>0)*(d4>0)
     d[ix] = d246[ix]
     return d
-
-def sphere_mesh(bbox, fixed_points, l):
-    '''
-    HI
-    '''
-    r = np.abs(bbox[3] - bbox[0])*1.0/2  
-    center = [(bbox[0]+bbox[3])*1.0/2, (bbox[1] + bbox[4])*1.0/2, (bbox[2]+bbox[5])*1.0/2]
-    dist_function = lambda p: dm.dsphere(p, center[0], center[1], center[2], r)
-    points, simplices = dm.distmeshnd(dist_function, dm.huniform, l, bbox, fixed_points, fig=None) 
-    return points, simplices
-

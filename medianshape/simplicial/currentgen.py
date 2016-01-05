@@ -68,7 +68,7 @@ def push_function_on_mesh(mesh, points, interval_size=10, func_str=None, is_clos
     edge_vector = get_edge_vector(mesh, curve_path)
     return edge_vector, curve_path, closest_vertices
 
-def push_curves_on_mesh(mesh, simplices, subsimplices, curves, is_closed=False):
+def push_curves_on_mesh(mesh, simplices, subsimplices, curves, is_closed=False, valid_points=None):
     '''
     Hi
     '''
@@ -77,18 +77,18 @@ def push_curves_on_mesh(mesh, simplices, subsimplices, curves, is_closed=False):
     vertices = list()
     for i, curve_points in enumerate(curves):
         input_current, path, closest_vertices = \
-        push_curve_on_mesh(mesh, curve_points, is_closed=is_closed) 
+        push_curve_on_mesh(mesh, curve_points, is_closed, valid_points) 
         vertices.append(closest_vertices)
         paths.append(path)
         input_currents.append(input_current)
     input_currents = np.array(input_currents).reshape(len(curves), subsimplices.shape[0])
     return vertices, paths, input_currents
 
-def push_curve_on_mesh(mesh, points, is_closed=False):
+def push_curve_on_mesh(mesh, points, is_closed=False, valid_points=None):
     '''
     Hi
     '''
-    closest_vertices = find_closest_vertices(mesh, points)
+    closest_vertices = find_closest_vertices(mesh, points, valid_points)
     if len(closest_vertices) == 1:
         input_current = get_vertex_vector(mesh, closest_vertices)
         curve_path = closest_vertices
@@ -97,17 +97,23 @@ def push_curve_on_mesh(mesh, points, is_closed=False):
         input_current = get_edge_vector(mesh, curve_path)
     return input_current, curve_path, closest_vertices
 
-def find_closest_vertices(mesh, points):
+def find_closest_vertices(mesh, points, valid_points=None):
     '''
     Hi
     '''
     closest_vertices = list()
+    if valid_points is not None and len(points) > len(valid_points):
+        sys.stderr.write("Too many points given.\n")
+        exit()
+    if valid_points is None and len(points) > len(mesh.points):
+        sys.stderr.write("Number of input points are more than the number of points in the mesh.\n")
+        exit()
     for point in points:
-            closest_vertex = find_closest_vertex(mesh, point, closest_vertices)
-            closest_vertices.append(closest_vertex)
+        closest_vertex = find_closest_vertex(mesh, point, closest_vertices, valid_points)
+        closest_vertices.append(closest_vertex)
     return  np.array(closest_vertices)
 
-def find_closest_vertex(mesh, point, selected_points):
+def find_closest_vertex(mesh, point, selected_points, valid_points=None):
     '''
     Hi
     '''
@@ -121,6 +127,11 @@ def find_closest_vertex(mesh, point, selected_points):
         temp_points[closest_vertex] = temp_points[np.argmax(distances)]
         distances = cdist(point.reshape(1, -1), temp_points)
         closest_vertex= np.argmin(distances)  
+    if valid_points is not None:
+        while closest_vertex not in valid_points or closest_vertex in selected_points:
+            temp_points[closest_vertex] = temp_points[np.argmax(distances)]
+            distances = cdist(point.reshape(1, -1), temp_points)
+            closest_vertex= np.argmin(distances)  
     return closest_vertex
 
 def find_interval_X(point, ordered_X, interval_size=5):

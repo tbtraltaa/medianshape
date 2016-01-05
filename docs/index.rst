@@ -13,8 +13,8 @@ Contents:
     getting-started
     core/median
     core/msfn
-    simplicial/simplicial-settings
     experiments/experiments
+    simplicial/simplicial-settings
     viz/viz
     summary
     checking

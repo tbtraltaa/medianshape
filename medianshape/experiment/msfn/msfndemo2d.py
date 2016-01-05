@@ -1,4 +1,8 @@
 # encoding: utf-8
+'''
+MSFN demo 2D
+++++++++++++
+'''
 
 from __future__ import absolute_import
 

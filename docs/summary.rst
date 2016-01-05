@@ -1,11 +1,11 @@
-=======
-Summary
-=======
+
+**Summary**
+===========
 
 .. currentmodule:: medianshape
 
 .. autosummary::
-   :toctree: _autosummary
+    :toctree: _autosummary
 
     core
     experiment

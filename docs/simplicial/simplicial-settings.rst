@@ -1,6 +1,7 @@
-===================
-Simplicial Settings
-===================
+
+**Simplicial Settings**
+=======================
+
 .. toctree::
     mesh
     meshgen

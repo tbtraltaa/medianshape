@@ -55,7 +55,7 @@ def mediandemo3d(outdir='data/output', save=True):
     vertices, paths, input_currents = currentgen.push_curves_on_mesh(mesh, simplices, subsimplices, points, is_closed=is_closed)
 
     figname = '%s/figures/%d'%(outdir, figcount)
-    plot3d.plot_curves_approx3d(mesh, points, vertices, paths, title, figname, pdf_file, save)
+    plot3d.plot_curves_approx3d(mesh, points, vertices, paths, figname, pdf_file, save)
     figcount += 1
     fig.tight_layout()
    # plt.show()
@@ -64,7 +64,7 @@ def mediandemo3d(outdir='data/output', save=True):
         pdf_file.close()
     elapsed = time.time() - start
     print 'Elapsed time %f mins.' % (elapsed/60)
-    
+
 if __name__ == '__main__':
     mediandemo3d(save=True)
     #show_median3d()

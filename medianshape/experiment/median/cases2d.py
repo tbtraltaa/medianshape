@@ -20,7 +20,6 @@ def triangles2d():
     mesh.set_boundary_points()
     mesh.set_diagonal()
     mesh.set_boundary_values()
-    mesh.fixed_points = fixed_points
     mesh.points = np.array([[0,0], [0,0.5], [0,1], [0.5,1], [1,1], \
                             [1,0.5],[1,0],[0.5,0], [0.5, 0.5]])
     mesh.simplices = np.array([[0,8,1],
@@ -48,9 +47,13 @@ def triangles2d():
                             [6,7],
                             [6,8],
                             [7,8]])
-    points = np.zeros((2, len(mesh.edges)))
+    points = np.zeros((2, 4, 2))
+    points[0] = np.array([[0,0], [0,0.5], [0,1], [1,1]])
+    points[1] = np.array([[0,0], [0.5,0], [1,0], [1,1]])
     is_closed = False
-    return mesh, mesh.simplices, mesh.edges, points, is_closed
+    lambdas = [1]
+    mus = [0.01]
+    return mesh, mesh.simplices, mesh.edges, points, lambdas, mus, is_closed
 
 def ellipses2d():
     '''
@@ -61,9 +64,12 @@ def ellipses2d():
     mesh = meshgen2d(boundary_box, l)
     ellipse1 = pointgen2d.sample_ellipse(0.4, 0.2, 10)
     ellipse2 = pointgen2d.sample_ellipse(0.2, 0.4, 10)
+    #ellipse1 = pointgen2d.sample_ellipse(0.4, 0.2, 3)
+    #ellipse2 = pointgen2d.sample_ellipse(0.2, 0.4, 3)
     shapes = [ellipse1, ellipse2]
     lambdas = [1]
-    mus = [0.0001]
+    #mus = [0.0001] #for cvxopt solver
+    mus = [0.01]
     is_closed = True
     return mesh, mesh.simplices, mesh.edges, np.array(shapes), lambdas, mus, is_closed
 
@@ -135,12 +141,14 @@ def two_curves2d():
     Hi
     '''
     boundary_box = (0,0,200,50)
-    l = 3
+    #l = 3
+    l = 30
     mesh = meshgen2d(boundary_box, l)
     functions= ['deformcurve1', 'deformcurve2']
     points = list()
     for f in functions:
-        points.append(pointgen2d.sample_function_mesh(mesh, f))
+        #points.append(pointgen2d.sample_function_mesh(mesh, f))
+        points.append(pointgen2d.sample_function_mesh(mesh, f, sample_size=6))
     lambdas = [0.01]
     mus = [0.0001]
     is_closed = False

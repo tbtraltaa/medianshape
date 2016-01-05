@@ -1,4 +1,9 @@
 # encoding: utf-8
+'''
+3D plotting
+===========
+
+'''
 
 from __future__ import absolute_import
 
@@ -26,6 +31,9 @@ def get_colors(n):
         return cm.rainbow(np.linspace(0, 1, n))
 
 def plotmesh3d(mesh, title='', figname=None, file_doc=None, save=True):
+    '''
+    hi
+    '''
     dim = mesh.points.shape[1]
     if dim == 2:
         from distmesh.plotting import SimplexCollection
@@ -55,6 +63,9 @@ def plotmesh3d(mesh, title='', figname=None, file_doc=None, save=True):
         print "Plotting only supported in dimensions 2 and 3." 
 
 def plot_point3d(mesh, vertex_vector, title=None, color="black", marker='.', s=200, label=""):
+    '''
+    hi
+    '''
     ax = plt.gca(projection='3d')
     if type(vertex_vector) == list:
         vertex_vector = np.array(vertex_vector)
@@ -66,6 +77,9 @@ def plot_point3d(mesh, vertex_vector, title=None, color="black", marker='.', s=2
         ax.set_title(title, horizontalalignment='center', verticalalignment='top', transform=ax.transAxes)
 
 def plot_curve3d(mesh, func_path, title=None, color="black", marker=None, linewidth=3, ls='-', label=""):
+    '''
+    hi
+    '''
     ax = plt.gca(projection='3d')
     if type(func_path) == list:
         func_path = np.array(func_path)
@@ -81,6 +95,9 @@ def plot_curve3d(mesh, func_path, title=None, color="black", marker=None, linewi
 
 # Plot simplices
 def plot_simplices3d(mesh, simplices, title=None, color="y"):
+    '''
+    hi
+    '''
     ax = plt.gca(projection='3d')
     #ccw_symbol = u'\u2941'
     #cw_symbol = u'\u21BB'
@@ -90,7 +107,10 @@ def plot_simplices3d(mesh, simplices, title=None, color="y"):
             hatch = '.' 
         axes_simpplot3d(ax, mesh.points, mesh.triangles[i].reshape(1,-1), mesh.points[:,1] > 0)
 
-def plot_curves_approx3d(mesh, points, vertices, paths, title="", figname=None, file_doc=None, save=True, lim=5):
+def plot_curves_approx3d(mesh, points, vertices, paths, figname=None, file_doc=None, save=True, lim=5, title=""):
+    '''
+    hi
+    '''
     colors = get_colors(len(points))
     ax = plt.gca(projection='3d')
     fig = ax.figure
@@ -103,13 +123,15 @@ def plot_curves_approx3d(mesh, points, vertices, paths, title="", figname=None, 
     #plotmesh3d(mesh)
     for i, path in enumerate(paths):
         plot_curve_approx3d(mesh, points[i], vertices[i], path, color=colors[i], label=r"$T_{%d}$"%(i+1))
-    plt.title(title, horizontalalignment='center', verticalalignment='top', transform=ax.transAxes)
     if save and figname:
         plt.savefig('%s.png'%figname, pad_inches=-1, box_inches='tight')
     if save and file_doc:
         file_doc.savefig(fig)
 
 def plot_curve_approx3d(mesh, input_points, closest_vertices, path, title=r'$Curve$ $approximation$', color="red", linewidth=3, label=""):
+    '''
+    hi
+    '''
     ax = plt.gca(projection='3d')
     #ax.plot(input_points[:,0], input_points[:,1], input_points[:,2], c=color, ls="--", label='Input points')
     ax.plot(input_points[:,0], input_points[:,1], input_points[:,2], c=color, ls="--")
@@ -126,6 +148,9 @@ def plot_curve_approx3d(mesh, input_points, closest_vertices, path, title=r'$Cur
 
 
 def plot_median3d(mesh, input_currents, t, title='', figname="", file_doc=None, save=True, lim=5):
+    '''
+    hi
+    '''
     colors= get_colors(len(input_currents))
     ax = plt.gca(projection='3d')
     fig = ax.figure
@@ -146,6 +171,9 @@ def plot_median3d(mesh, input_currents, t, title='', figname="", file_doc=None, 
         file_doc.savefig(fig)
 
 def plot_curve_and_median3d(mesh, input_currents, t, title=None, figname=None, file_doc=None, save=True, lim=5):
+    '''
+    hi
+    '''
     colors= get_colors(len(input_currents))
     ax = plt.gca(projection='3d')
     fig = ax.figure
@@ -166,6 +194,9 @@ def plot_curve_and_median3d(mesh, input_currents, t, title=None, figname=None, f
             file_doc.savefig(fig)
 
 def plot_decomposition3d(mesh, input_currents, t, q, r, title='', figname=None, file_doc=None, save=True, lim=5):
+    '''
+    hi
+    '''
     colors = get_colors(len(input_currents))
     fig = plt.figure(figsize=(8,8))
     ax = plt.gca(projection='3d')

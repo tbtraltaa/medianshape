@@ -3,4 +3,5 @@
 
 .. autosummary::
     median
+    msfn
 '''

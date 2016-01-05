@@ -1,8 +1,7 @@
 # encoding: utf-8
 '''
-================================================
-Mass Regularized Simplicial Median Shape (MRSMS)
-================================================
+**Mass Regularized Simplicial Median Shape (MRSMS)**
+====================================================
 '''
 
 from __future__ import absolute_import
@@ -21,6 +20,7 @@ solvers.options['show_progress'] = False
 
 
 from medianshape import utils 
+import medianshape.experiment.inout as inout
 
 def median(points, simplices, subsimplices, input_currents, lambda_, w=[], v=[], cons=[], mu=0.001, alphas=None):
     '''
@@ -54,10 +54,9 @@ def median(points, simplices, subsimplices, input_currents, lambda_, w=[], v=[],
                 k_sub_c[i*(2*m_subsimplices+2*n_simplices):(i+1)*(2*m_subsimplices+2*n_simplices)] = \
                 k_sub_c[i*(2*m_subsimplices+2*n_simplices):(i+1)*(2*m_subsimplices+2*n_simplices)]*alphas[i]
     c = np.append(c, k_sub_c)
-    #np.savetxt("output/dumps/b-%s.txt"%opt, input_currents, fmt="%d", delimiter=" ")
-    #np.savetxt("output/dumps/c-%s.txt"%opt, c, delimiter=" ")
 
     print b.shape
+    inout.dump_lp(cons, b, c)
     start = time.time()
     args, norm = lp_solver(c, cons, b)
     elapsed = time.time() - start
@@ -146,17 +145,12 @@ def lp_solver(c, cons, b, solver='cplex'):
         prob = cplex.Cplex()
         prob.objective.set_sense(prob.objective.sense.minimize)
         prob.linear_constraints.add(rhs=b.reshape(-1,))
-        print prob.linear_constraints.get_num()
-        print c.shape
         prob.variables.add(obj=c)
-        print prob.variables.get_num()
-        print cons.nnz
         prob.linear_constraints.set_coefficients(zip(cons.row, cons.col, cons.data.astype(float)))
-        
+        #print prob.linear_constraints.get_num()
         prob.solve()
         status = prob.solution.get_status()
         norm = prob.solution.get_objective_value()
         args = np.array(prob.solution.get_values())
         print 'LP status:', status
     return args, norm
-        

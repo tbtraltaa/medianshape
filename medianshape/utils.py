@@ -18,7 +18,8 @@ def get_subsimplices(simplices):
         idx = list(range(simplices.shape[1]))
         idx.pop(j)
         subsimplices = subsimplices.union(set(tuple(sub) for sub in simplices.take(idx, axis=1)))
-    return np.array([ sub for sub in subsimplices])
+    subsimplices = np.array([ sub for sub in subsimplices])
+    return subsimplices
 
 def orient_simplices(simplices):
     direction = right_hand_rule(simplices[0])
@@ -87,7 +88,7 @@ def simpvol(points, simplices):
     return volume
 
 # Builds a boundary matrix of given simplices. The format of a boundary matrix is as follows.
-# boundary_matrix = (number of edges) x (number of simplices)
+# boundary_matrix = (number of subsimplices) x (number of simplices)
 def boundary_matrix(simplices, subsimplices, is_oriented=True, is_sparse=True, format='coo'):
     simplex_dim  = simplices.shape[1] 
     #if simplex_dim - subsimplices.shape[1] != 1:
@@ -115,8 +116,7 @@ def boundary_matrix(simplices, subsimplices, is_oriented=True, is_sparse=True, f
             # to check the membership of subsimplex in subsimplices
             subsimplex_idx = np.argwhere((subsimplices==subsimplex).all(axis=1) == True)
             if subsimplex_idx.size == 0:
-                sys.stderr.write("Unable to find subsimplex! Make sure subsimplices contains \
-                all boundary subsimplices")
+                sys.stderr.write("Unable to find subsimplex! Make sure subsimplices contains all boundary subsimplices\n")
                 exit()
             subsimplex_idx = subsimplex_idx[0][0]
             if is_oriented:

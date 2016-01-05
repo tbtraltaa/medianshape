@@ -1,5 +1,9 @@
 # encoding: utf-8
+'''
+2D plotting
+===========
 
+'''
 from __future__ import absolute_import
 
 import numpy as np
@@ -23,11 +27,17 @@ def get_colors(n):
         return cm.rainbow(np.linspace(0, 1, n))
 
 def plotmesh2d(mesh):
+    '''
+    hi
+    '''
     plt.triplot(mesh.points[:,0], mesh.points[:,1], mesh.simplices.copy())
     plt.tight_layout()
     #plt.scatter(mesh.points[:,0], mesh.points[:,1])
 
 def plot_curve2d(mesh, func_path, title=None, color="black", marker=None, linewidth=3, ls='-', label=""):
+    '''
+    hi
+    '''
     if type(func_path) == list:
         func_path = np.array(func_path)
     if func_path.dtype != int:
@@ -43,6 +53,9 @@ def plot_curve2d(mesh, func_path, title=None, color="black", marker=None, linewi
 
 # Plot simplices
 def plot_simplices2d(mesh, simplices, title=None, color="y", label=""):
+    '''
+    hi
+    '''
     ax = plt.gca()
     #ccw_symbol = u'\u2941'
     #cw_symbol = u'\u21BB'
@@ -54,6 +67,9 @@ def plot_simplices2d(mesh, simplices, title=None, color="y", label=""):
         ax.add_patch(simplex)
 
 def plot_curves_approx2d(mesh, points, vertices, paths, title=r'$Curve$ $approximation$', figname=None, file_doc=None, save=True, lim=5):
+    '''
+    hi
+    '''
     colors = get_colors(len(points))
     fig = plt.gca().figure
     plt.clf()
@@ -72,6 +88,9 @@ def plot_curves_approx2d(mesh, points, vertices, paths, title=r'$Curve$ $approxi
         file_doc.savefig(fig)
 
 def plot_curve_approx2d(mesh, input_points, closest_vertices, path, title=None, color="red", linewidth=3, label=""):
+    '''
+    hi
+    '''
     plt.plot(input_points[:,0], input_points[:,1], c=color, ls="--")
     plt.title(title)
     for i, edge in enumerate(path):
@@ -83,6 +102,9 @@ def plot_curve_approx2d(mesh, input_points, closest_vertices, path, title=None, 
 
 def plot_median2d(mesh, input_currents, t, title='', figname="", file_doc=None, save=True, lim=5):
     colors= get_colors(len(input_currents))
+    '''
+    hi
+    '''
     plt.clf()
     fig = plt.gca().figure
     plt.gca().set_aspect('equal')
@@ -101,6 +123,9 @@ def plot_median2d(mesh, input_currents, t, title='', figname="", file_doc=None, 
         file_doc.savefig(fig)
 
 def plot_curve_and_median2d(mesh, input_currents, t, title=None, figname=None, file_doc=None, save=True, lim=5):
+    '''
+    hi
+    '''
     colors= get_colors(len(input_currents))
     fig = plt.gca().figure
     for i, c in enumerate(input_currents):
@@ -122,6 +147,9 @@ def plot_curve_and_median2d(mesh, input_currents, t, title=None, figname=None, f
             file_doc.savefig(fig)
 
 def plot_decomposition2d(mesh, input_currents, t, q, r, title='', figname=None, file_doc=None, save=True, lim=None):
+    '''
+    hi
+    '''
     colors= get_colors(len(input_currents))
     for i, r_i in enumerate(r):
         plt.clf()

@@ -24,6 +24,12 @@ class Mesh2D():
         self.bbox = kwargs.get('bbox', None)
         self.fixed_points = kwargs.get('fixed_points', None)
         self.diagonal = kwargs.get('diagonal', None)
+        self.boundary_points = None
+        self.diagonal = None
+        self.ymin = None
+        self.xmin = None
+        self.ymax = None
+        self.xmax = None
         if self.bbox is not None:
             self.set_boundary_points()
             self.set_boundary_values()
