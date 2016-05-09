@@ -12,6 +12,17 @@ import importlib
 import numpy as np
 import math
 
+def boundary_points(bbox):
+    if bbox is not None and len(bbox) == 6:
+        return np.array([[bbox[0], bbox[1], bbox[2]],\
+                    [bbox[0], bbox[1], bbox[5]],\
+                    [bbox[0], bbox[4], bbox[2]],\
+                    [bbox[0], bbox[4], bbox[5]],\
+                    [bbox[3], bbox[1], bbox[2]],\
+                    [bbox[3], bbox[4], bbox[2]],\
+                    [bbox[3], bbox[1], bbox[5]],\
+                    [bbox[3], bbox[4], bbox[5]]])
+
 def get_combination(n, vals=[1,-1]):
     '''
     HI
