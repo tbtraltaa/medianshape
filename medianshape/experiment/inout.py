@@ -72,6 +72,10 @@ def load_mesh3d(dirname='data/dumps'):
         else:
             mesh.triangles = utils.get_subsimplices(mesh.simplices)
             print "Can't load triangles. <triangles.txt> file doesn't exist"
+        if os.path.exists("%s/surf_points.txt"%dirname):
+            mesh.surf_points = np.loadtxt("%s/surf_points.txt"%dirname, dtype=np.int) 
+        else:
+            print "Can't load surface points. <surf_points.txt> file doesn't exist"
     else:
         print "%s directory doesn't exist"%dirname
     return mesh
@@ -81,7 +85,6 @@ def load_weights_and_boundary(n_simplices, m_subsimplices, dirname='data/dumps')
     Hi
     '''
     w = np.zeros(shape=(m_subsimplices, 1))
-    ad
     v = np.zeros(shape=(n_simplices, 1))
     b_matrix = sparse.dok_matrix((m_subsimplices, n_simplices), dtype=np.int8)
     if os.path.exists("%s/w.txt"%dirname):
@@ -197,10 +200,13 @@ def save_data(mesh=None, input_currents=None, b_matrix=None, w=None, v=None, t=N
     Hi
     '''
     if mesh is not None:
+        np.savetxt('%s/points.txt' % dirname, mesh.points, fmt='%.6f', delimiter=' ')
         np.savetxt('%s/edges.txt' % dirname, mesh.edges, fmt='%d', delimiter=' ')
         np.savetxt('%s/simplices.txt'% dirname, mesh.simplices, fmt='%d', delimiter=' ')
         if mesh.points.shape[1] == 3:
             np.savetxt('%s/triangles.txt'% dirname, mesh.triangles, fmt='%d', delimiter=' ')
+        if mesh.surf_points is not None:
+            np.savetxt('%s/surf_points.txt' % dirname, mesh.surf_points, fmt='%d', delimiter=' ')
     if input_currents is not None:
         for i, c in enumerate(input_currents):
             sparse_savetxt('%s/input_current%d.txt' % (dirname,i), c)

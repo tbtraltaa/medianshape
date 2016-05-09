@@ -40,21 +40,27 @@ def plotmesh3d(mesh, title='', figname=None, file_doc=None, save=True):
         ax = plt.gca()
         c = SimplexCollection()
         ax.add_collection(c)
-        ax.set_xlim(mesh.bbox[2])
-        ax.set_ylim(mesh.bbox[3])
+        m1 = np.amin(mesh.bbox[0:3])
+        m2 = np.amax(mesh.bbox[3:])
+        ax.set_xlim([m1, m2])
+        ax.set_ylim([m1, m2])
+        ax.set_zlim([m1, m2])
         ax.set_aspect('equal')
         ax.set_axis_off()
         c.set_simplices((mesh.points, mesh.simplices))
     elif dim == 3:
         ax = plt.gca(projection='3d')
         fig = ax.figure
-        lim = float(mesh.zmax)/10
-        ax.set_xlim(3)
-        ax.set_ylim(mesh.ymax + lim)
-        ax.set_zlim(mesh.zmax + lim)
-        ax.cla()
-        axes_simpplot3d(ax, mesh.points, mesh.simplices, mesh.points[:,1] > 0)
-        ax.set_title(title, horizontalalignment='center', verticalalignment='top', transform=ax.transAxes)
+        m1 = np.amin(mesh.bbox[0:3])
+        m2 = np.amax(mesh.bbox[3:])
+        ax.set_xlim([m1, m2])
+        ax.set_ylim([m1, m2])
+        ax.set_zlim([m1, m2])
+        ax.set_aspect('equal')
+        #axes_simpplot3d(ax, mesh.points, mesh.simplices, mesh.points[:,1] > 0)
+        axes_simpplot3d(ax, mesh.points, mesh.simplices)
+        if title is not None:
+            ax.set_title(title, horizontalalignment='center', verticalalignment='top', transform=ax.transAxes)
         if save and figname:
             plt.savefig('%s.png'%figname, pad_inches=-1, box_inches='tight')
         if save and file_doc:
@@ -76,11 +82,18 @@ def plot_point3d(mesh, vertex_vector, title=None, color="black", marker='.', s=2
     if title:
         ax.set_title(title, horizontalalignment='center', verticalalignment='top', transform=ax.transAxes)
 
-def plot_curve3d(mesh, func_path, title=None, color="black", marker=None, linewidth=3, ls='-', label=""):
+def plot_curve3d(mesh, func_path, title=None, color="black", marker=None, linewidth=3, ls='-', label="", set_lim = False):
     '''
     hi
     '''
     ax = plt.gca(projection='3d')
+    if set_lim:
+        m1 = np.amin(mesh.bbox[0:3])
+        m2 = np.amax(mesh.bbox[3:])
+        ax.set_xlim([m1, m2])
+        ax.set_ylim([m1, m2])
+        ax.set_zlim([m1, m2])
+        ax.set_aspect('equal')
     if type(func_path) == list:
         func_path = np.array(func_path)
     if func_path.dtype != int:
@@ -94,41 +107,55 @@ def plot_curve3d(mesh, func_path, title=None, color="black", marker=None, linewi
         ax.set_title(title, horizontalalignment='center', verticalalignment='top', transform=ax.transAxes)
 
 # Plot simplices
-def plot_simplices3d(mesh, simplices, title=None, color="y"):
+def plot_simplices3d(mesh, simplices, title=None, figname=None, file_doc=None, save=True, color='y'):
     '''
     hi
     '''
     ax = plt.gca(projection='3d')
+    fig = ax.figure
+    m1 = np.amin(mesh.bbox[0:3])
+    m2 = np.amax(mesh.bbox[3:])
+    ax.set_xlim([m1, m2])
+    ax.set_ylim([m1, m2])
+    ax.set_zlim([m1, m2])
+    ax.set_aspect('equal')
     #ccw_symbol = u'\u2941'
     #cw_symbol = u'\u21BB'
     for i in simplices.nonzero()[0]:
         hatch = ''
         if simplices[i] == -1:
             hatch = '.' 
-        axes_simpplot3d(ax, mesh.points, mesh.triangles[i].reshape(1,-1), mesh.points[:,1] > 0)
-
-def plot_curves_approx3d(mesh, points, vertices, paths, figname=None, file_doc=None, save=True, lim=5, title=""):
+        #axes_simpplot3d(ax, mesh.points, mesh.triangles[i].reshape(1,-1), mesh.points[:,1] > 0)
+        axes_simpplot3d(ax, mesh.points, mesh.triangles[i].reshape(1,-1))
+    if title is not None:
+        ax.set_title(title, horizontalalignment='center', verticalalignment='top', transform=ax.transAxes)
+    if save and figname:
+        plt.savefig('%s.png'%figname, pad_inches=-1, box_inches='tight')
+    if save and file_doc:
+        file_doc.savefig(fig)
+def plot_curves_approx3d(mesh, points, vertices, paths, figname=None, file_doc=None, save=True, title=None):
     '''
     hi
     '''
     colors = get_colors(len(points))
     ax = plt.gca(projection='3d')
     fig = ax.figure
+    m1 = np.amin(mesh.bbox[0:3])
+    m2 = np.amax(mesh.bbox[3:])
+    ax.set_xlim([m1, m2])
+    ax.set_ylim([m1, m2])
+    ax.set_zlim([m1, m2])
     ax.set_aspect('equal')
-    lim = float(mesh.zmax)/10
-    ax.set_xlim(mesh.xmax + lim)
-    ax.set_ylim(mesh.ymax + lim)
-    ax.set_zlim(mesh.zmax + lim)
-    plt.clf()
-    #plotmesh3d(mesh)
+    if title is not None:
+        ax.set_title(title, horizontalalignment='center', verticalalignment='top', transform=ax.transAxes)
     for i, path in enumerate(paths):
         plot_curve_approx3d(mesh, points[i], vertices[i], path, color=colors[i], label=r"$T_{%d}$"%(i+1))
     if save and figname:
-        plt.savefig('%s.png'%figname, pad_inches=-1, box_inches='tight')
+        plt.savefig('%s.png'%figname, box_inches='tight')
     if save and file_doc:
         file_doc.savefig(fig)
 
-def plot_curve_approx3d(mesh, input_points, closest_vertices, path, title=r'$Curve$ $approximation$', color="red", linewidth=3, label=""):
+def plot_curve_approx3d(mesh, input_points, closest_vertices, path, title=None, color="red", linewidth=3, label=""):
     '''
     hi
     '''
@@ -144,27 +171,30 @@ def plot_curve_approx3d(mesh, input_points, closest_vertices, path, title=r'$Cur
     #ax.scatter(mesh.points[closest_vertices][:,0], mesh.points[closest_vertices][:,1], mesh.points[closest_vertices][:,2], s=100, c=color, label="Closest vertices")
     ax.scatter(mesh.points[closest_vertices][:,0], mesh.points[closest_vertices][:,1], mesh.points[closest_vertices][:,2], s=100, c=color)
     ax.scatter(input_points[:,0], input_points[:,1], input_points[:,2], c=color)
+    '''
     plt.legend(loc='lower right')
+    '''
 
-
-def plot_median3d(mesh, input_currents, t, title='', figname="", file_doc=None, save=True, lim=5):
+def plot_median3d(mesh, input_currents, t, title='', figname="", file_doc=None, save=True):
     '''
     hi
     '''
     colors= get_colors(len(input_currents))
     ax = plt.gca(projection='3d')
     fig = ax.figure
+    m1 = np.amin(mesh.bbox[0:3])
+    m2 = np.amax(mesh.bbox[3:])
+    ax.set_xlim([m1, m2])
+    ax.set_ylim([m1, m2])
+    ax.set_zlim([m1, m2])
     ax.set_aspect('equal')
-    lim = float(mesh.zmax)/10
-    ax.set_xlim(mesh.xmax + lim)
-    ax.set_ylim(mesh.ymax + lim)
-    ax.set_zlim(mesh.zmax + lim)
-    plt.clf()
     for i, c in enumerate(input_currents):
         plot_curve3d(mesh, c, color=colors[i], label=r'$T_{%d}$'%(i+1), linewidth=5)
     plot_curve3d(mesh, t, label=r"$Median$")
+    '''
     plt.legend(loc='lower right')
     plt.title(title, horizontalalignment='center', verticalalignment='top', transform=ax.transAxes)
+    '''
     if save and figname:
         plt.savefig("%s.png"%figname, pad_inches=-1, box_inches='tight')
     if save and file_doc:
@@ -193,7 +223,7 @@ def plot_curve_and_median3d(mesh, input_currents, t, title=None, figname=None, f
         if save and file_doc:
             file_doc.savefig(fig)
 
-def plot_decomposition3d(mesh, input_currents, t, q, r, title='', figname=None, file_doc=None, save=True, lim=5):
+def plot_decomposition3d(mesh, input_currents, t, q, r, title='', figname=None, file_doc=None, save=True):
     '''
     hi
     '''
@@ -201,26 +231,41 @@ def plot_decomposition3d(mesh, input_currents, t, q, r, title='', figname=None, 
     fig = plt.figure(figsize=(8,8))
     ax = plt.gca(projection='3d')
     fig = ax.figure
+    m1 = np.amin(mesh.bbox[0:3])
+    m2 = np.amax(mesh.bbox[3:])
+    ax.set_xlim([m1, m2])
+    ax.set_ylim([m1, m2])
+    ax.set_zlim([m1, m2])
+    ax.set_aspect('equal')
     for i, r_i in enumerate(r):
+        set_lim = False
         color = colors[i]
         plt.clf()
-        lim = float(mesh.zmax)/10
-        ax.set_xlim(mesh.xmax + lim)
-        ax.set_ylim(mesh.ymax + lim)
-        ax.set_zlim(mesh.zmax + lim)
+        ax = plt.gca(projection='3d')
+        m1 = np.amin(mesh.bbox[0:3])
+        m2 = np.amax(mesh.bbox[3:])
+        ax.set_xlim([m1, m2])
+        ax.set_ylim([m1, m2])
+        ax.set_zlim([m1, m2])
+        ax.set_aspect('equal')
         plot_simplices3d(mesh, r_i, color=color)
+        if np.count_nonzero(r_i) == 0:
+            set_lim=False
         if q is not None:
-            plot_curve3d(mesh, q[i], title=title + r", $Q_{%d}&R_{%d}$"%(i+1,i+1), color='m', marker='*', linewidth=6, label='$Q_{%d}$'%(i+1))
+            if title is not None:
+                title = title + r", $Q_{%d}&R_{%d}"%(i+1, i+1)
+            plot_curve3d(mesh, q[i], title, color='m', marker='*', linewidth=6, label='$Q_{%d}$'%(i+1), set_lim=set_lim)
         if t is not None:
-            plot_curve3d(mesh, t, linewidth=4, label=r"$Median$")
+            plot_curve3d(mesh, t, linewidth=4, label=r"$Median$", set_lim=set_lim)
                 
         plot_curve3d(mesh, input_currents[i], color='r', ls='--', \
-                label=r"$T_{%d}$"%(i+1))
-        plt.legend(loc='lower right')
+                label=r"$T_{%d}$"%(i+1), set_lim=set_lim)
+
+        #plt.legend(loc='lower right')
         if save and figname:
+
             plt.savefig("%s-%d.png" % (figname, i), pad_inches=-1, box_inches='tight')
         if save and file_doc:
             file_doc.savefig(fig)
         fig.tight_layout()
-        plt.show()
         fig = plt.figure(figsize=(8,8))

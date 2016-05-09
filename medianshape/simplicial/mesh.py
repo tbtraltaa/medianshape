@@ -42,7 +42,6 @@ class Mesh2D():
             self.ymin = self.bbox[1]
             self.xmax = self.bbox[2]
             self.ymax = self.bbox[3]
-
     def set_edges(self):
         edges = set()
         for simplex in self.simplices:
@@ -118,6 +117,7 @@ class Mesh3D():
         self.bbox = kwargs.get('bbox', [])
         self.fixed_points = kwargs.get('fixed_points', [])
         self.diagonal = kwargs.get('diagonal', 1e10)
+        self.surf_points = None
         if self.bbox is not None or len(self.bbox) != 0:
             self.set_boundary_values()
             self.set_boundary_points()
@@ -163,8 +163,14 @@ class Mesh3D():
         return simplices 
 
     def get_info(self):
-        return r"$%d$ $points$, $%d$ $tetrahedras$, $%d$ $triangles$ $and$ $%d$ $edges$"% \
-        (len(self.points), len(self.simplices), len(self.triangles), len(self.edges))
+        if self.surf_points is None:
+            return r"$%d$ $points$, $%d$ $tetrahedras$, $%d$ $triangles$ $and$ $%d$ $edges$"% \
+            (len(self.points), len(self.simplices), len(self.triangles), len(self.edges))
+        else:
+            return r"$%d$ $points$, $%d$ $triangles$ $and$ $%d$ $edges$"% \
+            (len(self.surf_points), len(self.triangles), len(self.edges))
+
+
 
     def print_detail(self):
         print self.get_info()

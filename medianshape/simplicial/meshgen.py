@@ -90,7 +90,7 @@ def meshgen2d(boundary_box=None, l=0.02, fixed_points=None, include_corners=True
     mesh.orient_simplices_2D()
     return mesh
 
-def meshgen3d(bbox=None, l=0.2, fixed_points=None, include_corners=True, load_data=False, shape="ball"):
+def meshgen3d(bbox=None, l=0.2, fixed_points=None, include_corners=True, load_data=False, shape="ball", **kwargs):
     '''
     HI
     '''
@@ -105,7 +105,7 @@ def meshgen3d(bbox=None, l=0.2, fixed_points=None, include_corners=True, load_da
             mesh.fixed_points = np.vstack((mesh.fixed_points, mesh.boundary_points))
         else:
             mesh.fixed_points = mesh.boundary_points
-    mesh.points, mesh.simplices= distmesh3d(mesh.bbox, mesh.fixed_points, l, shape)
+    mesh.points, mesh.simplices= distmesh3d(mesh.bbox, mesh.fixed_points, l, shape, **kwargs)
     #mesh.points, mesh.simplices = scipy_mesh3d(mesh.bbox, mesh.fixed_points, l)
     mesh.triangles = utils.get_subsimplices(mesh.simplices)
     mesh.edges = utils.get_subsimplices(mesh.triangles)
@@ -143,7 +143,7 @@ def distmesh2d(shape, bbox, fixed_points, l=0.1):
     if shape == "square":
         return square_mesh(bbox, fixed_points, l)
 
-def distmesh3d(bbox, fixed_points, l=0.1, shape="ball"):
+def distmesh3d(bbox, fixed_points, l=0.1, shape="ball", **kwargs):
     '''
     HI
     '''
@@ -160,9 +160,15 @@ def distmesh3d(bbox, fixed_points, l=0.1, shape="ball"):
         dist_function = lambda p: dm.dsphere(p, center[0], center[1], center[2],r);
         points, simplices = dm.distmeshnd(dist_function, dm.huniform, l, bbox, fixed_points, fig=None) 
     if shape == "torus":
-        distance_function = lambda p: ((p**2).sum(axis=1)+.8**2-.2**2)**2-4*.8**2*(p[:,0]**2+p[:,1]**2);
-        points, simplices=dm.distmeshnd(dist_function, dm.huniform, l ,[-1.1,-1.1,-.25,1.1,1.1,.25], fixed_points, fig=None);
-        points, simplices = fixmesh(points, simplices) 
+        radius = np.abs(bbox[3] - bbox[0])*1.0/2  
+        r = radius/4
+        R = radius - r
+        if "r" in kwargs:
+            r = kwargs["r"]
+        if "R" in kwargs:
+            R = kwargs["R"]
+        dist_function = lambda p: ((p**2).sum(axis=1)+R**2-r**2)**2-4*R**2*(p[:,0]**2+p[:,1]**2);
+        points, simplices=dm.distmeshnd(dist_function, dm.huniform, l, bbox, fig=None);
         pass
     return points, simplices
 

@@ -31,7 +31,8 @@ def runmedians2d(mesh, simplices, subsimplices, input_currents, lambdas, mus, w=
             input_currents, l, w, v, cons, mu=mu)
             if save:
                 inout.save_data(t=t, lambda_=l, mu=mu)
-            title = r"$MRSMS$, $\lambda=%.06f$, $\mu=%.06f$" % (l, mu)
+            #title = r"$\lambda=%.06f$, $\mu=%.06f$" % (l, mu)
+            title = None
             figname = '%s/figures/%d'%(outdir, figcount)
             plot2d.plot_median2d(mesh, input_currents, t, title, figname, file_doc, save=save)
             #plt.show()
@@ -67,7 +68,8 @@ def runmedians3d(mesh, simplices, subsimplices, input_currents, lambdas, mus, w=
             t, q, r, norm = median.median(mesh.points, simplices, subsimplices, input_currents, l, w, v, cons, mu=mu)
             if save:
                 inout.save_data(t=t, lambda_=l, mu=mu)
-            title = r"$MRSMS$, $\lambda=%.06f$, $\mu=%.06f$" % (l, mu)
+            title = r"$\lambda=%.06f$, $\mu=%.06f$" % (l, mu)
+            title = None
             figname = '%s/figures/%d'%(outdir, figcount)
             fig = plt.figure(figsize=(8,8))
             plot3d.plot_median3d(mesh, input_currents, t, title, figname, file_doc, save)

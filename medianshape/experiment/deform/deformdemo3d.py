@@ -107,7 +107,7 @@ def deformdemo3d(load_data=False, save_data=True):
     mus = [0.00001]
     #alphas = np.ndarray(shape=(1,2), buffer=np.array([0.5, 0.5]))
     alphas = np.ndarray(shape=(1,3), buffer=np.array([1.0/3, 1.0/3, 1.0/3]))
-    t = rundorms3d(mesh, input_currents, options, lambdas, mus, alphas, w, v, b_matrix, pdf_file)
+    t = run.rundorms3d(mesh, input_currents, options, lambdas, mus, alphas, w, v, b_matrix, pdf_file)
     pdf_file.close()
     elapsed = time.time() - start
     print 'Elapsed time %f mins.' % (elapsed/60)
