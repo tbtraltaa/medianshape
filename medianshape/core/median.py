@@ -146,7 +146,8 @@ def lp_solver(c, cons, b, solver='cplex'):
         prob.objective.set_sense(prob.objective.sense.minimize)
         prob.linear_constraints.add(rhs=b.reshape(-1,))
         prob.variables.add(obj=c)
-        prob.linear_constraints.set_coefficients(zip(cons.row, cons.col, cons.data.astype(float)))
+        #Cplex exits with error if the first two arguments such as row and col are not typecasted to int explicitly
+        prob.linear_constraints.set_coefficients(zip(cons.row.astype(int), cons.col.astype(int), cons.data.astype(float)))
         #print prob.linear_constraints.get_num()
         prob.solve()
         status = prob.solution.get_status()

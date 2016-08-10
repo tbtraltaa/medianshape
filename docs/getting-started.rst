@@ -7,6 +7,50 @@ Install
 -------
 ``pip install medianshape``
 
+Run source code using conda package management
+----------------------------------------------
+
+Linux(Ubuntu16.04)
+------------
+
+* Install conda
+* conda create -name medianshape python=2
+* source ~/.bashrc
+* source activate medianshape
+* conda install scipy
+* conda install numpy
+* conda install matplotlib
+* conda install cvxopt
+
+Installing PyDistMesh1.2
+------------------------
+* conda install cython #needed for pydistmesh
+* sudo apt-get install libblas-dev liblapack-dev
+* pip install pydistmesh
+
+Documentation contribution
+--------------------------
+* conda install sphinx
+
+Export the `medianshape` library location to PYTHONPATH
+-------------------------------------------------------
+Put the following lines in the file, ~/.profile
+* Medianshape library path
+export PYTHONPATH="$PYTHONPATH:$HOME/medianshape/"
+
+Install cplex
+-------------
+To install the CPLEX-Python modules on your system, use the script setuy.py located in yourCplexhome/python/PLATFORM. If you want to install the CPLEX-Python modules in a nondefault location, use the option --home to identify the installation directory. For example, to install the CPLEX-Python modules in the default location, use the following command from the command line:
+
+source activate medianshape
+python setup.py install
+
+cplex throws error when row and col args are not explicitly typecasted to int.
+prob.linear_constraints.set_coefficients(zip(cons.row.astype(int), cons.col.astype(int), cons.data.astype(float)))
+
+
+
+
 Requirements
 ------------
 
