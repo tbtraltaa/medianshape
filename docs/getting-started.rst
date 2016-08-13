@@ -48,8 +48,22 @@ python setup.py install
 cplex throws error when row and col args are not explicitly typecasted to int.
 prob.linear_constraints.set_coefficients(zip(cons.row.astype(int), cons.col.astype(int), cons.data.astype(float)))
 
+Run tetview
+-----------
+* Download tetview-linux
+* gunzip tetview-linux.gz
+* chmod +x tetview-linux
+* sudo apt-get install libglu1-mesa:i386
+* Tetview requires 32-bit version of the package
+* Tetview doesn't run on Ubuntu 16.05 64-bit
+* Install Wine
+* Download tetview-win.exe
+* Run it using Wine
 
+Install tetgen
+--------------
 
+* sudo apt-get install tetgen
 
 Requirements
 ------------
