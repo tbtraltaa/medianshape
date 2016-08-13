@@ -85,7 +85,7 @@ def meshgen2d(boundary_box=None, l=0.02, fixed_points=None, include_corners=True
             mesh.fixed_points = np.vstack((mesh.fixed_points, mesh.boundary_points))
         else:
             mesh.fixed_points = mesh.boundary_points
-    mesh.points, mesh.simplices = distmesh2d('square', mesh.bbox, mesh.fixed_points, l=l)
+    mesh.points, mesh.simplices = distmesh2d(bbox=mesh.bbox, fixed_points=mesh.fixed_points, l=l)
     mesh.edges = utils.get_subsimplices(mesh.simplices)
     mesh.orient_simplices_2D()
     return mesh
@@ -136,7 +136,7 @@ def scipy_mesh3d(bbox, fixed_points, l):
 #    mesh = build(mesh_info, volume_constraints=True, max_volume=max_volume)
 #    return np.array(mesh.points), np.array(mesh.elements)
 
-def distmesh2d(shape, bbox, fixed_points, l=0.1):
+def distmesh2d(bbox, fixed_points, l=0.1, shape="square"):
     '''
     HI
     '''

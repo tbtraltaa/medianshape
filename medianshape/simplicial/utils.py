@@ -13,15 +13,22 @@ import numpy as np
 import math
 
 def boundary_points(bbox):
+    '''
+    Returns corner points of a boundary box in which
+    4 corners of the bottom rectangle are the first 4 points,
+    oriented CCW starting from (xmin, ymin, zmin).
+    Similarly, 4 corners of the top rectangle are the last 4 points,
+    oriented CCW starting from (xmin, ymin, zmax).
+    '''
     if bbox is not None and len(bbox) == 6:
         return np.array([[bbox[0], bbox[1], bbox[2]],\
-                    [bbox[0], bbox[1], bbox[5]],\
-                    [bbox[0], bbox[4], bbox[2]],\
-                    [bbox[0], bbox[4], bbox[5]],\
                     [bbox[3], bbox[1], bbox[2]],\
                     [bbox[3], bbox[4], bbox[2]],\
+                    [bbox[0], bbox[3], bbox[2]],\
+                    [bbox[0], bbox[1], bbox[5]],\
                     [bbox[3], bbox[1], bbox[5]],\
-                    [bbox[3], bbox[4], bbox[5]]])
+                    [bbox[3], bbox[4], bbox[5]],\
+                    [bbox[0], bbox[4], bbox[5]]])
 
 def get_combination(n, vals=[1,-1]):
     '''

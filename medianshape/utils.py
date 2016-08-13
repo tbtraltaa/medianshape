@@ -71,20 +71,30 @@ def simpvol(points, simplices):
         volume = np.sqrt(np.sum(np.cross(d12, d13, axis=1)**2, axis=1))*1.0/2
     # 3-simplex, tetrahedra in 3 dimension
     elif point_dim  ==  3 and simp_dim == 4: # 
+        '''
         d12 = points[simplices[:,1],:] - points[simplices[:,0],:]
         d13 = points[simplices[:,2],:] - points[simplices[:,0],:]
         d14 = points[simplices[:,3],:] - points[simplices[:,0],:]
         volume = np.dot(np.cross(d12,d13,axis=2),d14,axis=2)*1.0/6
-    # n-simplex in n-dimention
+        '''
+        volume = np.zeros((simplices.shape[0],))
+        for i in range(simplices.shape[0]):
+            A = np.zeros((4,4))
+            A[:,3] = 1
+            for j in range(points.shape[1]+1):
+                A[j,:-1] = points[simplices[i,j],:]
+            volume[i] = np.abs(det(A))
+        volume = volume/factorial(points.shape[1])
+    # n-simplex in n-dimension
     else:
-        volume = np.zeros((simplices.shape[0],1))
+        volume = np.zeros((simplices.shape[0],))
         for i in range(simplices.shape[0]):
             A = np.zeros(points.shape[1] + 1)
             A[:,0] = 1
             for j in range(points.shape[1]+1):
                 A[j,1:] = points[simplices[i,j],:]
-            volume[i] = np.det(A)
-        volume = volume/np.factorial(points.shape[1])
+            volume[i] = det(A)
+        volume = volume/factorial(points.shape[1])
     return volume
 
 # Builds a boundary matrix of given simplices. The format of a boundary matrix is as follows.

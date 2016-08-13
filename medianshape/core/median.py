@@ -55,7 +55,6 @@ def median(points, simplices, subsimplices, input_currents, lambda_, w=[], v=[],
                 k_sub_c[i*(2*m_subsimplices+2*n_simplices):(i+1)*(2*m_subsimplices+2*n_simplices)]*alphas[i]
     c = np.append(c, k_sub_c)
 
-    print b.shape
     inout.dump_lp(cons, b, c)
     start = time.time()
     args, norm = lp_solver(c, cons, b)

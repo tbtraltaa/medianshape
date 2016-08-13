@@ -180,10 +180,10 @@ def equally_spaced_longitudes3d():
     # l - initial length of triangle sides. Change it to vary traingle size
     #boundary_box = [-10,-10,-10,10,10,10]
     boundary_box = [-10,-10,-10,10,10,10]
-    l = 0.8 
+    l = 2 
     mesh = meshgen3d(boundary_box, l, include_corners=False)
     #inout.save_data(mesh, dirname=os.path.abspath("data/mesh_0.8"))
-    print "saved"
+    #print "saved"
     #mesh = inout.load_mesh3d(dirname='data/mesh')
     #mesh  = inout.load_mesh3d(dirname='data/mesh')
     curve1 = pointgen3d.sphere_arc(mesh.bbox, 0, 10)

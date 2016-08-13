@@ -7,7 +7,6 @@ from scipy import sparse
 from medianshape.simplicial.mesh import Mesh2D, Mesh3D
 import medianshape.utils as utils 
 
-
 # Loads previously computed mesh, boundary_matrix, input currents, w and v from a directory
 def load_mesh2d(dirname='data/dumps'):
     '''
