@@ -30,6 +30,20 @@ def boundary_points(bbox):
                     [bbox[3], bbox[4], bbox[5]],\
                     [bbox[0], bbox[4], bbox[5]]])
 
+def mid_corners(bbox):
+    if bbox is not None and len(bbox) == 6:
+        xmin = bbox[0]
+        xmax  = bbox[3]
+        ymin = bbox[1]
+        ymax = bbox[4]
+        zmin = bbox[2]
+        zmax = bbox[5]
+        zmid = (zmax+ zmin)/2.0
+        return np.array([[xmin, ymin, zmid],\
+                    [xmax, ymin, zmid],\
+                    [xmax, ymax, zmid],\
+                    [xmin, ymax, zmid]])
+
 def get_combination(n, vals=[1,-1]):
     '''
     HI

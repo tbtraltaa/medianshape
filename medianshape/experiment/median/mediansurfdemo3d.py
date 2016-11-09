@@ -11,7 +11,10 @@ from shutil import copyfile
 
 import numpy as np
 import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 from medianshape.core import median
+from medianshape import utils
+import medianshape.experiment.inout as inout
 
 def load_tetgen_mesh(fname):
     '''
@@ -22,43 +25,113 @@ def load_tetgen_mesh(fname):
     tetras = np.loadtxt("%s.ele"%fname, dtype=int, skiprows=1)[:,1:5]
     return points, triangles, tetras
 
-def save_tetgen_mesh(t, q, r, fname="/home/altaa/tet/tet.1"):
-    copyfile("%s.node"%fname, "%s.1.node"%fname)
+def save_tetgen_mesh(t, q, r, fname):
+    points = np.loadtxt("%s.node"%fname, dtype=float, skiprows=1)[:,1:4]
     triangles = np.loadtxt("%s.face"%fname, dtype=int, skiprows=1)
-    tetras = np.loadtxt("%s.ele"%fname, dtype=int, skiprows=1)
-    print triangles.shape
-    if len(np.argwhere(t!=0))!=0:
-        triangles[np.argwhere(t!=0)][4] = -3
+    tetrahedras= np.loadtxt("%s.ele"%fname, dtype=int, skiprows=1)
+    t_idx = np.argwhere(t!=0).reshape(-1,)
+    print "median"
+    print len(t_idx)
+    t_flag = -3
+    q_flag = -41
+    r_flag = -51
+    if len(t_idx)!=0:
+        tris = triangles.copy()
+        tris[t_idx, 4] = t_flag
+        print "median"
+        t_tris = tris[t_idx][:,1:4] -1
+        fig = plt.figure()
+        ax = fig.gca(projection='3d')
+        ax.plot_trisurf(points[:,0], points[:,1], points[:,2], triangles=t_tris)
+        plt.title("T")
+        plt.show()
+        copyfile("%s.node"%fname, "%s.1.node"%fname)
+        copyfile("%s.ele"%fname, "%s.1.ele"%fname)
+        np.savetxt("%s.1.face"%fname, tris, fmt="%d", delimiter = "\t", header="%d %d"%(len(tris), 1), comments="")
+    for i in range(len(q)):
+        copyfile("%s.node"%fname, "%s.d%d.node"%(fname,i+1))
+        qi = q[i]
+        tris = triangles.copy()
+        qi_idx = np.argwhere(qi!=0).reshape(-1,)
+        if len(qi_idx)!=0:
+            tris[qi_idx, 4] = q_flag - i
+            qi_tris = tris[qi_idx][:,1:4] -1
+            fig = plt.figure()
+            ax = fig.gca(projection='3d')
+            ax.plot_trisurf(points[:,0], points[:,1], points[:,2], triangles=qi_tris)
+            plt.title("Q%d"%(i+1))
+            plt.show()
+        np.savetxt("%s.d%d.face"%(fname, i+1), tris, fmt="%d", delimiter = "\t", header="%d %d"%(len(tris), 1), comments="")
+
+
+        ri = r[i]
+        tetras = np.hstack((tetrahedras.copy(), np.zeros((tetrahedras.shape[0],1))))
+        ri_idx = np.argwhere(ri!=0).reshape(-1,)
+        if len(ri_idx)!=0:
+            tetras[ri_idx, 5] = r_flag - i
+            ri_tetras = tetras[ri_idx][:,1:5] -1
+            '''
+            fig = plt.figure()
+            ax = fig.gca(projection='3d')
+            ax.plot_tetrasurf(points[:,0], points[:,1], points[:,2], triangles=ri_tetras)
+            plt.show()
+            '''
+        np.savetxt("%s.d%d.ele"%(fname, i+1), tetras, fmt="%d", delimiter = "\t", header="%d %d %d"%(len(tetras), 4, 1), comments="")
+
     '''
-    flag = -3
-    for tmp in q:
-        if len(np.argwhere(tmp!=0))!=0:
-            triangles[np.argwhere(tmp!=0)][4] = flag -1
-    for tmp in r:
-        if len(np.argwhere(tmp!=0))!=0:
-            r[np.argwhere(tmp!=0)] = flag-1
-    print tetras.shape
-    print r.shape
-    tetras = np.hstack((tetras,r))
-    np.savetxt("%s.1.ele"%fname, header="%d %d %d"%(len(tetras), 4, 1))
+    with open('/home/altaa/tet/mediansurf.1.1.face', 'w') as f:
+        f.write("%d\t%d"%(len(triangles),1))
+        for tri in triangles:
+            f.write("%d\t%d\t%d\t%d"%tuple(tri.astype(int)))
     '''
-    np.savetxt("%s.1.face"%fname, triangles, fmt="%d", header="%d %d"%(len(triangles), 1))
-    print t.shape
     print np.unique(t)
     print np.unique(q)
     print np.unique(r)
 
-def surfaces3d(fname="/home/altaa/tet/tet.1"):
+def surfaces3d(fname):
     points, faces, tetras = load_tetgen_mesh(fname)
-    inputsurf1 = (faces[:,3] == -1).astype(int)
-    inputsurf2 = (faces[:,3] == -2).astype(int)
-    inputcurrents = np.vstack((inputsurf1, inputsurf2))
-    print faces
-    triangles = faces[:,:-1] - 1
-    print triangles
+    #Orient tetrahedras to have positive volumes
     tetras = tetras - 1
-    lambda_ = 0.0000001
-    mu = 0.000001
+    tetras = utils.orient_simplices(points, tetras)
+    surf1 = np.argwhere(faces[:,3] == -1).reshape(-1,)
+    surf2 = np.argwhere(faces[:,3] == -2).reshape(-1,)
+    triangles = np.copy(faces[:,:-1] - 1)
+    surf1_tris = triangles[surf1].copy().reshape(-1,3)
+    surf1_edges = utils.get_subsimplices(surf1_tris).reshape(-1,2)
+    surf2_tris = triangles[surf2].copy().reshape(-1,3)
+    surf2_tris[0] = surf2_tris[0,[1,0,2]]
+    surf2_edges = utils.get_subsimplices(surf2_tris).reshape(-1,2)
+
+    is_oriented1, surf1_tris = utils.check_orientation(surf1_tris, surf1_edges) 
+    is_oriented2, surf2_tris = utils.check_orientation(surf2_tris, surf2_edges) 
+
+    triangles = np.sort(triangles, axis=1)
+    current1 = np.zeros(triangles.shape[0])
+    current1[surf1] = 1
+    current2 = np.zeros(triangles.shape[0])
+    current2[surf2] = 1
+    simplices_sort_idx1 = np.argsort(surf1_tris, axis=1)
+    simplices_parity1 = utils.permutationparity(simplices_sort_idx1, 2)
+    simplices_sort_idx2 = np.argsort(surf2_tris, axis=1)
+    simplices_parity2 = utils.permutationparity(simplices_sort_idx2, 2)
+    for i, t_idx in enumerate(surf1):
+        if simplices_parity1[i] == 1:
+            current1[t_idx] = -1
+    for i, t_idx in enumerate(surf2):
+        if simplices_parity2[i] == 1:
+            current2[t_idx] = -1
+    inputcurrents = np.vstack((current1, current2))
+    lambda_ = 0.001
+    mu = 0.0001
+    fig = plt.figure()
+    ax = fig.gca(projection='3d')
+    ax.plot_trisurf(points[:,0], points[:,1], points[:,2], color="r", triangles=triangles[surf1])
+    plt.show()
+
+    fig = plt.figure()
+    ax = fig.gca(projection='3d')
+    ax.plot_trisurf(points[:,0], points[:,1], points[:,2], color="g", triangles=triangles[surf2])
+    plt.show()
     return points, tetras, triangles, inputcurrents, lambda_, mu
 
 def mediansurfdemo3d(outdir='data/output', save=True):
@@ -66,13 +139,16 @@ def mediansurfdemo3d(outdir='data/output', save=True):
     Median shape demo for median surface
     '''
     start = time.time()
-    points, simplices, subsimplices, inputcurrents, _lambda, mu = surfaces3d()
-    w, v, b_matrix, cons = median.get_lp_inputs(points, simplices, subsimplices, len(inputcurrents))
+    fname = "/home/altaa/tet/mediansurf.1"
+    points, simplices, subsimplices, input_currents, _lambda, mu = surfaces3d(fname)
+    w, v, b_matrix, cons = median.get_lp_inputs(points, simplices, subsimplices, len(input_currents))
+    inout.save_data(input_currents=input_currents, b_matrix=b_matrix, w=w, v=v)
     t, q, r, norm = median.median(points, simplices, subsimplices, \
-    inputcurrents, _lambda, w, v, cons, mu=mu)
+    input_currents, _lambda, w, v, cons, mu=mu)
     elapsed = time.time() - start
     print 'Elapsed time %f mins.' % (elapsed/60)
-    save_tetgen_mesh(t, q, r)
+
+    save_tetgen_mesh(t, q, r, fname)
 
 if __name__ == '__main__':
     mediansurfdemo3d(save=True)
