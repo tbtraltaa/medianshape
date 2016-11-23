@@ -48,20 +48,44 @@ def sample_surf(scale, step=0.2):
     ZD2 = bivariate_normal(X, Y, 1.5, 1.5, -4, -2)
     ZD3 = bivariate_normal(X, Y, 1, 1, 4, -2)
     ZD4 = bivariate_normal(X, Y, 4, 1, 0, 4)
-    Z = ZU1 + ZU2 + ZU3 - ZD1 - ZD2 - ZD3 - ZD4
-    Zmax = np.amax(Z)
-    X = X * scale[0]/4.0
-    Y = Y * scale[1]/4.0
-    Z = Z/Zmax * scale[2]
-    '''
+    Z1 = ZU1 + ZU2 + ZU3 - ZD1 - ZD2 - ZD3 - ZD4
+    Zmax1 = np.abs(np.amax(Z1))
+    Z1 = Z1/Zmax1 * scale[2]
+    
     # Visualization
     fig = plt.figure()
     ax = fig.gca(projection="3d")
-    surf = ax.plot_surface(X, Y, Z, rstride=1, cstride=1, cmap=cm.winter,
+    surf = ax.plot_surface(X, Y, Z1, rstride=1, cstride=1, cmap=cm.winter,
                            linewidth=0, antialiased=False)
     plt.show()
-    '''
-    return X, Y, Z
+
+    # Ups
+    ZU1 = bivariate_normal(X,Y, 2, 1, 1,1)
+    ZU2 = bivariate_normal(X, Y, 3, 1, -2, 4)
+    ZU3 = bivariate_normal(X, Y, 1.5, 1.5, -2, -2)
+    #ZU4 = bivariate_normal(X, Y, 1.5, 1.5, -4, -4)
+    #ZU5 = bivariate_normal(X, Y, 1, 1, 4, -4)
+    ZU4 = bivariate_normal(X, Y, 2, 2, 3, -4)
+    # Downs
+    ZD1 = bivariate_normal(X, Y, 1, 2, 4, 2)
+    ZD2 = bivariate_normal(X, Y, 1.5, 1.5, -2, 2)
+    ZD3 = bivariate_normal(X, Y, 1.5, 1.5, 1, -2)
+    ZD4 = bivariate_normal(X, Y, 4, 1, 0, -4)
+    Z2 = ZU1 + ZU2 + ZU3 - ZD1 - ZD2 - ZD3 - ZD4
+    Zmax2 = np.abs(np.amax(Z2))
+    Z2 = Z2/Zmax2 * scale[2]
+
+    X = X * scale[0]/4.0
+    Y = Y * scale[1]/4.0
+
+    # Visualization
+    fig = plt.figure()
+    ax = fig.gca(projection="3d")
+    surf = ax.plot_surface(X, Y, Z2, rstride=1, cstride=1, cmap=cm.winter,
+                           linewidth=0, antialiased=False)
+    plt.show()
+    return X, Y, Z1, Z2
+
 
 def interpolate_surf(points, values, ipoints, method = "nearest"):
     from scipy.interpolate import griddata
@@ -78,9 +102,11 @@ def surfgen_shared_boundary(bbox=[-10,-10,-10, 10,10,10], l=3):
     zmin = bbox[2]
     zmax = bbox[5]
     Xmin, Ymin, Zmin, Xmax, Ymax, Zmax = np.array(bbox)*0.8
-    X, Y, Z1 = sample_surf([Xmax, Ymax, zmax*0.3], step=0.8)
-    Z2 = -Z1 - zmax*0.4
+    X, Y, Z1, Z2 = sample_surf([Xmax, Ymax, zmax*0.3], step=0.8)
     Z1 = Z1 + zmax*0.4
+    Z2 = Z2 - zmax*0.4
+    #Symmertic surfs
+    #Z2 = -Z1 - zmax*0.4
     '''
     # Plotting the two surfaces
     fig = plt.figure()

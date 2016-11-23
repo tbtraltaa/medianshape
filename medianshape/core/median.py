@@ -63,6 +63,7 @@ def median(points, simplices, subsimplices, input_currents, lambda_, w=[], v=[],
     args2 = args1[np.where(args1 <= 0.99999)]
     nonint = args2.shape[0]
 
+    print "Dimesion of Medianshape LP: %dx%d"%(cons.shape[0], cons.shape[1])
     print 'LP objective value:', norm
     print 'LP time %f mins.' % (elapsed/60)
     print "Non int", nonint

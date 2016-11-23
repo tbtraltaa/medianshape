@@ -20,8 +20,11 @@ def load_tetgen_mesh(fname):
     '''
     Loads .node, .face, .ele files. Usually their indexing starts from 1.
     '''
+    # point1, point2, point3
     points = np.loadtxt("%s.node"%fname, dtype=float, skiprows=1)[:,1:4]
+    # point1, point2, point3, label
     triangles = np.loadtxt("%s.face"%fname, dtype=int, skiprows=1)[:,1:5]
+    # point1, point2, point3, point4
     tetras = np.loadtxt("%s.ele"%fname, dtype=int, skiprows=1)[:,1:5]
     return points, triangles, tetras
 
@@ -30,19 +33,23 @@ def save_tetgen_mesh(t, q, r, fname):
     triangles = np.loadtxt("%s.face"%fname, dtype=int, skiprows=1)
     tetrahedras= np.loadtxt("%s.ele"%fname, dtype=int, skiprows=1)
     t_idx = np.argwhere(t!=0).reshape(-1,)
-    print "median"
-    print len(t_idx)
     t_flag = -3
     q_flag = -41
     r_flag = -51
+    print triangles.shape
+    overlaps = []
     if len(t_idx)!=0:
         tris = triangles.copy()
+        for t in t_idx:
+            if tris[t,4] == -1 or tris[t,4]==-2:
+                overlaps.append(tris[t][1:4]-1)
+                print "overlapping"
         tris[t_idx, 4] = t_flag
-        print "median"
         t_tris = tris[t_idx][:,1:4] -1
         fig = plt.figure()
         ax = fig.gca(projection='3d')
         ax.plot_trisurf(points[:,0], points[:,1], points[:,2], triangles=t_tris)
+        ax.plot_trisurf(points[:,0], points[:,1], points[:,2], color="r", triangles=overlaps)
         plt.title("T")
         plt.show()
         copyfile("%s.node"%fname, "%s.1.node"%fname)
@@ -121,8 +128,8 @@ def surfaces3d(fname):
         if simplices_parity2[i] == 1:
             current2[t_idx] = -1
     inputcurrents = np.vstack((current1, current2))
-    lambda_ = 0.001
-    mu = 0.0001
+    lambda_ = 0
+    mu = 0.999
     fig = plt.figure()
     ax = fig.gca(projection='3d')
     ax.plot_trisurf(points[:,0], points[:,1], points[:,2], color="r", triangles=triangles[surf1])
@@ -132,6 +139,7 @@ def surfaces3d(fname):
     ax = fig.gca(projection='3d')
     ax.plot_trisurf(points[:,0], points[:,1], points[:,2], color="g", triangles=triangles[surf2])
     plt.show()
+
     return points, tetras, triangles, inputcurrents, lambda_, mu
 
 def mediansurfdemo3d(outdir='data/output', save=True):
@@ -147,8 +155,17 @@ def mediansurfdemo3d(outdir='data/output', save=True):
     input_currents, _lambda, w, v, cons, mu=mu)
     elapsed = time.time() - start
     print 'Elapsed time %f mins.' % (elapsed/60)
-
+    with open("/home/altaa/tet/README.txt", "w") as f:
+        f.write("Experiment Statistics\n")
+        f.write("Number of points: %d\n"%len(points))
+        f.write("Number of tetrahedras: %d\n"%simplices.shape[0])
+        f.write("Number of triangles: %d\n"%subsimplices.shape[0])
+        f.write("Number of triangles in Surface1: %d\n"%len(input_currents[0].nonzero()[0]))
+        f.write("Number of triangles in Surface2: %d\n"%len(input_currents[1].nonzero()[0]))
+        f.write("Lambda: %.5f\n"%_lambda)
+        f.write("Mu: %.5f\n"%mu)
     save_tetgen_mesh(t, q, r, fname)
+
 
 if __name__ == '__main__':
     mediansurfdemo3d(save=True)
