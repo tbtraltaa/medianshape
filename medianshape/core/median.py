@@ -1,7 +1,9 @@
-# encoding: utf-8
+#encoding: utf-8
+
 '''
-**Mass Regularized Simplicial Median Shape (MRSMS)**
-====================================================
+Mass Regularized Simplicial Median Shape - MRSMS
+================================================
+
 '''
 
 from __future__ import absolute_import

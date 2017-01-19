@@ -194,7 +194,7 @@ def dump_lp(A=None, b=None, c=None, dirname=os.path.abspath('data/dumps'), **kwa
         sparse_savetxt('%s/c.txt' % dirname, c.reshape(-1,1), fmt='%0.9f', include_dim=True)
 
 # Saves mesh, input currents, boundary matrix, w and v.
-def save_data(mesh=None, input_currents=None, b_matrix=None, w=None, v=None, t=None, dirname=os.path.abspath('data/dumps'), **kwargs):
+def save_data(mesh=None, input_currents=None, b_matrix=None, w=None, v=None, t=None, q=None, r=None, dirname=os.path.abspath('data/dumps'), **kwargs):
     '''
     Hi
     '''
@@ -220,6 +220,12 @@ def save_data(mesh=None, input_currents=None, b_matrix=None, w=None, v=None, t=N
             sparse_savetxt("%s/t-lambda-%s-mu-%s.txt"%(dirname, kwargs['lambda_'], kwargs['mu']), t)
         else:
             sparse_savetxt("%s/t.txt"%dirname, t)
+    if q is not None:
+        for i, qi in enumerate(q):
+            sparse_savetxt('%s/q%d-lamdba=%s-mu-%s.txt' % (dirname,i+1, kwargs['lambda_'], kwargs['mu']), qi)
+    if r is not None:
+        for i, ri in enumerate(r):
+            sparse_savetxt('%s/r%d-lamdba=%s-mu-%s.txt' % (dirname,i+1, kwargs['lambda_'], kwargs['mu']), ri)
 # Saves sparse matrix as text. if the input is not sparse, set is_sparse argument to False.
 def sparse_savetxt(fname, matrix, fmt='%d', include_dim=False):
     '''

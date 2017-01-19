@@ -86,7 +86,7 @@ def save_tetgen_mesh(t, q, r, fname):
         np.savetxt("%s.d%d.ele"%(fname, i+1), tetras, fmt="%d", delimiter = "\t", header="%d %d %d"%(len(tetras), 4, 1), comments="")
 
     '''
-    with open('/home/altaa/tet/mediansurf.1.1.face', 'w') as f:
+    with open(os.environ['HOME'] + '/mediansurf.1.1.face', 'w') as f:
         f.write("%d\t%d"%(len(triangles),1))
         for tri in triangles:
             f.write("%d\t%d\t%d\t%d"%tuple(tri.astype(int)))
@@ -147,7 +147,7 @@ def mediansurfdemo3d(outdir='data/output', save=True):
     Median shape demo for median surface
     '''
     start = time.time()
-    fname = "/home/altaa/tet/mediansurf.1"
+    fname = os.environ['HOME'] +"/mediansurf.1"
     points, simplices, subsimplices, input_currents, _lambda, mu = surfaces3d(fname)
     w, v, b_matrix, cons = median.get_lp_inputs(points, simplices, subsimplices, len(input_currents))
     inout.save_data(input_currents=input_currents, b_matrix=b_matrix, w=w, v=v)
@@ -155,7 +155,7 @@ def mediansurfdemo3d(outdir='data/output', save=True):
     input_currents, _lambda, w, v, cons, mu=mu)
     elapsed = time.time() - start
     print 'Elapsed time %f mins.' % (elapsed/60)
-    with open("/home/altaa/tet/README.txt", "w") as f:
+    with open(os.environ['HOME'] + "README.txt", "w") as f:
         f.write("Experiment Statistics\n")
         f.write("Number of points: %d\n"%len(points))
         f.write("Number of tetrahedras: %d\n"%simplices.shape[0])

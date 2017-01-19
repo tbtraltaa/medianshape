@@ -9,6 +9,7 @@ build/
 *.pyc
 *.swp
 *.swo
+*.swn
 *.egg-info
 *.egg
 pip-log.txt

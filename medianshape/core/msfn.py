@@ -1,7 +1,7 @@
-# encoding: utf-8
+#encoding: utf-8
 '''
-**MSFN - Multiscale flat norm**
-===============================
+MSFN - Multiscale flat norm
+===========================
 '''
 
 from __future__ import absolute_import

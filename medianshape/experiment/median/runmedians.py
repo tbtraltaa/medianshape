@@ -67,7 +67,7 @@ def runmedians3d(mesh, simplices, subsimplices, input_currents, lambdas, mus, w=
         for mu in mus:
             t, q, r, norm = median.median(mesh.points, simplices, subsimplices, input_currents, l, w, v, cons, mu=mu)
             if save:
-                inout.save_data(t=t, lambda_=l, mu=mu)
+                inout.save_data(t=t, q=q, r=r, lambda_=l, mu=mu)
             title = r"$\lambda=%.06f$, $\mu=%.06f$" % (l, mu)
             title = None
             figname = '%s/figures/%d'%(outdir, figcount)

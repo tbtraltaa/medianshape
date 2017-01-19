@@ -54,6 +54,7 @@ def torus3d():
     lambdas = [1, 0.0001]
     mus = [0.00001]
     is_closed = True
+    inout.save_data(mesh=mesh, dirname="data/dumps/torus")
     return mesh, mesh.triangles, mesh.edges, input_points, lambdas, mus, is_closed
 
 def torus_surface3d():
@@ -225,11 +226,3 @@ def fine_curves_on_sphere():
     input_currents = inout.load_input_currents(len(mesh.edges), 3, dirname=dirname)
     t, q, r = inout.load_solutions(len(mesh.triangles), len(mesh.edges), 3, dirname=dirname)
     return mesh, input_currents, t, q, r
-
-def surface():
-    '''
-    Hi
-    '''
-    pass
-
-

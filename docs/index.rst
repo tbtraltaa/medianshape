@@ -11,8 +11,7 @@ Contents:
 .. toctree::
     :maxdepth:3
     getting-started
-    core/median
-    core/msfn
+    core/lp
     experiments/experiments
     simplicial/simplicial-settings
     viz/viz

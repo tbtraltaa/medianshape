@@ -206,7 +206,7 @@ def surfgen_shared_boundary(bbox=[-10,-10,-10, 10,10,10], l=3):
     print triangles.shape
     
     # Preparing PLC and save it to .poly file for tetgen
-    with open('/home/altaa/tet/mediansurf.poly', 'w') as f:
+    with open( os.environ['HOME'] +'/mediansurf.poly', 'w') as f:
         f.write("#Part 1 - the node list\n")
         f.write("#%d nodes in 3d, no attributes, no boundary marker\n"%points.shape[0])
         f.write('%d %d %d %d\n'%(points.shape[0], 3, 0,0))

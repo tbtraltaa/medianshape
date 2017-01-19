@@ -1,7 +1,7 @@
 **Getting started**
 ===================
 
-It is a python package called Mass Regularized Simplicial Median Shape (MRSMS). The purpose of the package is to compute the median shape of input shapes given. The inputs can be any dimensional, closed or open such as curves, 2D shapes or 3D objects and they is represented by **currents** which is a mathematical concepts adapted from Geometric Measure Theory(GMT). We used **flat norm** which is also a concept from GMT to measure distances between the median current and input currents. The input currents are approximated in an underlying simplicial complex and the *simplicial flat norm* used to compare the simplicial currents with the median. Finding the median which locates within minimum distance from each input currents is an optimization problem and we constructed the median shape problem as a Linear Programming (LP) problem and solved it using LP solvers such as *cplex* and *cvxopt*. There are several experiments included in the package which works on 1-currents in 2D (the codimension one case) and 3D (the codimension two case). MRSMS itself is dimension-free and the same MRSMS runs for both 2D and 3D experiments. That is the generality adapted from Geometric Measure Theory. 
+It is a python package called **Mass Regularized Simplicial Median Shape (MRSMS)**. The purpose of the package is to compute the median shape of input shapes given. The inputs can be any dimensional, closed or open such as curves, 2D shapes or 3D objects and they is represented by **currents** which is a mathematical concepts adapted from Geometric Measure Theory(GMT). We used **flat norm** which is also a concept from GMT to measure distances between the median current and input currents. The input currents are approximated in an underlying simplicial complex and the *simplicial flat norm* used to compare the simplicial currents with the median. Finding the median which locates within minimum distance from each input currents is an optimization problem and we constructed the median shape problem as a **Linear Program(LP) or Integer Optimization problem** and solved it using LP solvers such as **cplex** and **cvxopt**. There are several experiments included in the package which works on 1-currents in 2D (the codimension one case) and 3D (the codimension two case). MRSMS itself is dimension-free and the same MRSMS runs for both 2D and 3D experiments. That is the generality adapted from Geometric Measure Theory. 
 
 Install
 -------
@@ -17,14 +17,14 @@ Linux(Ubuntu16.04)
 * conda create -name medianshape python=2
 * source ~/.bashrc
 * source activate medianshape
-* conda install scipy
-* conda install numpy
-* conda install matplotlib
-* conda install cvxopt
+* conda install scipy=0.17.1
+* conda install numpy=1.11.1
+* conda install matplotlib=1.5.1
+* conda install cvxopt=1.1.8
 
 Installing PyDistMesh1.2
 ------------------------
-* conda install cython #needed for pydistmesh
+* conda install cython=0.24.1 #needed for pydistmesh
 * sudo apt-get install libblas-dev liblapack-dev
 * pip install pydistmesh
 
@@ -42,8 +42,10 @@ Install cplex
 -------------
 To install the CPLEX-Python modules on your system, use the script setuy.py located in yourCplexhome/python/PLATFORM. If you want to install the CPLEX-Python modules in a nondefault location, use the option --home to identify the installation directory. For example, to install the CPLEX-Python modules in the default location, use the following command from the command line:
 
-source activate medianshape
-python setup.py install
+* sudo chmode a+x cplex_studio1251.linux-x86-32.bin
+* sudo ./cplex_studio1251.linux-x86-32.bin
+* source activate medianshape
+* python setup.py install
 
 cplex throws error when row and col args are not explicitly typecasted to int.
 prob.linear_constraints.set_coefficients(zip(cons.row.astype(int), cons.col.astype(int), cons.data.astype(float)))
@@ -64,6 +66,13 @@ Install tetgen
 --------------
 
 * sudo apt-get install tetgen
+
+Documentation
+-------------
+* source activate medianshape
+* cd medinashape/docs
+* make html
+* google-chrome medianshape/docs/_build/html/index.html
 
 Requirements
 ------------
