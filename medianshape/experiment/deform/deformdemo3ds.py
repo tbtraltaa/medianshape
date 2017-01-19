@@ -16,7 +16,7 @@ from medianshape.experiment.deform import rundeforms as run, cases3d
 
 from medianshape.viz import plot3d 
 
-def deformdemo3ds(outdir='data/output', save=True):
+def deformdemo3ds(outdir='data', save=True):
     '''
     Hi
     '''

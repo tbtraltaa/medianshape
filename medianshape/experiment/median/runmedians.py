@@ -10,7 +10,7 @@ from medianshape import utils
 from medianshape.viz import plot2d, plot3d
 import medianshape.experiment.inout as inout
 
-def runmedians2d(mesh, simplices, subsimplices, input_currents, lambdas, mus, w=None, v=None, b_matrix=None, file_doc=None, save=True, outdir='data/output'):
+def runmedians2d(mesh, simplices, subsimplices, input_currents, lambdas, mus, w=None, v=None, b_matrix=None, file_doc=None, save=True, outdir='data'):
     '''
     Hi
     '''
@@ -48,7 +48,7 @@ def runmedians2d(mesh, simplices, subsimplices, input_currents, lambdas, mus, w=
             figname, file_doc, save)
             figcount += input_currents.shape[0]
 
-def runmedians3d(mesh, simplices, subsimplices, input_currents, lambdas, mus, w=None, v=None, b_matrix=None, file_doc=None, save=True, outdir='data/output', figcount=1):
+def runmedians3d(mesh, simplices, subsimplices, input_currents, lambdas, mus, w=None, v=None, b_matrix=None, file_doc=None, save=True, outdir='data', figcount=1):
     '''
     Hi
     '''

@@ -16,7 +16,7 @@ from medianshape.experiment.median import runmedians as run, cases3d
 
 from medianshape.viz import plot3d 
 
-def mediandemo3ds(outdir='data/output', save=True):
+def mediandemo3ds(outdir='data', save=True):
     '''
     Hi
     '''

@@ -142,7 +142,7 @@ def surfaces3d(fname):
 
     return points, tetras, triangles, inputcurrents, lambda_, mu
 
-def mediansurfdemo3d(outdir='data/output', save=True):
+def mediansurfdemo3d(outdir='data', save=True):
     '''
     Median shape demo for median surface
     '''

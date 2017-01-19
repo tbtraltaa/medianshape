@@ -32,7 +32,7 @@ def show_median3d():
     plot3d.plot_decomposition3d(mesh, input_currents, t, q, r, title=title)
 
 
-def mediandemo3d(outdir='data/output', save=True):
+def mediandemo3d(outdir='data', save=True):
     '''
     Hi
     '''

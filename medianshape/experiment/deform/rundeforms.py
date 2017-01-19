@@ -14,7 +14,7 @@ import medianshape.utils as utils
 from medianshape.viz import plot2d, plot3d
 import medianshape.experiment.inout as inout
 
-def rundeform2d(mesh, simplices, subsimplices, input_currents, lambdas, mus, alphas, w=None, v=None, b_matrix=None, file_doc=None, save=True, outdir='data/output'):
+def rundeform2d(mesh, simplices, subsimplices, input_currents, lambdas, mus, alphas, w=None, v=None, b_matrix=None, file_doc=None, save=True, outdir='data'):
     '''
     Hi
     '''
@@ -40,7 +40,7 @@ def rundeform2d(mesh, simplices, subsimplices, input_currents, lambdas, mus, alp
                 plot2d.plot_median2d(mesh, input_currents, t, title, figname, file_doc, save=save)
                 figcount += 1
 
-def rundeform3d(mesh, simplices, subsimplices, input_currents, lambdas, mus, alphas, w=None, v=None, b_matrix=None, file_doc=None, save=True, figcount=1, outdir='data/output'):
+def rundeform3d(mesh, simplices, subsimplices, input_currents, lambdas, mus, alphas, w=None, v=None, b_matrix=None, file_doc=None, save=True, figcount=1, outdir='data'):
     '''
     Hi
     '''
