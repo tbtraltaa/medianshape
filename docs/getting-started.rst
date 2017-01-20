@@ -22,6 +22,13 @@ Linux(Ubuntu16.04)
 * conda install matplotlib=1.5.1
 * conda install cvxopt=1.1.8
 
+<!--Linux 32-bit
+------------
+
+sudo apt-get install lib32ncurses5
+sudo apt-get install lib32z1
+-->
+
 Installing PyDistMesh1.2
 ------------------------
 * conda install cython=0.24.1 #needed for pydistmesh
@@ -34,9 +41,8 @@ Documentation contribution
 
 Export the `medianshape` library location to PYTHONPATH
 -------------------------------------------------------
-Put the following lines in the file, ~/.profile
-* Medianshape library path
-export PYTHONPATH="$PYTHONPATH:$HOME/medianshape/"
+To use Medianshape library, put the following lines in the files, ~/.profile or ~/.bashrc
+* export PYTHONPATH=$PYTHONPATH:$HOME/medianshape/
 
 Install cplex
 -------------
@@ -44,6 +50,7 @@ To install the CPLEX-Python modules on your system, use the script setuy.py loca
 
 * sudo chmode a+x cplex_studio1251.linux-x86-32.bin
 * sudo ./cplex_studio1251.linux-x86-32.bin
+* sudo chmod -R 777 <cplex_HOME_folder> - cplex lacks permission to a create folder when you install it from conda environment.
 * source activate medianshape
 * python setup.py install
 
