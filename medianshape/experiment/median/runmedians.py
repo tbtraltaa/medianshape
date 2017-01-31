@@ -32,7 +32,7 @@ def runmedians2d(mesh, simplices, subsimplices, input_currents, lambdas, mus, w=
             if save:
                 inout.save_data(t=t, lambda_=l, mu=mu)
             #title = r"$\lambda=%.06f$, $\mu=%.06f$" % (l, mu)
-            title = None
+            title = ''
             figname = '%s/figures/%d'%(outdir, figcount)
             plot2d.plot_median2d(mesh, input_currents, t, title, figname, file_doc, save=save)
             #plt.show()
