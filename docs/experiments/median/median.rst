@@ -5,3 +5,4 @@ Median shape
     cases3d
     mediandemo
     runmedians
+    mediansurf

@@ -8,4 +8,5 @@
     currentgen
     pointgen2d
     pointgen3d
+    surfgen
     utils

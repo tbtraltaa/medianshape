@@ -144,7 +144,7 @@ def surfaces3d(fname):
 
 def mediansurfdemo3d(outdir='data', save=True):
     '''
-    Median shape demo for median surface
+    Median shape demo for median surface.
     '''
     start = time.time()
     fname = os.environ['HOME'] +"/mediansurf.1"

@@ -18,4 +18,5 @@ medianshape/backup.py
 medianshape/experiment/median/data/
 medianshape/experiment/deform/data/
 medianshape/experiment/median/data1/
+test*
 .DS_Store

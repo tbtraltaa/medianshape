@@ -6,8 +6,6 @@
 Welcome to MedianShape's documentation!
 =======================================
 
-Contents:
-
 .. toctree::
     :maxdepth:3
     getting-started
