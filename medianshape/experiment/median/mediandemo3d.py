@@ -18,9 +18,9 @@ from medianshape.viz import plot3d
 
 def show_median3d():
     '''
-    Hi
+    Shows the results of a saved experiment case.
     '''
-    mesh, input_currents, t, q, r = cases3d.fine_curves_on_sphere()
+    mesh, input_currents, t, q, r = cases3d.get_saved_case(dirname='data/curves_on_sphere')
     fig = plt.figure(figsize=(8,8))
     plot3d.plotmesh3d(mesh, mesh.get_info())
     fig.tight_layout()
@@ -34,7 +34,10 @@ def show_median3d():
 
 def mediandemo3d(outdir='data', save=True):
     '''
-    Hi
+    Median shape demo in 3D. The experiment case is chosen from 'medianshape.cases3d'.
+    Given the experiment case, it gets input currents from the input curves by pushing
+    the underlying simplicial complex. Then input the simplicial setting to Median LP which
+    solves median current. The experiment result is saved in outdir.
     '''
     lp_times = list()
     start = time.time()
@@ -45,7 +48,7 @@ def mediandemo3d(outdir='data', save=True):
     fig = plt.figure(figsize=(8,8))
     figcount = 1
     mesh, simplices, subsimplices, points, lambdas, mus, is_closed \
-    = cases3d.torus3d()
+    = cases3d.equally_spaced_longitudes3d()
     #= cases3d.torus_surface3d()
     #= cases3d.equally_spaced_longitudes3d()
     #= cases3d.tunnel_loops_on_torus_surface3d()

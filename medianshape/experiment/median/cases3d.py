@@ -1,7 +1,7 @@
 # encoding: utf-8
 '''
-3D experiment cases
--------------------
+Median shape experiment cases in 3D
+-----------------------------------
 '''
 from __future__ import absolute_import
 import importlib
@@ -18,11 +18,12 @@ import medianshape.viz.plot3d as plot3d
 
 def torus3d():
     '''
-    Hi
+    Horizontal and vertical cycles on a solid torus.
     '''
     # l - initial length of triangle sides. Change it to vary traingle size
     bbox = [-10,-10,-10,10,10,10]
     l = 2
+    #radius of a sphere inscribed in the boundary box
     radius = np.abs(bbox[3] - bbox[0])*1.0/2  
     r = radius/4
     R = radius - r
@@ -59,7 +60,7 @@ def torus3d():
 
 def torus_surface3d():
     '''
-    Hi
+    Horizontal and vertical cycles on the surface on a torus.
     '''
     # l - initial length of triangle sides. Change it to vary traingle size
     bbox = [-10,-10,-10,10,10,10]
@@ -76,6 +77,7 @@ def torus_surface3d():
     inout.save_data(smesh, dirname=os.path.abspath("data/storus"))
     print "Saved"
     '''
+    #load mesh from data/storus which is a surface of a torus.
     smesh = inout.load_mesh3d(dirname='data/storus')
     #plot3d.plot_simplices3d(smesh, np.ones(len(smesh.triangles)))
     #plt.show()
@@ -102,6 +104,9 @@ def torus_surface3d():
     return smesh, smesh.triangles, smesh.edges, input_points, lambdas, mus, is_closed
 
 def handle_loops_on_torus_surface3d():
+    '''
+    Two handle loops on a solid torus.
+    '''
     smesh = inout.load_mesh3d(dirname='data/torus')
     bbox = [-1,-1,-0.2,1,1,0.2]
     l = 0.06
@@ -120,6 +125,9 @@ def handle_loops_on_torus_surface3d():
     return smesh, smesh.triangles, smesh.edges, input_points, lambdas, mus, is_closed
 
 def tunnel_loops_on_torus_surface3d():
+    '''
+    Two tunnel loops on a solid torus.
+    '''
     smesh = inout.load_mesh3d(dirname='data/torus')
     bbox = [-1,-1,-0.2,1,1,0.2]
     l = 0.06
@@ -142,8 +150,9 @@ def tunnel_loops_on_torus_surface3d():
     
 def equally_spaced_longitudes3ds(): 
     '''
-    Hi
+    Three equally-spaced longitude curves on the surface of a sphere.
     '''
+
     '''
     # l - initial length of triangle sides. Change it to vary traingle size
     boundary_box = [0,0,0,20,20,20]
@@ -176,13 +185,13 @@ def equally_spaced_longitudes3ds():
 
 def equally_spaced_longitudes3d(): 
     '''
-    Hi
+    Three equally-spaced longitude curves on the surface of a ball.
     '''
     # l - initial length of triangle sides. Change it to vary traingle size
     #boundary_box = [-10,-10,-10,10,10,10]
     boundary_box = [-10,-10,-10,10,10,10]
     l = 2 
-    mesh = meshgen3d(boundary_box, l, include_corners=False)
+    mesh = meshgen3d(boundary_box, l, include_corners=False, shape='ball')
     #inout.save_data(mesh, dirname=os.path.abspath("data/mesh_0.8"))
     #print "saved"
     #mesh = inout.load_mesh3d(dirname='data/mesh')
@@ -201,7 +210,7 @@ def equally_spaced_longitudes3d():
 
 def differently_spaced_longitudes3d(): 
     '''
-    Hi
+    Three longitude curves on the surface of a ball.
     '''
     # l - initial length of triangle sides. Change it to vary traingle size
     boundary_box = [0,0,0,20,20,20]
@@ -217,11 +226,11 @@ def differently_spaced_longitudes3d():
     is_closed = False
     return mesh, mesh.triangles, mesh.edges, input_points, lambdas, mus, is_closed
 
-def fine_curves_on_sphere(): 
+def get_saved_case(dirname='data/curves_on_sphere'): 
     '''
-    Hi
+    Loads a saved experiment in the given directory.
     '''
-    dirname = 'data/curves_on_sphere'
+    #Three longitude curves on a ball made of a finer mesh.
     mesh = inout.load_mesh3d(dirname=dirname)
     input_currents = inout.load_input_currents(len(mesh.edges), 3, dirname=dirname)
     t, q, r = inout.load_solutions(len(mesh.triangles), len(mesh.edges), 3, dirname=dirname)

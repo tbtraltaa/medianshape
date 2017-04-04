@@ -15,7 +15,7 @@ from medianshape import utils
 
 class Mesh2D():
     '''
-    Hi
+    Mesh in 2D
     '''
     def __init__(self, *args, **kwargs):
         self.points = kwargs.get('points', None)
@@ -107,7 +107,7 @@ class Mesh2D():
 
 class Mesh3D():
     '''
-    Hi
+    Mesh in 3D
     '''
     def __init__(self, *args, **kwargs):
         self.points = kwargs.get('points', [])

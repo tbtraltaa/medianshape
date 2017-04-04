@@ -24,10 +24,28 @@ solvers.options['show_progress'] = False
 from medianshape import utils 
 import medianshape.experiment.inout as inout
 
-def median(points, simplices, subsimplices, input_currents, lambda_, w=[], v=[], cons=[], mu=0.001, alphas=None):
+def median(points, simplices, subsimplices, input_currents, lambda_, mu=0.001, w=[], v=[], cons=[], alphas=None):
     '''
-    Accepts simplicial settings, input currents, multiscale factor(:math:`\lambda`) and mass regularizing factor(:math:`\mu`). Returns median shape and flat norm decomposition in the given
-    simplicial settings.
+    Accepts simplicial settings, input currents, multiscale factor(:math:`\lambda`) 
+    and mass regularizing factor(:math:`\mu`). 
+    Returns median shape and flat norm decomposition in the given
+    simplicial settings. Let K be an underlying simplicial complex of dimension q.
+
+    :param float points: points in K.
+    :param int simplices: (p+1)-simplices in K, an array of dimension (nx(p+1)) 
+        where :math:`p+1 \leq q` and n is the number of p+1-simplices in K. 
+    :param int subsimplices: p-simplices in K, an array of dimension (mxp) 
+        where :math:`p \leq q` and m is the number of p-simplice in K. 
+    :param int input_currents: input currents, an array of dimension kxm 
+        where k is the number of input currents.
+    :param float lambda_: multiscale factor.  
+    :param float mu: Mass regularizing factor (no mass regularization when set to 0).
+    :param float w: a vector of subsimplices volumes.
+    :param float v: a vector of simplices volumes.
+    :param int cons: a constraint matrix A of dimension kmx(2m+k(2m+2n)).
+    :param float alphas: Weights for input currents if none, :math:`\\alpha_{i}=\\frac{1}{k}`.
+    :returns: t, q, r, objective_value -- median current, p-chains, (p+1)-chains for median shape decompostion, minimum value of the objective function.
+    :rtype: int, int, int, float.
     '''
     if not isinstance(input_currents, np.ndarray):
         input_currents = np.array(input_currents)
@@ -59,33 +77,49 @@ def median(points, simplices, subsimplices, input_currents, lambda_, w=[], v=[],
 
     inout.dump_lp(cons, b, c)
     start = time.time()
-    args, norm = lp_solver(c, cons, b)
+    sol_x, objective_value = lp_solver(c, cons, b)
     elapsed = time.time() - start
-    args1 = args[np.where(args >=1e-5)]
-    args2 = args1[np.where(args1 <= 0.99999)]
-    nonint = args2.shape[0]
+    sol_x1 = sol_x[np.where(sol_x >=1e-5)]
+    sol_x2 = sol_x1[np.where(sol_x1 <= 0.99999)]
+    nonint = sol_x2.shape[0]
 
     print "Dimesion of Medianshape LP: %dx%d"%(cons.shape[0], cons.shape[1])
-    print 'LP objective value:', norm
+    print 'LP objective value:', objective_value
     print 'LP time %f mins.' % (elapsed/60)
-    print "Non int", nonint
-    args = np.rint(args)
-    t = args[0:m_subsimplices] - args[m_subsimplices:2*m_subsimplices]
+    print "The number of non integers in the solution", nonint
+    sol_x = np.rint(sol_x)
+    t = sol_x[0:m_subsimplices] - sol_x[m_subsimplices:2*m_subsimplices]
     q = np.zeros((sub_cons_count, m_subsimplices), dtype=int)
     r = np.zeros((sub_cons_count, n_simplices), dtype=int)
     qi_start = 2*m_subsimplices
     for i in range(sub_cons_count):
         qi_end = qi_start + 2*m_subsimplices
-        q[i] = (args[qi_start: qi_start+m_subsimplices] - args[qi_start+m_subsimplices: qi_end]).reshape(m_subsimplices,)
+        q[i] = (sol_x[qi_start: qi_start+m_subsimplices] - sol_x[qi_start+m_subsimplices: qi_end]).reshape(m_subsimplices,)
         ri_start = qi_end
         ri_end = ri_start + 2*n_simplices
-        r[i] = (args[ri_start: ri_start+n_simplices] - args[ri_start+n_simplices: ri_end]).reshape(n_simplices, )
+        r[i] = (sol_x[ri_start: ri_start+n_simplices] - sol_x[ri_start+n_simplices: ri_end]).reshape(n_simplices, )
         qi_start = ri_end
-    return t, q, r, norm
+    return t, q, r, objective_value
 
 def get_lp_inputs(points, simplices, subsimplices, k_currents, w=[], v=[], b_matrix=[], cons=[]):
     '''
-    Accepts simplicial settings as input parameters and returns weights, boundary matrix and LP contraint matrix.
+    Accepts simplicial settings along with number of currents and returns inputs of median shape LP
+    such as simplicial volumes, boundary matrix and LP contraint matrix so that we can run multiple experiments in the same LP settings without computational repetition such as computing median shape for diffent values of mass regularization factor lambda.
+
+    :param float points: points in K.
+    :param int simplices: (p+1)-simplices in K, an array of dimension (nx(p+1)). 
+        where :math:`p+1 \leq q` and n is the number of p+1-simplices in K. 
+    :param int subsimplices: p-simplices in K, an array of dimension (mxp) 
+        where :math:`p \leq q` and m is the number of p-simplice in K. 
+    :param int k_currents: number of input currents
+        where k is the number of input currents.
+    :param float w: a vector of subsimplices volumes.
+    :param float v: a vector of simplicial volumes.
+    :param int b_matrix: a boundary matrix representing the boundary operator :math:`\partial_{p+1}` of K.
+    :param int cons: a constraint matrix A of dimension kmx(2m+k(2m+2n)).
+    :returns: t, q, r, objective_value -- median current, p-chains, p+1-chains for median shape decompostion, minimum value of the objective function.
+    :rtype: int, int, int, float.
+    
     '''
     m_subsimplices = subsimplices.shape[0]
     n_simplices = simplices.shape[0]
@@ -127,7 +161,14 @@ def get_lp_inputs(points, simplices, subsimplices, k_currents, w=[], v=[], b_mat
 
 def lp_solver(c, cons, b, solver='cplex'):
     '''
-        Linear program solver. 
+    Linear program solver. 
+
+    :param float c: a vector of cost coefficients for the objective function.
+    :param int cons: a constraint matrix A of dimension kmx(2m+k(2m+2n)).
+    :param int b: a vector of coefficients.
+    :param str solver: the type of solver either 'cplex' or 'cvxopt'
+    :returns: sol_x, objective_value -- the optimal solution and objective value resp.
+    :rtype: int, float
     '''
     if solver == 'cvxopt':
         g = -sparse.identity(len(c), dtype=np.int8, format='coo')
@@ -138,8 +179,8 @@ def lp_solver(c, cons, b, solver='cplex'):
         cons = spmatrix(cons.data.tolist(), cons.row, cons.col, cons.shape, tc='d')
         b = matrix(b)
         sol = solvers.lp(c, G, h, cons, b, solver='glpk')
-        args = np.array(sol['x'])
-        norm = sol['primal objective']
+        sol_x = np.array(sol['x'])
+        objective_value = sol['primal objective']
     elif solver == 'cplex':
         if _platform == "darwin":
             print "Cplex is not installed yet."
@@ -153,7 +194,7 @@ def lp_solver(c, cons, b, solver='cplex'):
         #print prob.linear_constraints.get_num()
         prob.solve()
         status = prob.solution.get_status()
-        norm = prob.solution.get_objective_value()
-        args = np.array(prob.solution.get_values())
+        objective_value = prob.solution.get_objective_value()
+        sol_x = np.array(prob.solution.get_values())
         print 'LP status:', status
-    return args, norm
+    return sol_x, objective_value

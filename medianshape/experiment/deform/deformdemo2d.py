@@ -25,7 +25,7 @@ from medianshape.experiment.deform import rundeforms as run, cases2d
 
 def deform2d(outdir='data', save=True):
     '''
-    Hi
+    Deformation demo in 2D
     '''
     lp_times = list()
     start = time.time()

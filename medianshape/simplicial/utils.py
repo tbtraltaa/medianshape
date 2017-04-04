@@ -46,7 +46,7 @@ def mid_corners(bbox):
 
 def get_combination(n, vals=[1,-1]):
     '''
-    HI
+    Returns all combinations of given values for n positions.
     '''
     if n > 1:
         comb = np.array([])
@@ -64,7 +64,10 @@ def get_combination(n, vals=[1,-1]):
 
 def vectorize(func_str, X):
     '''
-    Hi
+    Computes function values on X domain.
+
+    :param str func_str: a name of a function in math module in python or \ a name of a function within this module (medianshape.simplicial.utils).
+    :returns: func_values -- function values on the given domain.
     '''
     func_points = []
     if func_str.find(".") != -1:
@@ -82,90 +85,92 @@ def vectorize(func_str, X):
 
 def x(x):
     '''
-    Hi
+    :math:`f(x) = x`
     '''
     return x
 def x2(x):
     '''
-    Hi
+    :math:`f(x) = x^2`
     '''
     return x**2
 def x5(x):
     '''
-    Hi
+    :math:`f(x) = x^5`
     '''
     return x**5
-def func1(x):
-    '''
-    Hi
-    '''
-    return 2/math.pi*math.acos(x)
 def sin2pi(x):
     '''
-    Hi
+    :math:`f(x) = |\sin(2\pi x)|`
     '''
     return np.abs(math.sin(2*math.pi*x))
 def sin1pi(x):
     '''
-    Hi
+    :math:`f(x) = |\sin(\pi x)|`
     '''
     return np.abs(math.sin(math.pi*x))
 def half_sin1pi(x):
     '''
-    Hi
+    :math:`f(x) = \\frac{1}{2}|\sin(\pi x)|`
     '''
     return 1.0/2*np.abs(math.sin(math.pi*x)) 
 def small_sin1pi(x):
     '''
-    Hi
+    :math:`f(x) = \\frac{1}{4}|\sin(\pi x)|`
     '''
     return np.abs(math.sin(math.pi*x))/4
+
+def func1(x):
+    '''
+    :math:`f(x) = \\frac{2}{\pi \cos^{-1}(x)}`
+    '''
+    return 2/math.pi*math.acos(x)
+
 def func2(x):
     '''
-    Hi
+    :math:`f(x) = \\frac{1}{2}(1 + \sin2\pi x)`
     '''
     return 1/2*(1+math.sin(2*math.pi*x))
 
 def curve1(x):
     '''
-    Hi
+    :math:`f(x) = 10e^{\\frac{x}{180}}\sin(\\frac{1}{100}\pi x) +25`
     '''
     return 10*math.sin(1/100* math.pi * x) * np.exp(1/180 * x)  + 25
 def curve2(x):
     '''
-    Hi
+    :math:`f(x) = -10e^{\\frac{x}{200}}\sin(\\frac{1}{50}\pi x) +25`
     '''
     return -10*math.sin(1/50* math.pi * x) * np.exp(1/200 * x) + 25
 def curve3(x):
     '''
-    Hi
+    :math:`f(x) = 30e^{\\frac{-x}{150}}\sin(\\frac{1}{50}\pi x) +20`
     '''
     return 30*math.sin(1/50* math.pi * x) * np.exp(-1/150 * x) + 20
 def curve4(x):
     '''
-    Hi
+    :math:`f(x) = 10e^{\\frac{-x}{200}}\sin(\\frac{1}{30}\pi x) +40`
     '''
     return 10*math.sin(1/30* math.pi * x) * np.exp(-1/200 * x) + 40
 def curve5(x):
     '''
-    Hi
+    :math:`f(x) = 20\sin(\\frac{1}{200}\pi x) +25`
     '''
     return 20*math.sin(1/200* math.pi * x) + 25
 def curve6(x):
     '''
-    Hi
+    :math:`f(x) = 10e^{\\frac{-1}{200}x}\sin(\\frac{1}{55}\pi x) +10`
     '''
     return 10*math.sin(1/55* math.pi * x) * np.exp(-1/200 * x) + 10
 
 def deformcurve1(x):
     '''
-    Hi
+    :math:`f(x) = 20\sin(\\frac{1}{190}\pi x) +25`
     '''
     return 20*math.sin(1/190* math.pi * x) + 25
 
 def deformcurve2(x):
     '''
-    Hi
+    :math:`f(x) = -20\sin(\\frac{1}{190}\pi x) +25`
     '''
     return -20*math.sin(1/190* math.pi * x) + 25
     

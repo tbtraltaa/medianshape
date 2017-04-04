@@ -35,10 +35,6 @@ Installing PyDistMesh1.2
 * sudo apt-get install libblas-dev liblapack-dev
 * pip install pydistmesh
 
-Documentation contribution
---------------------------
-* conda install sphinx
-
 Export the `medianshape` library location to PYTHONPATH
 -------------------------------------------------------
 To use Medianshape library, put the following lines in the files, ~/.profile or ~/.bashrc
@@ -76,6 +72,7 @@ Install tetgen
 
 Documentation
 -------------
+* conda install sphinx
 * source activate medianshape
 * cd medinashape/docs
 * make html

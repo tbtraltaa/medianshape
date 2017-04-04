@@ -14,11 +14,30 @@ import medianshape.utils as utils
 from medianshape.viz import plot2d, plot3d
 import medianshape.experiment.inout as inout
 
-def rundeform2d(mesh, simplices, subsimplices, input_currents, lambdas, mus, alphas, w=None, v=None, b_matrix=None, file_doc=None, save=True, outdir='data'):
+def rundeforms2d(mesh, simplices, subsimplices, input_currents, lambdas, mus, alphas, w=None, v=None, b_matrix=None, file_doc=None, save=True, outdir='data', figcount=2):
     '''
-    Hi
+    Accepts simplicial settings, input currents, a list of multiscale factors(:math:`\lambda`), a list of mass regularizing factors(:math:`\mu`), and a list of weights for deformation. 
+    Calls Median shape LP and gets a deformed current and flat norm decomposition for each combinations of lambda, mu and weights. It calls plotting function from 'medianshape.viz' which can save them as pdf and/or separate figures.Let K be an underlying simplicial complex of dimension q.
+
+    :param float mesh: an instance of Mesh3D class in 'medianshape.simplicial/mesh'.
+    :param int simplices: (p+1)-simplices in K, an array of dimension (nx(p+1)) 
+        where :math:`p+1 \leq q` and n is the number of p+1-simplices in K. 
+    :param int subsimplices: p-simplices in K, an array of dimension (mxp) 
+        where :math:`p \leq q` and m is the number of p-simplice in K. 
+    :param int input_currents: input currents, an array of dimension kxm 
+        where k is the number of input currents.
+    :param float lambdas: a list or an array of multiscale factors.  
+    :param float mu: Mass regularizing factor (no mass regularization when set to 0).
+    :param float alphas: a set of weights for deformation.
+    :param float w: a vector of subsimplices volumes.
+    :param float v: a vector of simplices volumes.
+    :param int b_matrix: a boundary matrix representing the boundary operator :math:`\partial_{p+1}` of K.
+    :param object file_doc: a file object to which plotted figures are saved. An instance of 'matplotlib.backends.backend_pdf.PdfPages'.
+    :param bool save: a boolean flag to indicate whether to save the experiment results.
+    :param str outdir: The name of a directory to which the experiment result is saved.
+    :param int figcount: The starting index for figures.
+    :returns: None 
     '''
-    figcount = 2
     if w is None:
         w = utils.simpvol(mesh.points, subsimplices)
     if v is None:
@@ -32,7 +51,7 @@ def rundeform2d(mesh, simplices, subsimplices, input_currents, lambdas, mus, alp
         for mu in mus:
             for alpha in alphas:
                 t, q, r, norm = median.median(mesh.points, simplices, subsimplices, \
-                input_currents, l, w, v, cons, mu=mu, alphas=alpha)
+                input_currents, l, mu, w, v, cons, alphas=alpha)
                 if save:
                     inout.save_data(t=t, lambda_=l, mu=mu)
                 title = r'$MRSMS$, $\lambda=%.06f$, $\mu=%.06f$, $\alpha=[%.06f$ $%.06f]$'%(l, mu, alpha[0], alpha[1])
@@ -40,9 +59,29 @@ def rundeform2d(mesh, simplices, subsimplices, input_currents, lambdas, mus, alp
                 plot2d.plot_median2d(mesh, input_currents, t, title, figname, file_doc, save=save)
                 figcount += 1
 
-def rundeform3d(mesh, simplices, subsimplices, input_currents, lambdas, mus, alphas, w=None, v=None, b_matrix=None, file_doc=None, save=True, figcount=1, outdir='data'):
+def rundeforms3d(mesh, simplices, subsimplices, input_currents, lambdas, mus, alphas, w=None, v=None, b_matrix=None, file_doc=None, save=True, outdir='data', figcount=1):
     '''
-    Hi
+    Accepts simplicial settings, input currents, a list of multiscale factors(:math:`\lambda`), a list of mass regularizing factors(:math:`\mu`), and a list of weights for deformation. 
+    Calls Median shape LP and gets a deformed current and flat norm decomposition for each combinations of lambda, mu and weights. It calls plotting function from 'medianshape.viz' which can save them as pdf and/or separate figures.Let K be an underlying simplicial complex of dimension q.
+
+    :param float mesh: an instance of Mesh3D class in 'medianshape.simplicial/mesh'.
+    :param int simplices: (p+1)-simplices in K, an array of dimension (nx(p+1)) 
+        where :math:`p+1 \leq q` and n is the number of p+1-simplices in K. 
+    :param int subsimplices: p-simplices in K, an array of dimension (mxp) 
+        where :math:`p \leq q` and m is the number of p-simplice in K. 
+    :param int input_currents: input currents, an array of dimension kxm 
+        where k is the number of input currents.
+    :param float lambdas: a list or an array of multiscale factors.  
+    :param float mu: Mass regularizing factor (no mass regularization when set to 0).
+    :param float alphas: a set of weights for deformation.
+    :param float w: a vector of subsimplices volumes.
+    :param float v: a vector of simplices volumes.
+    :param int b_matrix: a boundary matrix representing the boundary operator :math:`\partial_{p+1}` of K.
+    :param object file_doc: a file object to which plotted figures are saved. An instance of 'matplotlib.backends.backend_pdf.PdfPages'.
+    :param bool save: a boolean flag to indicate whether to save the experiment results.
+    :param str outdir: The name of a directory to which the experiment result is saved.
+    :param int figcount: The starting index for figures.
+    :returns: None 
     '''
     figcount = figcount
     if w is None:
@@ -52,17 +91,12 @@ def rundeform3d(mesh, simplices, subsimplices, input_currents, lambdas, mus, alp
     if b_matrix is None:
         b_matrix = utils.boundary_matrix(mesh.triangles, mesh.edges)
     k_currents = len(input_currents)
-    print k_currents
     w, v, b_matrix, cons = median.get_lp_inputs(mesh.points, simplices, subsimplices,  k_currents, w, v, b_matrix)
     #np.savetxt('/home/altaa/dumps1/cons-%s.txt'%opt, cons, fmt='%d', delimiter=' ')
     for l in lambdas:
-        comb=[1,1,1]
-        #for comb in combinations[:-1,:]:
-        #for comb in combinations:
-            #input_currents = currents*comb.reshape(comb.size,1) 
         for mu in mus:
             for alpha in alphas:
-                t, q, r, norm = median.median(mesh.points, mesh.triangles, mesh.edges, input_currents, l, w, v, cons, mu=mu, alphas=alpha)
+                t, q, r, norm = median.median(mesh.points, mesh.triangles, mesh.edges, input_currents, l, mu, w, v, cons,alphas=alpha)
                 if save:
                     inout.save_data(t=t, lambda_=l, mu=mu)
                 title = r'$MRSMS$, $\lambda=%.06f$, $\mu=%.06f$, $\alpha=[%.06f$ $%.06f]$'%(l, mu, alpha[0], alpha[1])

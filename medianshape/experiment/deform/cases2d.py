@@ -1,7 +1,7 @@
 # encoding: utf-8
 '''
-2D deform experiment cases
-++++++++++++++++++++++++++
+Deformation experiment cases in 2D
+++++++++++++++++++++++++++++++++++
 '''
 from __future__ import absolute_import
 
@@ -12,7 +12,7 @@ from medianshape.simplicial.mesh import Mesh2D
 
 def curvedeform2d():
     '''
-    Hi
+    Two curves with shared boundaries.
     '''
     boundary_box = (0,0,200,50)
     l = 3
@@ -35,7 +35,7 @@ def curvedeform2d():
 
 def ellipsesdeform2d():
     '''
-    Hi
+    Overlapping two ellipses.
     '''
     boundary_box = (0,0,1,1)
     l=0.07

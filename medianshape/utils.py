@@ -1,4 +1,8 @@
 # encoding: utf-8
+'''
+**Utils**
+=========
+'''
 
 from __future__ import absolute_import
 
@@ -12,6 +16,9 @@ from scipy.sparse import dok_matrix
 
 
 def get_subsimplices(simplices):
+    '''
+    Returns one-dimension lower simplices embedded in the given set of simplices.
+    '''
     simplices = np.sort(simplices.copy(), axis=1)
     subsimplices = set()
     for j in np.arange(simplices.shape[1]):
@@ -22,6 +29,9 @@ def get_subsimplices(simplices):
     return subsimplices
 
 def orient_simplices(points, simplices):
+    '''
+    Orient simplices.
+    '''
     if simplices.shape[1] == 4 and points.shape[1]==3:
         for i in range(simplices.shape[0]):
             A = np.zeros((4,4))
@@ -31,27 +41,7 @@ def orient_simplices(points, simplices):
             if det(A) < 0:
                 simplices[i] = simplices[i,[1,0,2,3]]
     return simplices                
-'''
-def orient_simplices(simplices):
-    direction = right_hand_rule(simplices[0])
-    simplices = np.array(range(0, len(simplices)))
-    if direction < 0:
-        simplices[0] = simplices[0,::-1]
-    for i, simplex in enumerate(simplices):
-        simplices = np.delete(simplices, np.where(simplices==i))
-        neighbors = self.mesh.neighbors[i]
-        for opposit_point in np.where(neighbors >= 0)[0]:
-            n_simplex_idx = neighbors[opposit_point]
-            if any(simplices==n_simplex_idx):
-                n_simplex = simplices[n_simplex_idx]
-                n_boundary = boundary(n_simplex)
-                subsimplex= boundary(simplex, opposit_point)
-                for n_face in n_boundary:
-                    if all((np.array(subsimplex) - np.array(n_face)) == 0):
-                        simplices[n_simplex_idx] = n_simplex[::-1]
-                simplices = np.delete(simplices, np.where(simplices==n_simplex_idx))
-    return simplices
-'''
+
 def simpvol(points, simplices):
 
     ''' SIMPVOL Simplex volume.
@@ -108,9 +98,11 @@ def simpvol(points, simplices):
         volume = volume/factorial(points.shape[1])
     return volume
 
-# Builds a boundary matrix of given simplices. The format of a boundary matrix is as follows.
-# boundary_matrix = (number of subsimplices) x (number of simplices)
 def boundary_matrix(simplices, subsimplices, is_oriented=True, is_sparse=True, format='coo'):
+    '''
+    Builds a boundary matrix of given simplices. The format of a boundary matrix is as follows.
+    boundary_matrix = (number of subsimplices) x (number of simplices)
+    '''
     simplex_dim  = simplices.shape[1] 
     #if simplex_dim - subsimplices.shape[1] != 1:
     #    sys.stderr.write("Unable to build a boundary matrix. Please enter (d+1)-simplices and  d-subsimplices\n")
@@ -148,9 +140,11 @@ def boundary_matrix(simplices, subsimplices, is_oriented=True, is_sparse=True, f
     else:
         return boundary_matrix
 
-# Returns simplex boundary as faces.
-# if an index given, returns n-1 simplex by removing the element at the index.
 def boundary(simplex, idx=None):
+    '''
+    Returns simplex boundary as faces.
+    if an index given, returns n-1 simplex by removing the element at the index.
+    '''
     boundary = list()
     if idx == None:
         n = len(simplex)
@@ -323,7 +317,7 @@ def check_orientation(simplices,edges):
     oriented_tris = set()
     tris = list()
     tris.append(0)
-    k = 0
+    #k = 0
     while len(all_tris) != 0:
         t_idx = tris.pop(0)
         all_tris.remove(t_idx)
@@ -340,7 +334,7 @@ def check_orientation(simplices,edges):
                 flag2 = edge_sign(triangles[adj_t], edge)
                 if adj_t not in oriented_tris:
                     if flag2 == flag1:
-                        k += 1               
+                        #k += 1               
                         triangles[adj_t] = triangles[adj_t, [1,0,2]]
                         boundary_2[edge_idx,adj_t] = -flag1
                     oriented_tris.add(adj_t)
@@ -350,7 +344,7 @@ def check_orientation(simplices,edges):
                         return False
                     else:
                         boundary_2[edge_idx,adj_t] = flag2
-    print "swappped ", k
+    #print "swappped ", k
     return True, triangles
 
 if __name__ == '__main__':

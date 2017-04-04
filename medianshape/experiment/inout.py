@@ -7,10 +7,10 @@ from scipy import sparse
 from medianshape.simplicial.mesh import Mesh2D, Mesh3D
 import medianshape.utils as utils 
 
-# Loads previously computed mesh, boundary_matrix, input currents, w and v from a directory
 def load_mesh2d(dirname='data/dumps'):
     '''
-    Hi
+    Loads previously computed  mesh in 2D, boundary matrix, input currents, w and v
+    from a directory given as dirname.
     '''
     mesh = Mesh2D()
     if os.path.exists(dirname):
@@ -40,7 +40,8 @@ def load_mesh2d(dirname='data/dumps'):
 
 def load_mesh3d(dirname='data/dumps'):
     '''
-    Hi
+    Loads previously computed  mesh in 3D, boundary matrix, input currents, w and v
+    from a directory given as dirname.
     '''
     mesh = Mesh3D()
     if os.path.exists(dirname):
@@ -81,7 +82,7 @@ def load_mesh3d(dirname='data/dumps'):
 
 def load_weights_and_boundary(n_simplices, m_subsimplices, dirname='data/dumps'):
     '''
-    Hi
+    Loads saved w and v from a directory given as dirname.
     '''
     w = np.zeros(shape=(m_subsimplices, 1))
     v = np.zeros(shape=(n_simplices, 1))
@@ -105,7 +106,7 @@ def load_weights_and_boundary(n_simplices, m_subsimplices, dirname='data/dumps')
 
 def load_input_currents(m_subsimplices, k, dirname='data/dumps'):
     '''
-    Hi
+    Loads saved input currents from a directory given as dirname.
     '''
     input_currents = np.zeros(shape=(k, m_subsimplices), dtype=np.int) 
     for i in range(k):
@@ -120,7 +121,7 @@ def load_input_currents(m_subsimplices, k, dirname='data/dumps'):
 
 def load_solutions(n_simplices, m_subsimplices, k, dirname='data/dumps'):
     '''
-    Hi
+    Loads saved median shape solution from a directory given as dirname.
     '''
     x = np.zeros(shape=(2*m_subsimplices + 2*k*m_subsimplices + 2*k*n_simplices,1), dtype=np.int)
     t = np.zeros((m_subsimplices, 1), dtype=np.int) 
@@ -144,8 +145,11 @@ def load_solutions(n_simplices, m_subsimplices, k, dirname='data/dumps'):
         print "Can't load the solution. <x.txt> file doesn't exist"
     return t, q, r
 
-# Loads LP settings as a sparse dok_matrix
 def load_lp(dirname='data/dumps'):
+    '''
+    Loads a saved settings of Median shape LP such as c, A, b in sparse dok_matrix format from a directory given as dirname.
+    '''
+
     A = None
     b = None
     c = None
@@ -184,8 +188,10 @@ def load_lp(dirname='data/dumps'):
         print "Can't load <c>. <c.txt> doesn't exist"
     return A, b, c
 
-# saves LP settings
 def dump_lp(A=None, b=None, c=None, dirname=os.path.abspath('data/dumps'), **kwargs):
+    ''' 
+    Saves LP settings.
+    '''
     if A is not None:
         sparse_savetxt('%s/A.txt' % dirname, A, include_dim=True)
     if b is not None:
@@ -193,10 +199,9 @@ def dump_lp(A=None, b=None, c=None, dirname=os.path.abspath('data/dumps'), **kwa
     if c is not None:
         sparse_savetxt('%s/c.txt' % dirname, c.reshape(-1,1), fmt='%0.9f', include_dim=True)
 
-# Saves mesh, input currents, boundary matrix, w and v.
 def save_data(mesh=None, input_currents=None, b_matrix=None, w=None, v=None, t=None, q=None, r=None, dirname=os.path.abspath('data/dumps'), **kwargs):
     '''
-    Hi
+    Saves mesh, input currents, boundary matrix, w and v.
     '''
     if mesh is not None:
         np.savetxt('%s/points.txt' % dirname, mesh.points, fmt='%.6f', delimiter=' ')
@@ -226,10 +231,9 @@ def save_data(mesh=None, input_currents=None, b_matrix=None, w=None, v=None, t=N
     if r is not None:
         for i, ri in enumerate(r):
             sparse_savetxt('%s/r%d-lamdba=%s-mu-%s.txt' % (dirname,i+1, kwargs['lambda_'], kwargs['mu']), ri)
-# Saves sparse matrix as text. if the input is not sparse, set is_sparse argument to False.
 def sparse_savetxt(fname, matrix, fmt='%d', include_dim=False):
     '''
-    Hi
+    Saves sparse matrix as text. if the input is not sparse, set is_sparse argument to False.
     '''
     if sparse.issparse(matrix):
         if matrix.getformat() !='coo':

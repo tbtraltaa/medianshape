@@ -15,6 +15,7 @@ Contents:
     experiments/experiments
     simplicial/simplicial-settings
     viz/viz
+    utils
     summary
     checking
 

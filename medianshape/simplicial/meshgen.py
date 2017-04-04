@@ -147,6 +147,9 @@ def distmesh3d(bbox, fixed_points, l=0.1, shape="ball", **kwargs):
     '''
     HI
     '''
+    #distmesh.distmeshnd accepts None(not []) if there is no fixed points.
+    if len(fixed_points) == 0:
+        fixed_points = None
     #if shape == "cuboid":
         #return cuboid_mesh(bbox, fixed_points, l)
     if shape == "ball":

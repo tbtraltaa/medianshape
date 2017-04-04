@@ -1,7 +1,7 @@
 # encoding: utf-8
 '''
-2D experiment cases
--------------------
+Median shape experiment cases in 2D
+-----------------------------------
 
 '''
 from __future__ import absolute_import
@@ -13,7 +13,10 @@ from medianshape.simplicial.mesh import Mesh2D
 
 def triangles2d():
     '''
-    Hi
+    A simple experiment in 2D.
+    A square with unit sides in the first quarter triangulated
+    by 8 triangles.
+    There are 2 curves represented by interploting points.
     '''
     mesh = Mesh2D()
     mesh.bbox = [0, 0, 1, 1]
@@ -47,17 +50,17 @@ def triangles2d():
                             [6,7],
                             [6,8],
                             [7,8]])
-    points = np.zeros((2, 4, 2))
-    points[0] = np.array([[0,0], [0,0.5], [0,1], [1,1]])
-    points[1] = np.array([[0,0], [0.5,0], [1,0], [1,1]])
+    curves = np.zeros((2, 4, 2))
+    curves[0] = np.array([[0,0], [0,0.5], [0,1], [1,1]])
+    curves[1] = np.array([[0,0], [0.5,0], [1,0], [1,1]])
     is_closed = False
     lambdas = [1]
     mus = [0.01]
-    return mesh, mesh.simplices, mesh.edges, points, lambdas, mus, is_closed
+    return mesh, mesh.simplices, mesh.edges, curves, lambdas, mus, is_closed
 
 def ellipses2d():
     '''
-    Hi
+    Two ellipses in a simplicial complex, K of dimension 2.
     '''
     boundary_box = (0,0,1,1)
     l=0.07
@@ -75,22 +78,20 @@ def ellipses2d():
 
 def twisted_curves2d():
     '''
-    Hi
+    Two ellipses in a simplicial complex, K of dimension 2.
     '''
     boundary_box = (0,0,40,40)
     l = 2
     mesh = meshgen2d(boundary_box, l)
-    curve1 = pointgen2d.twisted_curve1()
-    curve2 = pointgen2d.twisted_curve2()
-    shapes = np.array([curve1, curve2])
+    curves= pointgen2d.twisted_curves()
     lambdas = [0.01]
     mus = [0.00001]
     is_closed = False
-    return mesh, mesh.simplices, mesh.edges, np.array(shapes), lambdas, mus, is_closed
+    return mesh, mesh.simplices, mesh.edges, np.array(curves), lambdas, mus, is_closed
 
 def x_x2_x5_2d():
     '''
-    Hi
+    Three curves in 2D given as :math:`x, x^2, x^5`.
     '''
     boundary_box = (0,0,1,1)
     l = 0.04
@@ -106,7 +107,7 @@ def x_x2_x5_2d():
 
 def sinuses2d():
     '''
-    Hi
+    Two curves described by sin1pi and half_sin1pi functions defined in 'medianshape.simplicial.utils'
     '''
     boundary_box = (0,0,1,1)
     l = 0.02
@@ -122,7 +123,7 @@ def sinuses2d():
 
 def multicurves2d():
     '''
-    Hi
+    3 curves described by curve1, curve2, curve3 functions defined in 'medianshape.simplicial.utils'.
     '''
     boundary_box = (0,0,200,50)
     l=3
@@ -138,7 +139,7 @@ def multicurves2d():
 
 def two_curves2d():
     '''
-    Hi
+    2 curves described by deformcurve1, deformcurve2 functions defined in 'medianshape.simplicial.utils'.
     '''
     boundary_box = (0,0,200,50)
     #l = 3

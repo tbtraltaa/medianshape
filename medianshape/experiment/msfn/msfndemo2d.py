@@ -20,7 +20,7 @@ from medianshape.core.msfn import msfn
 
 def msfndemo2d():
     '''
-    Hi
+    MSFN demo 2D
     '''
     start = time.time()
     fig = plt.figure(figsize=(8,8))

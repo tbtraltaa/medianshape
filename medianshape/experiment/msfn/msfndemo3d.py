@@ -22,7 +22,7 @@ import distmesh as dm
 
 def msfndemo3d():
     '''
-    Hi
+    MSFN demo 3D
     '''
     fig = plt.figure(figsize=(19,8))
     mesh = Mesh3D()

@@ -3,7 +3,7 @@
 
 .. toctree:: 
     median/median
-    deform
+    deform/deform
     msfn
     inout
 

@@ -163,7 +163,7 @@ def plot_decomposition2d(mesh, input_currents, t, q, r, title='', figname=None, 
         plotmesh2d(mesh)
         plot_simplices2d(mesh, r_i, color=colors[i], label=r'$R_{%d}$'%(i+1))
         if q is not None:
-            plot_curve2d(mesh, q[i], title=title + r', $Q_{%d}&R_{%d}$'%(i+1,i+1), color='m', marker='*', linewidth=6, label=r'$Q_{%d}$'%(i+1))
+            plot_curve2d(mesh, q[i], title=title + r', $Q_{%d}$'%(i+1)+ r' $and$ ' + r'$R_{%d}$'%(i+1), color='m', marker='*', linewidth=6, label=r'$Q_{%d}$'%(i+1))
         plot_curve2d(mesh, input_currents[i], color='r', ls='--', label=r'$T_{%d}$'%(i+1))
         if t is not None:
             plot_curve2d(mesh, t, linewidth=4, label=r'$Median$')

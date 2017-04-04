@@ -18,7 +18,11 @@ from medianshape.viz import plot2d
 
 def mediandemo2d(outdir='data', save=True):
     '''
-    Hi
+    Median shape demo in 2D. The experiment case is chosen from 'medianshape.cases2d'.
+    Given the experiment case, it gets input currents from the input curves by pushing
+    the underlying simplicial complex. Then input the simplicial setting to Median LP which
+    solves median current. The experiment result is saved in outdir.
+
     '''
     lp_times = list()
     start = time.time()
@@ -29,7 +33,8 @@ def mediandemo2d(outdir='data', save=True):
     figcount = 1
 
     mesh, simplices, subsimplices, points, lambdas, mus, is_closed \
-    = cases2d.triangles2d()
+    = cases2d.sinuses2d()
+    #= cases2d.triangles2d()
     #= cases2d.two_curves2d()
     #= cases2d.multicurves2d() 
     print mesh.get_info()
