@@ -22,12 +22,10 @@ Linux(Ubuntu16.04)
 * conda install matplotlib=1.5.1
 * conda install cvxopt=1.1.8
 
-<!--Linux 32-bit
-------------
+<!--Linux 32-bit -->
 
-sudo apt-get install lib32ncurses5
-sudo apt-get install lib32z1
--->
+<!--sudo apt-get install lib32ncurses5-->
+<!--sudo apt-get install lib32z1-->
 
 Installing PyDistMesh1.2
 ------------------------
