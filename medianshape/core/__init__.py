@@ -6,5 +6,6 @@ __all__ = [s for s in dir() if not s.startswith('_')]
 .. autosummary::
     median
     msfn
+    lp_solver
 '''
 

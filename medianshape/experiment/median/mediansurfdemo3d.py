@@ -5,6 +5,7 @@ Median surface demo 3D
 −−−−−−−−−−−−−−−−--−−−−
 '''
 from __future__ import absolute_import
+import os
 import importlib
 import time
 from shutil import copyfile
@@ -49,8 +50,8 @@ def save_tetgen_mesh(t, q, r, fname):
         fig = plt.figure()
         ax = fig.gca(projection='3d')
         ax.plot_trisurf(points[:,0], points[:,1], points[:,2], triangles=t_tris)
-        ax.plot_trisurf(points[:,0], points[:,1], points[:,2], color="r", triangles=overlaps)
-        plt.title("T")
+        ax.plot_trisurf(points[:,0], points[:,1], points[:,2], triangles=overlaps)
+       # plt.title("T")
         plt.show()
         copyfile("%s.node"%fname, "%s.1.node"%fname)
         copyfile("%s.ele"%fname, "%s.1.ele"%fname)
@@ -152,10 +153,11 @@ def mediansurfdemo3d(outdir='data', save=True):
     w, v, b_matrix, cons = median.get_lp_inputs(points, simplices, subsimplices, len(input_currents))
     inout.save_data(input_currents=input_currents, b_matrix=b_matrix, w=w, v=v)
     t, q, r, norm = median.median(points, simplices, subsimplices, \
-    input_currents, _lambda, w, v, cons, mu=mu)
+    input_currents, _lambda, mu, w, v, cons)
     elapsed = time.time() - start
     print 'Elapsed time %f mins.' % (elapsed/60)
-    with open(os.environ['HOME'] + "README.txt", "w") as f:
+    save_tetgen_mesh(t, q, r, fname)
+    with open(os.environ['HOME'] + "/README.txt", "w") as f:
         f.write("Experiment Statistics\n")
         f.write("Number of points: %d\n"%len(points))
         f.write("Number of tetrahedras: %d\n"%simplices.shape[0])
@@ -164,7 +166,6 @@ def mediansurfdemo3d(outdir='data', save=True):
         f.write("Number of triangles in Surface2: %d\n"%len(input_currents[1].nonzero()[0]))
         f.write("Lambda: %.5f\n"%_lambda)
         f.write("Mu: %.5f\n"%mu)
-    save_tetgen_mesh(t, q, r, fname)
 
 
 if __name__ == '__main__':

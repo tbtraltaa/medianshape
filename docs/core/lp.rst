@@ -4,3 +4,4 @@
 .. toctree::
     median
     msfn
+    lp_solver

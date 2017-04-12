@@ -41,7 +41,6 @@ def mediandemo2d(outdir='data', save=True):
 
     #vertices, paths, input_currents = currentgen.push_functions_on_mesh_2d(mesh, points, is_closed=False, functions=functions)
     vertices, paths, input_currents = currentgen.push_curves_on_mesh(mesh, simplices, subsimplices, points, is_closed=is_closed)
-
     figname = '%s/figures/%d'%(outdir, figcount)
     title = mesh.get_info() + r' - $Curve$ $approximation$'
     plot2d.plot_curves_approx2d(mesh, points, vertices, paths, title, figname, pdf_file, save)

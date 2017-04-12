@@ -24,13 +24,14 @@ def msfndemo2d():
     '''
     start = time.time()
     fig = plt.figure(figsize=(8,8))
+    ax = plt.gca()
     mesh = Mesh2D()
     # l - initial length of triangle sides. Change it to vary traingle size
     mesh.bbox = (0,0,1,1)
     mesh.set_diagonal()
     mesh.set_boundary_values()
     mesh.set_boundary_points()
-    mesh.points, mesh.simplices = distmesh2d('square', mesh.bbox, mesh.boundary_points, l=0.06)
+    mesh.points, mesh.simplices = distmesh2d(mesh.bbox, mesh.boundary_points, l=0.06, shape='square')
     mesh.set_edges()
     mesh.orient_simplices_2D()
 
@@ -38,8 +39,9 @@ def msfndemo2d():
     points.append(pointgen2d.sample_function('sin1pi', mesh.bbox, 20))
     points = np.array(points)
     vertices, paths, input_currents = currentgen.push_curves_on_mesh(mesh, mesh.simplices, mesh.edges, points)
-    title = mesh.get_info()
-    plot2d.plot_curves_approx(mesh, points, vertices, paths, title)
+    #title = mesh.get_info()
+    title = ""
+    plot2d.plot_curves_approx2d(mesh, points, vertices, paths, title)
     plt.show()
     fig = plt.figure(figsize=(8,8))
 
@@ -49,7 +51,7 @@ def msfndemo2d():
         for l in lambdas:
             title = "lambda=%.04f"%l
             x, s, norm = msfn(mesh.points, mesh.simplices, mesh.edges, input_current, l)
-            plot2d.plot_decomposition(mesh, input_currents, comb, x.T, None, s, lim = 0.2)
+            plot2d.plot_decomposition2d(mesh, input_currents, x.T, None, s, lim = 0.2)
             plt.title(title)
             plt.show()
             fig = plt.figure(figsize=(8,8))

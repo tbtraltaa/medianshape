@@ -1,7 +1,7 @@
 # encoding: utf-8
 '''
-2D Median surface embedded in 3D
---------------------------------
+2D surface embedded in 3D
+-------------------------
 '''
 from __future__ import absolute_import
 import importlib

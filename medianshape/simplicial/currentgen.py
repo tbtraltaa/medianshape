@@ -20,7 +20,8 @@ from medianshape.simplicial.utils import vectorize
 
 def push_functions_on_mesh_2d(mesh, curves, functions, is_closed=False):
     '''
-    Hi
+    Accepts curves described by function name and pushes them to the mesh.
+    Returns vertices, paths and vector representation of the input curves.
     '''
     input_currents = list()
     paths = list()
@@ -37,7 +38,8 @@ def push_functions_on_mesh_2d(mesh, curves, functions, is_closed=False):
 
 def push_function_on_mesh(mesh, points, interval_size=10, func_str=None, is_closed=False):
     '''
-    HI
+    Accepts points of a curve and  ia function name and pushes it to the mesh.
+    Returns vertices, paths and vector representation of the input curves.
     '''
     closest_vertices = list()
     for point in points:

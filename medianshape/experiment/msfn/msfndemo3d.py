@@ -22,7 +22,7 @@ import distmesh as dm
 
 def msfndemo3d():
     '''
-    MSFN demo 3D
+    MSFN demo 3D 
     '''
     fig = plt.figure(figsize=(19,8))
     mesh = Mesh3D()
@@ -44,12 +44,11 @@ def msfndemo3d():
     plt.show()
 
     lambdas = [0.0001]
-    comb = [1]
     for input_current in input_currents:
         for l in lambdas:
             title = "lambda=%.04f"%l
             x, s, norm = msfn(mesh.points, mesh.triangles, mesh.edges, input_current, l)
-            plot3d.plot_decomposition(mesh, input_currents, comb, x.T, None, s, title)
+            plot3d.plot_decomposition(mesh, input_currents, x.T, None, s, title)
             plt.show()
 
 if __name__ == "__main__":

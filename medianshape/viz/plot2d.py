@@ -30,7 +30,11 @@ def plotmesh2d(mesh):
     '''
     hi
     '''
-    plt.triplot(mesh.points[:,0], mesh.points[:,1], mesh.simplices.copy())
+    ax = plt.gca()
+    plt.triplot(mesh.points[:,0], mesh.points[:,1], mesh.simplices.copy(), linewidth=1)
+    ax.axes.get_yaxis().set_visible(False)
+    ax.axes.get_xaxis().set_visible(False)
+    ax.set_frame_on(False)
     plt.tight_layout()
     #plt.scatter(mesh.points[:,0], mesh.points[:,1])
 
@@ -161,13 +165,14 @@ def plot_decomposition2d(mesh, input_currents, t, q, r, title='', figname=None, 
         plt.ylim([mesh.ymin-lim, mesh.ymax+lim])
         plt.xlim([mesh.xmin-lim, mesh.xmax+lim])
         plotmesh2d(mesh)
-        plot_simplices2d(mesh, r_i, color=colors[i], label=r'$R_{%d}$'%(i+1))
+        #plot_simplices2d(mesh, r_i, color=colors[i], label=r'$R_{%d}$'%(i+1))
+        plot_simplices2d(mesh, r_i, color='b', label=r'$R_{%d}$'%(i+1))
         if q is not None:
             plot_curve2d(mesh, q[i], title=title + r', $Q_{%d}$'%(i+1)+ r' $and$ ' + r'$R_{%d}$'%(i+1), color='m', marker='*', linewidth=6, label=r'$Q_{%d}$'%(i+1))
         plot_curve2d(mesh, input_currents[i], color='r', ls='--', label=r'$T_{%d}$'%(i+1))
         if t is not None:
-            plot_curve2d(mesh, t, linewidth=4, label=r'$Median$')
-        plt.legend(loc='lower right')
+            plot_curve2d(mesh, t, linewidth=4, label=r'$T$')
+        #plt.legend(loc='lower right')
         plt.tight_layout()
         if save and figname:
             plt.savefig("%s-%d.png" % (figname, i), dpi=fig.dpi)

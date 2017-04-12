@@ -29,23 +29,27 @@ def currentdemo():
     print "Triangles:\n", mesh.simplices
     print "Edges:\n", mesh.edges
     fig = plt.figure(figsize=(8,8))
+    ax = plt.gca()
     current1 = np.zeros(5)
     current1[2] = 1
     current1[3] = 1
-    plot2d.plot(mesh)
+    plot2d.plotmesh2d(mesh)
     plt.scatter(0,0, s=100 )
     plt.scatter(0,1, s=100)
     plt.scatter(1,1, s=100)
     plt.scatter(1,0, s=100)
     plt.annotate('p1', xy=(0,0), xytext=(3, 1.5))
-    plot2d.plot_curve(mesh, current1, color='r', label="T1")
+    plot2d.plot_curve2d(mesh, current1, color='r', label="T1", linewidth=8)
     current2 = np.zeros(5)
     current2[1] = -1
     current2[0] = -1
-    plot2d.plot_curve(mesh, current2, color='g', label="T2")
-    plt.legend(loc='upper right')
+    plot2d.plot_curve2d(mesh, current2, color='g', label="T2", linewidth=8)
+    #plt.legend(loc='upper right')
     print "T1:", current1
     print "T2:", current2
+    ax.axes.get_yaxis().set_visible(False)
+    ax.axes.get_xaxis().set_visible(False)
+    ax.set_frame_on(False)
     plt.tight_layout()
     plt.show()
 
