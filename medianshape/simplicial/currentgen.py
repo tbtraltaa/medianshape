@@ -1,7 +1,7 @@
 # encoding: utf-8
 '''
-Current generation
-==================
+1-Current generation
+====================
 
 '''
 
@@ -18,11 +18,10 @@ from scipy.spatial.distance import pdist, cdist
 
 from medianshape.simplicial.utils import vectorize
 
+#Accepts curves described by function name and pushes them to the mesh.
+#Returns vertices, paths and vector representation of the input curves.
+
 def push_functions_on_mesh_2d(mesh, curves, functions, is_closed=False):
-    '''
-    Accepts curves described by function name and pushes them to the mesh.
-    Returns vertices, paths and vector representation of the input curves.
-    '''
     input_currents = list()
     paths = list()
     vertices = list()
@@ -36,11 +35,9 @@ def push_functions_on_mesh_2d(mesh, curves, functions, is_closed=False):
     input_currents = np.array(input_currents).reshape(len(curves), mesh.edges.shape[0])
     return vertices, paths, input_currents
 
+#Accepts points of a curve and  a function name and pushes it to the mesh.
+#Returns vertices, paths and vector representation of the input curves.
 def push_function_on_mesh(mesh, points, interval_size=10, func_str=None, is_closed=False):
-    '''
-    Accepts points of a curve and  ia function name and pushes it to the mesh.
-    Returns vertices, paths and vector representation of the input curves.
-    '''
     closest_vertices = list()
     for point in points:
         min_dist = mesh.diagonal
@@ -72,7 +69,7 @@ def push_function_on_mesh(mesh, points, interval_size=10, func_str=None, is_clos
 
 def push_curves_on_mesh(mesh, simplices, subsimplices, curves, is_closed=False, valid_points=None):
     '''
-    Hi
+    Pushes curves described as a set of points to
     '''
     input_currents = list()
     paths = list()

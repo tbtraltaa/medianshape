@@ -35,7 +35,7 @@ def curvedeform2d():
 
 def ellipsesdeform2d():
     '''
-    Overlapping two ellipses.
+    Two overlapping ellipses.
     '''
     boundary_box = (0,0,1,1)
     l=0.07
