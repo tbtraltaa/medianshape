@@ -38,7 +38,7 @@ def msfndemo2d():
     points = list()
     points.append(pointgen2d.sample_function('sin1pi', mesh.bbox, 20))
     points = np.array(points)
-    vertices, paths, input_currents = currentgen.push_curves_on_mesh(mesh, mesh.simplices, mesh.edges, points)
+    vertices, paths, input_currents = currentgen.push_curves_on_mesh(mesh.points, mesh.edges, points)
     #title = mesh.get_info()
     title = ""
     plot2d.plot_curves_approx2d(mesh, points, vertices, paths, title)

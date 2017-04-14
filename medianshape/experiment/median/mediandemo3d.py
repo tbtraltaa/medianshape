@@ -63,7 +63,7 @@ def mediandemo3d(outdir='data', save=True):
     figcount += 1
     fig.tight_layout()
     fig = plt.figure(figsize=(8,8))
-    vertices, paths, input_currents = currentgen.push_curves_on_mesh(mesh, simplices, subsimplices, points, is_closed, mesh.surf_points)
+    vertices, paths, input_currents = currentgen.push_curves_on_mesh(mesh.points, mesh.edges, points, is_closed, mesh.surf_points)
 
     figname = '%s/figures/%d'%(outdir, figcount)
     title = r'$Curve$ $approximation$'

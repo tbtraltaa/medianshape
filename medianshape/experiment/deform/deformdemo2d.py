@@ -39,14 +39,14 @@ def deform2d(outdir='data', save=True):
     print mesh.get_info()
     print alphas
 
-    vertices, paths, input_currents = currentgen.push_curves_on_mesh(mesh, simplices, subsimplices, points, is_closed=is_closed)
+    vertices, paths, input_currents = currentgen.push_curves_on_mesh(mesh.points, mesh.edges, points, is_closed=is_closed)
     figname = '%s/figures/%d'%(outdir, figcount)
     title = mesh.get_info()
     plot2d.plot_curves_approx2d(mesh, points, vertices, paths, title, figname, pdf_file, save=save)
     plt.tight_layout()
     figcount += 1
 
-    run.rundeform2d(mesh, simplices, subsimplices, input_currents, lambdas, mus, alphas, file_doc=pdf_file, save=save)
+    run.rundeforms2d(mesh, simplices, subsimplices, input_currents, lambdas, mus, alphas, file_doc=pdf_file, save=save)
     if save:
         pdf_file.close()
     elapsed = time.time() - start
