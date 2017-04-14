@@ -69,15 +69,6 @@ def median(points, simplices, subsimplices, input_currents, lambda_, mu=0.001, w
 
     inout.dump_lp(cons, b, c)
     start = time.time()
-    print c.shape
-    print cons.shape
-    print b.shape
-    print c.dtype
-    print cons.dtype
-    print b.dtype
-    print type(c)
-    print type(cons)
-    print type(b)
     sol_x, objective_value = lp_solver(c, cons, b)
     elapsed = time.time() - start
     sol_x1 = sol_x[np.where(sol_x >=1e-5)]

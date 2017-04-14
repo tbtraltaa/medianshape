@@ -218,7 +218,7 @@ def get_edge_vector(mesh_edges, edges):
     edge_vector = np.zeros(shape=(mesh_edges.shape[0], 1))
     temp_edges = [ tuple(edge) for edge in mesh_edges]
     for path_edge in edges:
-        sorted_edge = np.sort(edge)
+        sorted_edge = np.sort(path_edge)
         i = temp_edges.index(tuple(sorted_edge))
         if path_edge[0] <= path_edge[1]:
             edge_vector[i] = 1
