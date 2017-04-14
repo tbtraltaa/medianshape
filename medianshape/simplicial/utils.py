@@ -12,6 +12,35 @@ import importlib
 import numpy as np
 import math
 
+def get_bbox_diagonal(mesh_points=None, bbox=None):
+    '''
+    Returns the diagonal of a bounding box in 2D or 3D.
+    '''
+    if mesh_points.shape[1]==2:
+        if bbox is None and mesh_points is not None:
+            bbox = list()
+            bbox.append(np.amin(mesh_points[:,0]))
+            bbox.append(np.amin(mesh_points[:,1]))
+            bbox.append(np.amax(mesh_points[:,0]))
+            bbox.append(np.amax(mesh_points[:,1]))
+        if bbox is not None: 
+            return np.sqrt((bbox[2]-bbox[0])**2 + (bbox[3]-bbox[1])**2)
+        else:
+            return None
+    elif mesh_points.shape[1]==3:
+        if bbox is None and mesh_points is not None:
+            bbox = list()
+            bbox.append(np.amin(mesh_points[:,0]))
+            bbox.append(np.amin(mesh_points[:,1]))
+            bbox.append(np.amin(mesh_points[:,2]))
+            bbox.append(np.amax(mesh_points[:,0]))
+            bbox.append(np.amax(mesh_points[:,1]))
+            bbox.append(np.amax(mesh_points[:,2]))
+        if bbox is not None: 
+            return np.sqrt((bbox[3]-bbox[0])**2 + (bbox[4]-bbox[1])**2 + (bbox[5]-bbox[2])**2)
+        else:
+            return None
+
 def boundary_points(bbox):
     '''
     Returns corner points of a boundary box in which
