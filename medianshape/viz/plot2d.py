@@ -28,7 +28,7 @@ def get_colors(n):
 
 def plotmesh2d(mesh):
     '''
-    hi
+    Plots a triangulated mesh.
     '''
     ax = plt.gca()
     plt.triplot(mesh.points[:,0], mesh.points[:,1], mesh.simplices.copy(), linewidth=1)
@@ -40,7 +40,7 @@ def plotmesh2d(mesh):
 
 def plot_curve2d(mesh, func_path, title=None, color="black", marker=None, linewidth=3, ls='-', label=""):
     '''
-    hi
+    Plots a curve in a triangulated mesh.
     '''
     if type(func_path) == list:
         func_path = np.array(func_path)
@@ -55,10 +55,9 @@ def plot_curve2d(mesh, func_path, title=None, color="black", marker=None, linewi
     if title:
         plt.title(title)
 
-# Plot simplices
 def plot_simplices2d(mesh, simplices, title=None, color="y", label=""):
     '''
-    hi
+    Plots 2-simplices, triangles.
     '''
     ax = plt.gca()
     #ccw_symbol = u'\u2941'
@@ -72,7 +71,7 @@ def plot_simplices2d(mesh, simplices, title=None, color="y", label=""):
 
 def plot_curves_approx2d(mesh, points, vertices, paths, title=r'$Curve$ $approximation$', figname=None, file_doc=None, save=True, lim=5):
     '''
-    hi
+    Plots curves described as points along with corresponding interpolated curves in a trianglulated mesh.
     '''
     colors = get_colors(len(points))
     fig = plt.gca().figure
@@ -93,7 +92,7 @@ def plot_curves_approx2d(mesh, points, vertices, paths, title=r'$Curve$ $approxi
 
 def plot_curve_approx2d(mesh, input_points, closest_vertices, path, title=None, color="red", linewidth=3, label=""):
     '''
-    hi
+    Plots a curve described as points along with a corresponding interpolated curve in a trianglulated mesh.
     '''
     plt.plot(input_points[:,0], input_points[:,1], c=color, ls="--")
     plt.title(title)
@@ -107,7 +106,7 @@ def plot_curve_approx2d(mesh, input_points, closest_vertices, path, title=None, 
 def plot_median2d(mesh, input_currents, t, title='', figname="", file_doc=None, save=True, lim=5):
     colors= get_colors(len(input_currents))
     '''
-    hi
+    Plots a median curve in a triangulated mesh.
     '''
     plt.clf()
     fig = plt.gca().figure
@@ -128,7 +127,7 @@ def plot_median2d(mesh, input_currents, t, title='', figname="", file_doc=None, 
 
 def plot_curve_and_median2d(mesh, input_currents, t, title=None, figname=None, file_doc=None, save=True, lim=5):
     '''
-    hi
+    Plots input curves and their median curve.
     '''
     colors= get_colors(len(input_currents))
     fig = plt.gca().figure
@@ -152,7 +151,7 @@ def plot_curve_and_median2d(mesh, input_currents, t, title=None, figname=None, f
 
 def plot_decomposition2d(mesh, input_currents, t, q, r, title='', figname=None, file_doc=None, save=True, lim=None):
     '''
-    hi
+    Plots flat norm decomposition.
     '''
     colors= get_colors(len(input_currents))
     for i, r_i in enumerate(r):

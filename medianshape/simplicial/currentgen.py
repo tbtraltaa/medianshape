@@ -1,6 +1,6 @@
 # encoding: utf-8
 '''
-1-Current generation
+1-current generation
 ====================
 
 '''
@@ -69,13 +69,22 @@ def push_function_on_mesh(mesh, points, interval_size=10, func_str=None, is_clos
 
 def push_curves_on_mesh(mesh_points, mesh_edges, curves, is_closed=False, valid_points=None):
     '''
-    Pushes curves described as a set of points to
+    Pushes curves described as sets of points to a simplicial complex K (mesh).
+    For a single curve, it finds the closest points with respect to each point in the curve.
+    Then, it connects the closest vertices with shortest paths which consist of edges in K.
+
+    :param float mesh_points: points in K.
+    :param int mesh_edges: edges in K in the form of [p1_idx p2_idx] where p1_idx and p2_idx are indices of points in an edge.
+    :param float curves: a set of curves in which each curve is described by a set of points.
+    :param bool is_closed: indicates if the input curves are closed or not.
+    :param int valid_points: an indice list of points that are valid to be a part of the current in K.
+    :returns: vertices, paths, input_currents -- indices of closest vertices, curves as lists of edges, current vectors 
     '''
     input_currents = list()
     paths = list()
     vertices = list()
     for i, curve_points in enumerate(curves):
-        input_current, path, closest_vertices = \
+        closest_vertices, path, input_current= \
         push_curve_on_mesh(mesh_points, mesh_edges, curve_points, is_closed, valid_points) 
         vertices.append(closest_vertices)
         paths.append(path)
@@ -85,7 +94,16 @@ def push_curves_on_mesh(mesh_points, mesh_edges, curves, is_closed=False, valid_
 
 def push_curve_on_mesh(mesh_points, mesh_edges, curve_points, is_closed=False, valid_points=None):
     '''
-    Hi
+    Pushes a curve described as a set of points to a simplicial complex K (mesh).
+    For a single curve, it finds the closest points with respect to each point in the curve.
+    Then, it connects the closest vertices with shortest paths which consist of edges in K.
+
+    :param float mesh_points: points in K.
+    :param int mesh_edges: edges in K in the form of [p1_idx p2_idx] where p1_idx and p2_idx are indices of points in an edge.
+    :param float curves: a curve which is described by a set of points.
+    :param bool is_closed: indicates if the curve is closed or not.
+    :param int valid_points: an indice list of points that are valid to be a part of the current in K.
+    :returns: closest_vertices, path, input_current -- indices of closest vertices, a curve as lists of edges, a current vector
     '''
     closest_vertices = find_closest_vertices(mesh_points, curve_points, valid_points)
     if len(closest_vertices) == 1:
@@ -94,11 +112,11 @@ def push_curve_on_mesh(mesh_points, mesh_edges, curve_points, is_closed=False, v
     else:
         curve_path = find_path(mesh_points, mesh_edges, closest_vertices, is_closed)
         input_current = get_edge_vector(mesh_edges, curve_path)
-    return input_current, curve_path, closest_vertices
+    return closest_vertices, curve_path, input_current
 
 def find_closest_vertices(mesh_points, points, valid_points=None):
     '''
-    Hi
+    Finds the closes vertices in K for a given set of points.
     '''
     closest_vertices = list()
     if valid_points is not None and len(points) > len(valid_points):
@@ -114,7 +132,7 @@ def find_closest_vertices(mesh_points, points, valid_points=None):
 
 def find_closest_vertex(mesh_points, point, selected_points, valid_points=None):
     '''
-    Hi
+    Finds the closest vertice in K for a given point.
     '''
     closest_vertex = -1
     temp_points = np.copy(mesh_points)
@@ -133,9 +151,6 @@ def find_closest_vertex(mesh_points, point, selected_points, valid_points=None):
     return closest_vertex
 
 def find_interval_X(point, ordered_X, interval_size=5):
-    '''
-    Hi
-    '''
     x_idx = np.where(ordered_X==point[0])
     if len(x_idx[0]):
         x_idx = ordered_X.tolist().index(point[0])
@@ -162,7 +177,7 @@ def find_interval_X(point, ordered_X, interval_size=5):
 
 def find_path(mesh_points, mesh_edges, path_points, is_closed=False):
     '''
-    Hi
+    Finds a path in K which connects given vertices in K. The path is descrived by a list of edges in K.
     '''
     number_of_points = mesh_points.shape[0] 
     large_dist = get_bbox_diagonal(mesh_points)
@@ -213,7 +228,7 @@ def find_path(mesh_points, mesh_edges, path_points, is_closed=False):
 
 def get_edge_vector(mesh_edges, edges):
     '''
-    Hi
+    Given a set of edges in K, it generates a corresponding edge vector.
     '''
     edge_vector = np.zeros(shape=(mesh_edges.shape[0], 1))
     temp_edges = [ tuple(edge) for edge in mesh_edges]
@@ -228,7 +243,7 @@ def get_edge_vector(mesh_edges, edges):
 
 def get_vertex_vector(mesh_points, point_indices):
     '''
-    Hi
+    Given a set of points in K, it generates a corresponding point vector.
     '''
     vertex_vector = np.zeros(shape=(mesh_points.shape[0], 1))
     vertex_vector[point_indices] = 1

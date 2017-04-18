@@ -1,2 +1,2 @@
-.. automodule:: medianshape.experiment.median.surfgen
+.. automodule:: medianshape.simplicial.surfgen
     :members:

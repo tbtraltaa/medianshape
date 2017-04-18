@@ -32,7 +32,7 @@ def get_colors(n):
 
 def plotmesh3d(mesh, title='', figname=None, file_doc=None, save=True):
     '''
-    hi
+    Plots a tetrahedralized mesh.
     '''
     dim = mesh.points.shape[1]
     if dim == 2:
@@ -70,7 +70,7 @@ def plotmesh3d(mesh, title='', figname=None, file_doc=None, save=True):
 
 def plot_point3d(mesh, vertex_vector, title=None, color="black", marker='.', s=200, label=""):
     '''
-    hi
+    Plots points in 3D.
     '''
     ax = plt.gca(projection='3d')
     if type(vertex_vector) == list:
@@ -84,7 +84,7 @@ def plot_point3d(mesh, vertex_vector, title=None, color="black", marker='.', s=2
 
 def plot_curve3d(mesh, func_path, title=None, color="black", marker=None, linewidth=3, ls='-', label="", set_lim = False):
     '''
-    hi
+    Plots a curve.
     '''
     ax = plt.gca(projection='3d')
     if set_lim:
@@ -109,7 +109,7 @@ def plot_curve3d(mesh, func_path, title=None, color="black", marker=None, linewi
 # Plot simplices
 def plot_simplices3d(mesh, simplices, title=None, figname=None, file_doc=None, save=True, color='y'):
     '''
-    hi
+    Plots 3-simplices (tetrahedras).
     '''
     ax = plt.gca(projection='3d')
     fig = ax.figure
@@ -133,9 +133,10 @@ def plot_simplices3d(mesh, simplices, title=None, figname=None, file_doc=None, s
         plt.savefig('%s.png'%figname, pad_inches=-1, box_inches='tight')
     if save and file_doc:
         file_doc.savefig(fig)
+
 def plot_curves_approx3d(mesh, points, vertices, paths, figname=None, file_doc=None, save=True, title=None):
     '''
-    hi
+    Plots curves described as points along with corresponding interpolated curves in a tetrahedralized mesh.
     '''
     colors = get_colors(len(points))
     ax = plt.gca(projection='3d')
@@ -157,7 +158,7 @@ def plot_curves_approx3d(mesh, points, vertices, paths, figname=None, file_doc=N
 
 def plot_curve_approx3d(mesh, input_points, closest_vertices, path, title=None, color="red", linewidth=3, label=""):
     '''
-    hi
+    Plots a curve described as points along with a corresponding interpolated curve in a tetrahedralized mesh.
     '''
     ax = plt.gca(projection='3d')
     #ax.plot(input_points[:,0], input_points[:,1], input_points[:,2], c=color, ls="--", label='Input points')
@@ -177,7 +178,7 @@ def plot_curve_approx3d(mesh, input_points, closest_vertices, path, title=None, 
 
 def plot_median3d(mesh, input_currents, t, title='', figname="", file_doc=None, save=True):
     '''
-    hi
+    Plots a median curve in a tetrahedralized mesh.
     '''
     colors= get_colors(len(input_currents))
     ax = plt.gca(projection='3d')
@@ -202,7 +203,7 @@ def plot_median3d(mesh, input_currents, t, title='', figname="", file_doc=None, 
 
 def plot_curve_and_median3d(mesh, input_currents, t, title=None, figname=None, file_doc=None, save=True, lim=5):
     '''
-    hi
+    Plots input curves and their median curve.
     '''
     colors= get_colors(len(input_currents))
     ax = plt.gca(projection='3d')
@@ -225,7 +226,7 @@ def plot_curve_and_median3d(mesh, input_currents, t, title=None, figname=None, f
 
 def plot_decomposition3d(mesh, input_currents, t, q, r, title='', figname=None, file_doc=None, save=True):
     '''
-    hi
+    Plots flat norm decomposition.
     '''
     colors = get_colors(len(input_currents))
     fig = plt.figure(figsize=(8,8))

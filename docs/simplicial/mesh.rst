@@ -1,6 +1,2 @@
-.. autoclass:: medianshape.simplicial.mesh.Mesh2D
+.. automodule:: medianshape.simplicial.mesh
     :members:
-    :private-members:
-.. autoclass:: medianshape.simplicial.mesh.Mesh3D
-    :members:
-    :private-members:

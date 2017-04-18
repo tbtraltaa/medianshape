@@ -1,7 +1,7 @@
 **Getting started**
 ===================
 
-It is a python package called **Mass Regularized Simplicial Median Shape (MRSMS)**. The purpose of the package is to compute the median shape of input shapes given. The inputs can be any dimensional, closed or open such as curves, 2D shapes or 3D objects and they is represented by **currents** which is a mathematical concepts adapted from Geometric Measure Theory(GMT). We used **flat norm** which is also a concept from GMT to measure distances between the median current and input currents. The input currents are approximated in an underlying simplicial complex and the *simplicial flat norm* used to compare the simplicial currents with the median. Finding the median which locates within minimum distance from each input currents is an optimization problem and we constructed the median shape problem as a **Linear Program(LP) or Integer Optimization problem** and solved it using LP solvers such as **cplex** and **cvxopt**. There are several experiments included in the package which works on 1-currents in 2D (the codimension one case) and 3D (the codimension two case). MRSMS itself is dimension-free and the same MRSMS runs for both 2D and 3D experiments. That is the generality adapted from Geometric Measure Theory. 
+It is a python package called **Mass Regularized Simplicial Median Shape (MRSMS)**. The purpose of the package is to compute the median of shapes. Input shapes can be any dimensional, closed or open such as curves, 2D shapes or 3D objects represented by **currents** which is a mathematical concepts adapted from Geometric Measure Theory(GMT). We used **flat norm** which is also a concept from GMT to measure distances between a median current and input currents. Input currents are approximated in an underlying simplicial complex and *simplicial flat norm* is used to compare simplicial currents with median. Finding a median which locates within minimum distance from each input current is an optimization problem and we constructed the median shape problem as a **Linear Program(LP)** by relaxing **Integer Optimization problem** and solved it using LP solvers such as **cplex** and **cvxopt**. There are several experiments included in the package which works on 1-currents in 2D (the codimension one case) and 3D (the codimension two case). MRSMS itself is dimension-free and the same MRSMS runs for both 2D and 3D experiments. That is the generality adapted from Geometric Measure Theory. 
 
 Install
 -------
@@ -10,8 +10,10 @@ Install
 Run source code using conda package management
 ----------------------------------------------
 
-Linux(Ubuntu16.04)
-------------
+Linux
+-----
+
+We used Ubuntu16.04.
 
 * Install conda
 * conda create -name medianshape python=2
@@ -22,10 +24,10 @@ Linux(Ubuntu16.04)
 * conda install matplotlib=1.5.1
 * conda install cvxopt=1.1.8
 
-<!--Linux 32-bit -->
+.. Linux 32-bit
 
-<!--sudo apt-get install lib32ncurses5-->
-<!--sudo apt-get install lib32z1-->
+.. sudo apt-get install lib32ncurses5
+.. sudo apt-get install lib32z1
 
 Installing PyDistMesh1.2
 ------------------------

@@ -14,8 +14,6 @@ Welcome to MedianShape's documentation!
     simplicial/simplicial-settings
     viz/viz
     utils
-    summary
-    checking
 
 
 Indices and tables

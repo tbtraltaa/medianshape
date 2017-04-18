@@ -35,8 +35,7 @@ def longitudes3ds():
     mesh.set_boundary_points()
     mesh.set_diagonal()
     mesh.set_boundary_values()
-    print mesh.fixed_points
-    mesh.points, mesh.simplices= distmesh3d(mesh.bbox, mesh.fixed_points, l=l, shape="sphere")
+    mesh.points, mesh.simplices= distmesh3d(mesh.bbox, l, mesh.fixed_points, shape="sphere")
     #mesh.points, mesh.simplices = scipy_mesh3d(mesh.bbox, mesh.fixed_points, l)
     #mesh.points, mesh.simplices= meshpy_cuboid3d(mesh.bbox, mesh.fixed_points.tolist(), max_volume=(1**3)*1.0/(6*np.sqrt(2)))
     #plot3d.plotmesh3d(mesh)

@@ -31,7 +31,7 @@ def msfndemo2d():
     mesh.set_diagonal()
     mesh.set_boundary_values()
     mesh.set_boundary_points()
-    mesh.points, mesh.simplices = distmesh2d(mesh.bbox, mesh.boundary_points, l=0.06, shape='square')
+    mesh.points, mesh.simplices = distmesh2d(mesh.bbox, l=0.06, fixed_points=mesh.boundary_points, shape='square')
     mesh.set_edges()
     mesh.orient_simplices_2D()
 

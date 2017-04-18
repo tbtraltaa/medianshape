@@ -22,6 +22,10 @@ from medianshape.simplicial.mesh import Mesh2D, Mesh3D
 import medianshape.utils as utils 
 
 def get_mesh_surface(mesh):
+    '''
+    Gets a surface mesh out of a tetrahedralized simplicial complex K.
+
+    '''
     smesh = copy.copy(mesh)
     b_matrix = np.abs(utils.boundary_matrix(mesh.triangles, mesh.edges, format='dok'))
     s_edges_idx = np.where(b_matrix.sum(axis=1)==3)[0]
@@ -69,13 +73,20 @@ def get_mesh_surface(mesh):
     '''
     return smesh
 
-def meshgen2d(boundary_box=None, l=0.02, fixed_points=None, include_corners=True):
+def meshgen2d(bbox=None, l=0.02, fixed_points=None, include_corners=True):
     '''
-    HI
+    Generates a simplical complex K of dimension 2, a triangulated mesh.
+
+    :param float bbox: a bounding box, [:math:`x_{min}, y_{min}, x_{max}, y_{max}`].
+    :param float l: initial edge length.
+    :param float fixed_points: fixed points that should be in K.
+    :param bool include_corners: If True, the corner points of the given boundary box must be in K.
+    :returns: mesh -- an object of Mesh2D class.
+    :rtype: object.
     '''
     mesh = Mesh2D()
     #l - initial length of triangle sides. Change it to vary traingle size
-    mesh.bbox = boundary_box
+    mesh.bbox = bbox
     mesh.set_boundary_points()
     mesh.set_diagonal()
     mesh.set_boundary_values()
@@ -85,14 +96,21 @@ def meshgen2d(boundary_box=None, l=0.02, fixed_points=None, include_corners=True
             mesh.fixed_points = np.vstack((mesh.fixed_points, mesh.boundary_points))
         else:
             mesh.fixed_points = mesh.boundary_points
-    mesh.points, mesh.simplices = distmesh2d(bbox=mesh.bbox, fixed_points=mesh.fixed_points, l=l)
+    mesh.points, mesh.simplices = distmesh2d(bbox=mesh.bbox, l=l, fixed_points=mesh.fixed_points)
     mesh.edges = utils.get_subsimplices(mesh.simplices)
     mesh.orient_simplices_2D()
     return mesh
 
 def meshgen3d(bbox=None, l=0.2, fixed_points=None, include_corners=True, load_data=False, shape="ball", **kwargs):
     '''
-    HI
+    Generates a simplical complex K of dimension 3, a tetrahedralized mesh.
+
+    :param float bbox: a bounding box, [:math:`x_{min}, y_{min}, z_{min}, x_{max}, y_{max}, z_{max}`].
+    :param float l: initial edge length.
+    :param float fixed_points: fixed points that should be in K.
+    :param bool include_corners: If True, the corner points of the given boundary box must be in K.
+    :returns: mesh -- an object of Mesh3D class.
+    :rtype: object.
     '''
     mesh = Mesh3D()
     mesh.bbox = bbox
@@ -105,15 +123,21 @@ def meshgen3d(bbox=None, l=0.2, fixed_points=None, include_corners=True, load_da
             mesh.fixed_points = np.vstack((mesh.fixed_points, mesh.boundary_points))
         else:
             mesh.fixed_points = mesh.boundary_points
-    mesh.points, mesh.simplices= distmesh3d(mesh.bbox, mesh.fixed_points, l, shape, **kwargs)
-    #mesh.points, mesh.simplices = scipy_mesh3d(mesh.bbox, mesh.fixed_points, l)
+    mesh.points, mesh.simplices= distmesh3d(mesh.bbox, l, mesh.fixed_points, shape, **kwargs)
+    #mesh.points, mesh.simplices = scipy_mesh3d(mesh.bbox, l, mesh.fixed_points)
     mesh.triangles = utils.get_subsimplices(mesh.simplices)
     mesh.edges = utils.get_subsimplices(mesh.triangles)
     return mesh
 
-def scipy_mesh3d(bbox, fixed_points, l):
+def scipy_mesh3d(bbox, l, fixed_points):
     '''
-    HI
+    Generates a simplical complex K of dimension 3, a tetrahedralized mesh.
+
+    :param float bbox: a bounding box, [:math:`x_{min}, y_{min}, z_{min}, x_{max}, y_{max}, z_{max}`].
+    :param float l: initial edge length.
+    :param float fixed_points: fixed points that should be in K.
+    :returns: points, tetrahedras.
+    :rtype: float, int.
     '''
     bbox = np.array(bbox).reshape(2, -1)
     dim = bbox.shape[1]
@@ -136,16 +160,28 @@ def scipy_mesh3d(bbox, fixed_points, l):
 #    mesh = build(mesh_info, volume_constraints=True, max_volume=max_volume)
 #    return np.array(mesh.points), np.array(mesh.elements)
 
-def distmesh2d(bbox, fixed_points, l=0.1, shape="square"):
+def distmesh2d(bbox, l=0.1, fixed_points=None, shape="square"):
     '''
-    HI
+    Generates a simplical complex K of dimension 2, a triangulated mesh.
+
+    :param float bbox: a bounding box, [:math:`x_{min}, y_{min}, x_{max}, y_{max}`].
+    :param float l: initial edge length.
+    :param float fixed_points: fixed points that should be in K.
+    :param str shape: the shape of K.
+    :returns: points, triangles.
     '''
     if shape == "square":
-        return square_mesh(bbox, fixed_points, l)
+        return square_mesh(bbox, l, fixed_points)
 
-def distmesh3d(bbox, fixed_points, l=0.1, shape="ball", **kwargs):
+def distmesh3d(bbox, l=0.1, fixed_points=None, shape="ball", **kwargs):
     '''
-    HI
+    Generates tetrahedral mesh, K in 3D with a given shape using Distmesh.
+
+    :param float bbox: a bounding box, [:math:`x_{min}, y_{min}, z_{min}, x_{max}, y_{max}, z_{max}`].
+    :param float l: initial edge length.
+    :param float fixed_points: fixed points that should be in K.
+    :param str shape: a shape of K
+    :returns: points, tetrahedras.
     '''
     #distmesh.distmeshnd accepts None(not []) if there is no fixed points.
     if  fixed_points is not None:
@@ -173,22 +209,32 @@ def distmesh3d(bbox, fixed_points, l=0.1, shape="ball", **kwargs):
             R = kwargs["R"]
         dist_function = lambda p: ((p**2).sum(axis=1)+R**2-r**2)**2-4*R**2*(p[:,0]**2+p[:,1]**2);
         points, simplices=dm.distmeshnd(dist_function, dm.huniform, l, bbox, fig=None);
-        pass
     return points, simplices
 
-def square_mesh(bbox, fixed_points, l=0.1):
+def square_mesh(bbox, l=0.1, fixed_points=None):
     '''
-    HI
+    Generates a simplical complex K of dimension 2, a triangulated mesh,
+    with square shape using Distmesh.
+
+    :param float bbox: a bounding box, [:math:`x_{min}, y_{min}, x_{max}, y_{max}`].
+    :param float l: initial edge length. 
+    :param float fixed_points: fixed points that should be in K.
+    :returns: points, triangles.
     '''
-    """Square, with size function point and line sources"""
+    #Square, with size function point and line sources#
     dist_function = lambda p: dm.drectangle(p, bbox[0], bbox[2], \
                                                 bbox[1],bbox[3])
     points, triangles = dm.distmesh2d(dist_function, dm.huniform, l, bbox, fixed_points)
     return points, triangles 
 
-def cuboid_mesh(bbox, fixed_points, l=0.1):
+def cuboid_mesh(bbox, l=0.1, fixed_points=None):
     '''
-        Generates 3-simplex, tetrahedral mesh in 3D using DistMesh
+    Generates tetrahedral mesh in 3D using DistMesh with cubic shape using Distmesh.
+
+    :param float bbox: a bounding box, [:math:`x_{min}, y_{min}, z_{min}, x_{max}, y_{max}, z_{max}`].
+    :param float l: initial edge length.
+    :param float fixed_points: fixed points that should be in K.
+    :returns: points, tetrahedras.
     '''
     dist_function = lambda p: dcuboid(p, float(bbox[0]), float(bbox[1]), float(bbox[2]), float(bbox[3]), float(bbox[4]), float(bbox[5])) 
     points, tetrahedras = dm.distmeshnd(dist_function, dm.huniform, l, bbox, fixed_points) 

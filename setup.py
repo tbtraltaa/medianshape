@@ -1,24 +1,21 @@
 from setuptools import setup, find_packages
+from os import path
 
-with open('README.rst') as f:
+here = path.abspath(path.dirname(__file__))
+
+# Get the long description from the README file
+with open(path.join(here, 'README.rst')) as f:
     long_description = f.read()
 
-setup(name="MedianShape"
-    version = '0.1.1',
-    description = 'Median Shape',
-    long_description = readme(),
-    classifiers=[
-        'Development Status :: 0.1',
-        'License ::  MIT License',
-        'Programming Language :: Python :: 2.7',
-        'Topic :: Median Shapes :: Shape Statistics',
-    ],
-    keywords='',
+setup(name="medianshape",
+    version='1.0.0',
+    description='Median Shape',
+    long_description=long_description,
+    keywords='Simplicial Median shape',
     author='WSU',
     author_email='',
     url = 'https://github.com',
-    license = ''
-    test_suite='',
+    license = 'LICENSE.txt',
     include_package_data=True,
     packages=find_packages(),
     install_requires=[

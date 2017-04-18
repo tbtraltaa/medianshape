@@ -21,11 +21,14 @@ from distmesh.plotting import axes_simpplot3d
 from medianshape.simplicial.utils import boundary_points
 
 def func(x, y, sign=1): 
+    '''
+    :math:`\sin\pi x \cos \pi y`.
+    '''
     return np.sin(np.pi*x)*np.cos(np.pi*y)
 
 def sample_surf(scale, step=0.2):
     '''
-        Return a tuple X, Y, Z with a test surface.
+    Returns a tuple X, Y, Z of a surface for an experiment.
     '''
     x = y = np.arange(-4.0, 4.0, step)
     X, Y = np.meshgrid(x, y)
@@ -89,10 +92,15 @@ def sample_surf(scale, step=0.2):
 
 def interpolate_surf(points, values, ipoints, method = "nearest"):
     from scipy.interpolate import griddata
+    '''
+    Used to interpolate a sample surface to a surface in a mesh.
+    '''
     return griddata(points, values, ipoints, method= method)
 
 def surfgen_shared_boundary(bbox=[-10,-10,-10, 10,10,10], l=3):
     '''
+    Generates two surfaces in 3D with shared boundary for an experiment.
+    Writes the two surface as .poly file for tetgen.
     '''
     # Generating point grids for two surfaces
     xmin = bbox[0]
@@ -201,10 +209,6 @@ def surfgen_shared_boundary(bbox=[-10,-10,-10, 10,10,10], l=3):
 
     triangles = np.vstack((triangles1, triangles2)) 
 
-    print triangles1.shape
-    print triangles2.shape
-    print triangles.shape
-    
     # Preparing PLC and save it to .poly file for tetgen
     with open( os.environ['HOME'] +'/mediansurf.poly', 'w') as f:
         f.write("#Part 1 - the node list\n")
