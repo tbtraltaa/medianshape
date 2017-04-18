@@ -1,7 +1,7 @@
 # Ignore build folder
 docs/_build
 build/
-/dist/
+dist/
 *.csv
 *.vtk
 *.edge
