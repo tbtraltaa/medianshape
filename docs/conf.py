@@ -60,8 +60,8 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'MedianShape'
-copyright = u'2015, WSU'
-author = u'2015, Yunfeng Hu, Matthew Hudelson, Bala Krishnamoorth, Altansuren Tumurbaatar, Kevin R. Vixie'
+copyright = u'GNU GPL'
+author = u'2017, Yunfeng Hu, Matthew Hudelson, Bala Krishnamoorth, Altansuren Tumurbaatar, Kevin R. Vixie'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -237,7 +237,7 @@ latex_elements = {
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
   (master_doc, 'MedianShape.tex', u'MedianShape Documentation',
-   u'2015', 'manual'),
+   u'2017', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of

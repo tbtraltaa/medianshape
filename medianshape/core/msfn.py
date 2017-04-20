@@ -1,6 +1,6 @@
 #encoding: utf-8
 '''
-MSFN - Multiscale flat norm
+Multiscale flat norm (MSFN)
 ===========================
 '''
 

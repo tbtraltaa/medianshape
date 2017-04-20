@@ -32,24 +32,17 @@ def mediandemo2d(outdir='data', save=True):
     fig = plt.figure(figsize=(8,8))
     figcount = 1
 
-    mesh, simplices, subsimplices, points, lambdas, mus, is_closed \
-    = cases2d.sinuses2d()
-    #= cases2d.triangles2d()
-    #= cases2d.two_curves2d()
-    #= cases2d.multicurves2d() 
-    print mesh.get_info()
+    mesh, simplices, subsimplices, points, lambdas, mus, is_closed = cases2d.multicurves2d() 
 
-    #vertices, paths, input_currents = currentgen.push_functions_on_mesh_2d(mesh, points, is_closed=False, functions=functions)
-    print mesh.points.shape
-    print mesh.edges.shape
     vertices, paths, input_currents = currentgen.push_curves_on_mesh(mesh.points, mesh.edges, points, is_closed=is_closed)
     figname = '%s/figures/%d'%(outdir, figcount)
     title = mesh.get_info() + r' - $Curve$ $approximation$'
     plot2d.plot_curves_approx2d(mesh, points, vertices, paths, title, figname, pdf_file, save)
     figcount += 1
-
+    
     run.runmedians2d(mesh, simplices, subsimplices, input_currents, lambdas, mus, file_doc=pdf_file, save=save)
-    pdf_file.close()
+    if pdf_file is not None:
+        pdf_file.close()
     elapsed = time.time() - start
     print 'Elapsed time %f mins.' % (elapsed/60)
     

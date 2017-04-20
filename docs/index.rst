@@ -6,6 +6,12 @@
 Welcome to MedianShape's documentation!
 =======================================
 
+MedianShape_ is a simple Python package for solving **Simplical Median Shape Problem (SMSP)**
+in simplicial settings using **simplicial flat norm distance**. It contains several experiments in 2D and 3D. MedianShape is distributed under the `GNU GPL`_.
+
+.. _MedianShape: https://bitbucket.org/altaa22/medianshape
+.. _`GNU GPL`: http://www.gnu.org/copyleft/gpl.html
+
 .. toctree::
     :maxdepth:3
     getting-started
