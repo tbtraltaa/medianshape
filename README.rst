@@ -2,10 +2,11 @@ MedianShape_: Simplicial Median Shape
 =====================================
 
 MedianShape_ is a simple Python code for solving **Simplical Median Shape Problem (SMSP)**
-in simplicial settings using **simplicial flat norm distance**. It contains several experiments in 2D and 3D. MedianShape is distributed under the `GNU GPL`_.
+in simplicial settings using **simplicial flat norm distance**. It contains several experiments in 2D and 3D. MedianShape is distributed under the `GNU GPL`_. A link to a brief documentation_.
 
-.. _MedianShape: https://bitbucket.org/altaa22/medianshape
+.. _MedianShape: https://github.com/tbtraltaa/medianshape
 .. _`GNU GPL`: http://www.gnu.org/copyleft/gpl.html
+.. _documentation: https://tbtraltaa.github.io/medianshape/
 
 Demos
 -----

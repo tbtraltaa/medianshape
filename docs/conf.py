@@ -38,8 +38,6 @@ extensions = [
     'sphinx.ext.mathjax',
     'sphinx.ext.ifconfig',
     'sphinx.ext.viewcode',
-    'sphinx.ext.autosummary',
-    'sphinx.ext.mathbase',
     'sphinx.ext.githubpages',
 ]
 autoclass_content = 'both'
@@ -88,7 +86,7 @@ language = None
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
-exclude_patterns = ['build']
+exclude_patterns = ['_build']
 
 # The reST default role (used for this markup: `text`) to use for all
 # documents.
