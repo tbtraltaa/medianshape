@@ -1,0 +1,360 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Utils &mdash; MedianShape 1.0 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="MedianShape 1.0 documentation" href="../index.html"/>
+        <link rel="up" title="Simplicial Settings" href="simplicial-settings.html"/>
+        <link rel="next" title="Visualization" href="../viz/viz.html"/>
+        <link rel="prev" title="2D surface embedded in 3D" href="surfgen.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> MedianShape
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../getting-started.html"><strong>Getting started</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../core/lp.html"><strong>Linear Programs</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../experiments/experiments.html"><strong>Experiments</strong></a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="simplicial-settings.html"><strong>Simplicial Settings</strong></a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="mesh.html">Mesh</a></li>
+<li class="toctree-l2"><a class="reference internal" href="meshgen.html">Mesh generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="currentgen.html">1-current generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pointgen2d.html">Point generation 2D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pointgen3d.html">Point generation 3D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="surfgen.html">2D surface embedded in 3D</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Utils</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../viz/viz.html"><strong>Visualization</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../utils.html"><strong>Utils</strong></a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">MedianShape</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="simplicial-settings.html"><strong>Simplicial Settings</strong></a> &raquo;</li>
+      
+    <li>Utils</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/simplicial/utils.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <span class="target" id="module-medianshape.simplicial.utils"></span><div class="section" id="utils">
+<h1>Utils<a class="headerlink" href="#utils" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="medianshape.simplicial.utils.get_bbox_diagonal">
+<code class="descclassname">medianshape.simplicial.utils.</code><code class="descname">get_bbox_diagonal</code><span class="sig-paren">(</span><em>mesh_points=None</em>, <em>bbox=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/medianshape/simplicial/utils.html#get_bbox_diagonal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#medianshape.simplicial.utils.get_bbox_diagonal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the diagonal of a bounding box in 2D or 3D.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="medianshape.simplicial.utils.boundary_points">
+<code class="descclassname">medianshape.simplicial.utils.</code><code class="descname">boundary_points</code><span class="sig-paren">(</span><em>bbox</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/medianshape/simplicial/utils.html#boundary_points"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#medianshape.simplicial.utils.boundary_points" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns corner points of a boundary box in which
+4 corners of the bottom rectangle are the first 4 points,
+oriented CCW starting from (xmin, ymin, zmin).
+Similarly, 4 corners of the top rectangle are the last 4 points,
+oriented CCW starting from (xmin, ymin, zmax).</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="medianshape.simplicial.utils.get_combination">
+<code class="descclassname">medianshape.simplicial.utils.</code><code class="descname">get_combination</code><span class="sig-paren">(</span><em>n, vals=[1, -1]</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/medianshape/simplicial/utils.html#get_combination"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#medianshape.simplicial.utils.get_combination" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns all combinations of given values for n positions.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="medianshape.simplicial.utils.vectorize">
+<code class="descclassname">medianshape.simplicial.utils.</code><code class="descname">vectorize</code><span class="sig-paren">(</span><em>func_str</em>, <em>X</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/medianshape/simplicial/utils.html#vectorize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#medianshape.simplicial.utils.vectorize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes function values on X domain.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>func_str</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; a name of a function in math module in python or a name of a function within this module (medianshape.simplicial.utils).</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">func_values &#8211; function values on the given domain.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="medianshape.simplicial.utils.x">
+<code class="descclassname">medianshape.simplicial.utils.</code><code class="descname">x</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/medianshape/simplicial/utils.html#x"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#medianshape.simplicial.utils.x" title="Permalink to this definition">¶</a></dt>
+<dd><p><span class="math">\(f(x) = x\)</span></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="medianshape.simplicial.utils.x2">
+<code class="descclassname">medianshape.simplicial.utils.</code><code class="descname">x2</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/medianshape/simplicial/utils.html#x2"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#medianshape.simplicial.utils.x2" title="Permalink to this definition">¶</a></dt>
+<dd><p><span class="math">\(f(x) = x^2\)</span></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="medianshape.simplicial.utils.x5">
+<code class="descclassname">medianshape.simplicial.utils.</code><code class="descname">x5</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/medianshape/simplicial/utils.html#x5"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#medianshape.simplicial.utils.x5" title="Permalink to this definition">¶</a></dt>
+<dd><p><span class="math">\(f(x) = x^5\)</span></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="medianshape.simplicial.utils.sin2pi">
+<code class="descclassname">medianshape.simplicial.utils.</code><code class="descname">sin2pi</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/medianshape/simplicial/utils.html#sin2pi"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#medianshape.simplicial.utils.sin2pi" title="Permalink to this definition">¶</a></dt>
+<dd><p><span class="math">\(f(x) = |\sin(2\pi x)|\)</span></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="medianshape.simplicial.utils.sin1pi">
+<code class="descclassname">medianshape.simplicial.utils.</code><code class="descname">sin1pi</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/medianshape/simplicial/utils.html#sin1pi"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#medianshape.simplicial.utils.sin1pi" title="Permalink to this definition">¶</a></dt>
+<dd><p><span class="math">\(f(x) = |\sin(\pi x)|\)</span></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="medianshape.simplicial.utils.half_sin1pi">
+<code class="descclassname">medianshape.simplicial.utils.</code><code class="descname">half_sin1pi</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/medianshape/simplicial/utils.html#half_sin1pi"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#medianshape.simplicial.utils.half_sin1pi" title="Permalink to this definition">¶</a></dt>
+<dd><p><span class="math">\(f(x) = \frac{1}{2}|\sin(\pi x)|\)</span></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="medianshape.simplicial.utils.small_sin1pi">
+<code class="descclassname">medianshape.simplicial.utils.</code><code class="descname">small_sin1pi</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/medianshape/simplicial/utils.html#small_sin1pi"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#medianshape.simplicial.utils.small_sin1pi" title="Permalink to this definition">¶</a></dt>
+<dd><p><span class="math">\(f(x) = \frac{1}{4}|\sin(\pi x)|\)</span></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="medianshape.simplicial.utils.func1">
+<code class="descclassname">medianshape.simplicial.utils.</code><code class="descname">func1</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/medianshape/simplicial/utils.html#func1"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#medianshape.simplicial.utils.func1" title="Permalink to this definition">¶</a></dt>
+<dd><p><span class="math">\(f(x) = \frac{2}{\pi \cos^{-1}(x)}\)</span></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="medianshape.simplicial.utils.func2">
+<code class="descclassname">medianshape.simplicial.utils.</code><code class="descname">func2</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/medianshape/simplicial/utils.html#func2"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#medianshape.simplicial.utils.func2" title="Permalink to this definition">¶</a></dt>
+<dd><p><span class="math">\(f(x) = \frac{1}{2}(1 + \sin2\pi x)\)</span></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="medianshape.simplicial.utils.curve1">
+<code class="descclassname">medianshape.simplicial.utils.</code><code class="descname">curve1</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/medianshape/simplicial/utils.html#curve1"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#medianshape.simplicial.utils.curve1" title="Permalink to this definition">¶</a></dt>
+<dd><p><span class="math">\(f(x) = 10e^{\frac{x}{180}}\sin(\frac{1}{100}\pi x) +25\)</span></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="medianshape.simplicial.utils.curve2">
+<code class="descclassname">medianshape.simplicial.utils.</code><code class="descname">curve2</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/medianshape/simplicial/utils.html#curve2"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#medianshape.simplicial.utils.curve2" title="Permalink to this definition">¶</a></dt>
+<dd><p><span class="math">\(f(x) = -10e^{\frac{x}{200}}\sin(\frac{1}{50}\pi x) +25\)</span></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="medianshape.simplicial.utils.curve3">
+<code class="descclassname">medianshape.simplicial.utils.</code><code class="descname">curve3</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/medianshape/simplicial/utils.html#curve3"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#medianshape.simplicial.utils.curve3" title="Permalink to this definition">¶</a></dt>
+<dd><p><span class="math">\(f(x) = 30e^{\frac{-x}{150}}\sin(\frac{1}{50}\pi x) +20\)</span></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="medianshape.simplicial.utils.curve4">
+<code class="descclassname">medianshape.simplicial.utils.</code><code class="descname">curve4</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/medianshape/simplicial/utils.html#curve4"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#medianshape.simplicial.utils.curve4" title="Permalink to this definition">¶</a></dt>
+<dd><p><span class="math">\(f(x) = 10e^{\frac{-x}{200}}\sin(\frac{1}{30}\pi x) +40\)</span></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="medianshape.simplicial.utils.curve5">
+<code class="descclassname">medianshape.simplicial.utils.</code><code class="descname">curve5</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/medianshape/simplicial/utils.html#curve5"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#medianshape.simplicial.utils.curve5" title="Permalink to this definition">¶</a></dt>
+<dd><p><span class="math">\(f(x) = 20\sin(\frac{1}{200}\pi x) +25\)</span></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="medianshape.simplicial.utils.curve6">
+<code class="descclassname">medianshape.simplicial.utils.</code><code class="descname">curve6</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/medianshape/simplicial/utils.html#curve6"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#medianshape.simplicial.utils.curve6" title="Permalink to this definition">¶</a></dt>
+<dd><p><span class="math">\(f(x) = 10e^{\frac{-1}{200}x}\sin(\frac{1}{55}\pi x) +10\)</span></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="medianshape.simplicial.utils.deformcurve1">
+<code class="descclassname">medianshape.simplicial.utils.</code><code class="descname">deformcurve1</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/medianshape/simplicial/utils.html#deformcurve1"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#medianshape.simplicial.utils.deformcurve1" title="Permalink to this definition">¶</a></dt>
+<dd><p><span class="math">\(f(x) = 20\sin(\frac{1}{190}\pi x) +25\)</span></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="medianshape.simplicial.utils.deformcurve2">
+<code class="descclassname">medianshape.simplicial.utils.</code><code class="descname">deformcurve2</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/medianshape/simplicial/utils.html#deformcurve2"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#medianshape.simplicial.utils.deformcurve2" title="Permalink to this definition">¶</a></dt>
+<dd><p><span class="math">\(f(x) = -20\sin(\frac{1}{190}\pi x) +25\)</span></p>
+</dd></dl>
+
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../viz/viz.html" class="btn btn-neutral float-right" title="Visualization" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="surfgen.html" class="btn btn-neutral" title="2D surface embedded in 3D" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright GNU GPL.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'1.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

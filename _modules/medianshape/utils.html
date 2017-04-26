@@ -1,0 +1,552 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>medianshape.utils &mdash; MedianShape 1.0 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="MedianShape 1.0 documentation" href="../../index.html"/>
+        <link rel="up" title="Module code" href="../index.html"/> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> MedianShape
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../getting-started.html"><strong>Getting started</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../core/lp.html"><strong>Linear Programs</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../experiments/experiments.html"><strong>Experiments</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../simplicial/simplicial-settings.html"><strong>Simplicial Settings</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../viz/viz.html"><strong>Visualization</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../utils.html"><strong>Utils</strong></a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../index.html">MedianShape</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      
+    <li>medianshape.utils</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for medianshape.utils</h1><div class="highlight"><pre>
+<span></span><span class="c1"># encoding: utf-8</span>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">**Utils**</span>
+<span class="sd">=========</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
+
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">scipy.linalg</span> <span class="kn">import</span> <span class="n">det</span>
+<span class="kn">from</span> <span class="nn">scipy.misc</span> <span class="kn">import</span> <span class="n">factorial</span>
+<span class="kn">from</span> <span class="nn">scipy.spatial.distance</span> <span class="kn">import</span> <span class="n">cdist</span><span class="p">,</span> <span class="n">pdist</span>
+<span class="kn">from</span> <span class="nn">scipy.sparse</span> <span class="kn">import</span> <span class="n">dok_matrix</span>
+
+
+<div class="viewcode-block" id="get_subsimplices"><a class="viewcode-back" href="../../utils.html#medianshape.utils.get_subsimplices">[docs]</a><span class="k">def</span> <span class="nf">get_subsimplices</span><span class="p">(</span><span class="n">simplices</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Returns one-dimension lower simplices embedded in the given set of simplices.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">simplices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">simplices</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">subsimplices</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">simplices</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">simplices</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+        <span class="n">idx</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">j</span><span class="p">)</span>
+        <span class="n">subsimplices</span> <span class="o">=</span> <span class="n">subsimplices</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="n">sub</span><span class="p">)</span> <span class="k">for</span> <span class="n">sub</span> <span class="ow">in</span> <span class="n">simplices</span><span class="o">.</span><span class="n">take</span><span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)))</span>
+    <span class="n">subsimplices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span> <span class="n">sub</span> <span class="k">for</span> <span class="n">sub</span> <span class="ow">in</span> <span class="n">subsimplices</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">subsimplices</span></div>
+
+<div class="viewcode-block" id="orient_simplices"><a class="viewcode-back" href="../../utils.html#medianshape.utils.orient_simplices">[docs]</a><span class="k">def</span> <span class="nf">orient_simplices</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">simplices</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Orient simplices.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">if</span> <span class="n">simplices</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">4</span> <span class="ow">and</span> <span class="n">points</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">==</span><span class="mi">3</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">simplices</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+            <span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">4</span><span class="p">,</span><span class="mi">4</span><span class="p">))</span>
+            <span class="n">A</span><span class="p">[:,</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">simplices</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+                <span class="n">A</span><span class="p">[</span><span class="n">j</span><span class="p">,:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">points</span><span class="p">[</span><span class="n">simplices</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">],:]</span>
+            <span class="k">if</span> <span class="n">det</span><span class="p">(</span><span class="n">A</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">simplices</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">simplices</span><span class="p">[</span><span class="n">i</span><span class="p">,[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">]]</span>
+    <span class="k">return</span> <span class="n">simplices</span>                </div>
+
+<div class="viewcode-block" id="simpvol"><a class="viewcode-back" href="../../utils.html#medianshape.utils.simpvol">[docs]</a><span class="k">def</span> <span class="nf">simpvol</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">simplices</span><span class="p">):</span>
+
+    <span class="sd">&#39;&#39;&#39; SIMPVOL Simplex volume.</span>
+<span class="sd">        V=SIMPVOL(points, simplices)</span>
+<span class="sd">        Copyright (C) 2004-2006 Per-Olof Persson. See COPYRIGHT.TXT for details.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">point_dim</span>  <span class="o">=</span>  <span class="n">points</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">simp_dim</span> <span class="o">=</span> <span class="n">simplices</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="c1"># 1-simplex, edge in 1 dimension</span>
+    <span class="k">if</span> <span class="n">simp_dim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">volume</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">simplices</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span> 
+    <span class="k">elif</span> <span class="n">point_dim</span>  <span class="o">==</span>  <span class="mi">1</span> <span class="ow">and</span> <span class="n">simp_dim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="n">d12</span> <span class="o">=</span> <span class="n">points</span><span class="p">[</span><span class="n">simplices</span><span class="p">[:,</span><span class="mi">1</span><span class="p">],:]</span> <span class="o">-</span> <span class="n">points</span><span class="p">[</span><span class="n">simplices</span><span class="p">[:,</span><span class="mi">0</span><span class="p">],:]</span>
+        <span class="n">volume</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">d12</span><span class="p">)</span>
+    <span class="c1"># 1-simplex, edge in any dimension</span>
+    <span class="k">elif</span> <span class="n">simp_dim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="n">d12</span> <span class="o">=</span> <span class="n">points</span><span class="p">[</span><span class="n">simplices</span><span class="p">[:,</span><span class="mi">1</span><span class="p">],:]</span> <span class="o">-</span> <span class="n">points</span><span class="p">[</span><span class="n">simplices</span><span class="p">[:,</span><span class="mi">0</span><span class="p">],:]</span>
+        <span class="n">volume</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">d12</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+    <span class="c1"># 2-simplex, triangle in 2 dimension</span>
+    <span class="k">elif</span> <span class="n">point_dim</span>  <span class="o">==</span>  <span class="mi">2</span> <span class="ow">and</span> <span class="n">simp_dim</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="n">d12</span> <span class="o">=</span> <span class="n">points</span><span class="p">[</span><span class="n">simplices</span><span class="p">[:,</span><span class="mi">1</span><span class="p">],:]</span> <span class="o">-</span> <span class="n">points</span><span class="p">[</span><span class="n">simplices</span><span class="p">[:,</span><span class="mi">0</span><span class="p">],:]</span>
+        <span class="n">d13</span> <span class="o">=</span> <span class="n">points</span><span class="p">[</span><span class="n">simplices</span><span class="p">[:,</span><span class="mi">2</span><span class="p">],:]</span> <span class="o">-</span> <span class="n">points</span><span class="p">[</span><span class="n">simplices</span><span class="p">[:,</span><span class="mi">0</span><span class="p">],:]</span>
+        <span class="n">volume</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">d12</span><span class="p">[:,</span><span class="mi">0</span><span class="p">],</span> <span class="n">d13</span><span class="p">[:,</span><span class="mi">1</span><span class="p">])</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">d12</span><span class="p">[:,</span><span class="mi">1</span><span class="p">],</span> <span class="n">d13</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]))</span><span class="o">*</span><span class="mf">1.0</span><span class="o">/</span><span class="mi">2</span>
+    <span class="c1"># 2-simplex, triangle in 3 dimension</span>
+    <span class="k">elif</span> <span class="n">point_dim</span> <span class="o">==</span> <span class="mi">3</span> <span class="ow">and</span> <span class="n">simp_dim</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="n">d12</span> <span class="o">=</span> <span class="n">points</span><span class="p">[</span><span class="n">simplices</span><span class="p">[:,</span><span class="mi">1</span><span class="p">],:]</span> <span class="o">-</span> <span class="n">points</span><span class="p">[</span><span class="n">simplices</span><span class="p">[:,</span><span class="mi">0</span><span class="p">],:]</span>
+        <span class="n">d13</span> <span class="o">=</span> <span class="n">points</span><span class="p">[</span><span class="n">simplices</span><span class="p">[:,</span><span class="mi">2</span><span class="p">],:]</span> <span class="o">-</span> <span class="n">points</span><span class="p">[</span><span class="n">simplices</span><span class="p">[:,</span><span class="mi">0</span><span class="p">],:]</span>
+        <span class="n">volume</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">d12</span><span class="p">,</span> <span class="n">d13</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span><span class="o">*</span><span class="mf">1.0</span><span class="o">/</span><span class="mi">2</span>
+    <span class="c1"># 3-simplex, tetrahedra in 3 dimension</span>
+    <span class="k">elif</span> <span class="n">point_dim</span>  <span class="o">==</span>  <span class="mi">3</span> <span class="ow">and</span> <span class="n">simp_dim</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span> <span class="c1"># </span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        d12 = points[simplices[:,1],:] - points[simplices[:,0],:]</span>
+<span class="sd">        d13 = points[simplices[:,2],:] - points[simplices[:,0],:]</span>
+<span class="sd">        d14 = points[simplices[:,3],:] - points[simplices[:,0],:]</span>
+<span class="sd">        volume = np.dot(np.cross(d12,d13,axis=2),d14,axis=2)*1.0/6</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">volume</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">simplices</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],))</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">simplices</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+            <span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">4</span><span class="p">,</span><span class="mi">4</span><span class="p">))</span>
+            <span class="n">A</span><span class="p">[:,</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">simplices</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+                <span class="n">A</span><span class="p">[</span><span class="n">j</span><span class="p">,:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">points</span><span class="p">[</span><span class="n">simplices</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">],:]</span>
+            <span class="n">volume</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">det</span><span class="p">(</span><span class="n">A</span><span class="p">))</span>
+        <span class="n">volume</span> <span class="o">=</span> <span class="n">volume</span><span class="o">/</span><span class="n">factorial</span><span class="p">(</span><span class="n">points</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="c1"># n-simplex in n-dimension</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">volume</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">simplices</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],))</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">simplices</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+            <span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">points</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">A</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">points</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+                <span class="n">A</span><span class="p">[</span><span class="n">j</span><span class="p">,</span><span class="mi">1</span><span class="p">:]</span> <span class="o">=</span> <span class="n">points</span><span class="p">[</span><span class="n">simplices</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">],:]</span>
+            <span class="n">volume</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">det</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
+        <span class="n">volume</span> <span class="o">=</span> <span class="n">volume</span><span class="o">/</span><span class="n">factorial</span><span class="p">(</span><span class="n">points</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">volume</span></div>
+
+<div class="viewcode-block" id="boundary_matrix"><a class="viewcode-back" href="../../utils.html#medianshape.utils.boundary_matrix">[docs]</a><span class="k">def</span> <span class="nf">boundary_matrix</span><span class="p">(</span><span class="n">simplices</span><span class="p">,</span> <span class="n">subsimplices</span><span class="p">,</span> <span class="n">is_oriented</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">is_sparse</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">format</span><span class="o">=</span><span class="s1">&#39;coo&#39;</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Builds a boundary matrix of given simplices. The format of a boundary matrix is as follows.</span>
+<span class="sd">    boundary_matrix = (number of subsimplices) x (number of simplices)</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">simplex_dim</span>  <span class="o">=</span> <span class="n">simplices</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> 
+    <span class="c1">#if simplex_dim - subsimplices.shape[1] != 1:</span>
+    <span class="c1">#    sys.stderr.write(&quot;Unable to build a boundary matrix. Please enter (d+1)-simplices and  d-subsimplices\n&quot;)</span>
+     <span class="c1">#   exit()</span>
+    <span class="n">n_simplices</span> <span class="o">=</span> <span class="n">simplices</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">m_subsimplices</span> <span class="o">=</span> <span class="n">subsimplices</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> 
+    <span class="k">if</span> <span class="n">is_sparse</span><span class="p">:</span>
+        <span class="n">boundary_matrix</span> <span class="o">=</span> <span class="n">dok_matrix</span><span class="p">((</span><span class="n">m_subsimplices</span><span class="p">,</span> <span class="n">n_simplices</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">)</span> 
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">boundary_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="n">m_subsimplices</span><span class="p">,</span> <span class="n">n_simplices</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">)</span> 
+    <span class="k">if</span> <span class="n">is_oriented</span><span class="p">:</span>
+        <span class="n">simplices_sort_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">simplices</span><span class="p">)</span>
+        <span class="n">subsimplices_sort_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">subsimplices</span><span class="p">)</span>
+        <span class="n">simplices_parity</span> <span class="o">=</span> <span class="n">permutationparity</span><span class="p">(</span><span class="n">simplices_sort_idx</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">subsimplices_parity</span> <span class="o">=</span> <span class="n">permutationparity</span><span class="p">(</span><span class="n">subsimplices_sort_idx</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="n">val</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">simplices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">simplices</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">subsimplices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">subsimplices</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">simplex</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">simplices</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">simplex_dim</span><span class="p">):</span>
+            <span class="n">idx</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">simplex_dim</span><span class="p">))</span>
+            <span class="n">idx</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">j</span><span class="p">)</span>
+            <span class="n">subsimplex</span> <span class="o">=</span> <span class="n">simplex</span><span class="o">.</span><span class="n">take</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span>
+            <span class="c1"># to check the membership of subsimplex in subsimplices</span>
+            <span class="n">subsimplex_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argwhere</span><span class="p">((</span><span class="n">subsimplices</span><span class="o">==</span><span class="n">subsimplex</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">==</span> <span class="bp">True</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">subsimplex_idx</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;Unable to find subsimplex! Make sure subsimplices contains all boundary subsimplices</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="nb">exit</span><span class="p">()</span>
+            <span class="n">subsimplex_idx</span> <span class="o">=</span> <span class="n">subsimplex_idx</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">is_oriented</span><span class="p">:</span>
+                <span class="n">val</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">**</span><span class="p">((</span><span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">simplices_parity</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">subsimplices_parity</span><span class="p">[</span><span class="n">subsimplex_idx</span><span class="p">])</span>
+            <span class="n">boundary_matrix</span><span class="p">[</span><span class="n">subsimplex_idx</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span>
+    <span class="k">if</span> <span class="n">is_sparse</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">boundary_matrix</span><span class="o">.</span><span class="n">asformat</span><span class="p">(</span><span class="n">format</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">boundary_matrix</span></div>
+
+<div class="viewcode-block" id="boundary"><a class="viewcode-back" href="../../utils.html#medianshape.utils.boundary">[docs]</a><span class="k">def</span> <span class="nf">boundary</span><span class="p">(</span><span class="n">simplex</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Returns simplex boundary as faces.</span>
+<span class="sd">    if an index given, returns n-1 simplex by removing the element at the index.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">boundary</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">idx</span> <span class="o">==</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">simplex</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">n</span><span class="p">):</span>
+            <span class="n">face</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">simplex</span><span class="p">)</span>
+            <span class="n">face</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+            <span class="k">if</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">**</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">2</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span> 
+                <span class="n">face</span> <span class="o">=</span> <span class="n">face</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">boundary</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">face</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">face</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">simplex</span><span class="p">)</span>
+        <span class="n">face</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span>
+        <span class="k">if</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">**</span><span class="p">(</span><span class="n">idx</span><span class="o">+</span><span class="mi">2</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span> 
+            <span class="n">face</span> <span class="o">=</span> <span class="n">face</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">boundary</span> <span class="o">=</span> <span class="n">face</span>
+    <span class="k">return</span> <span class="n">boundary</span></div>
+
+
+<div class="viewcode-block" id="permutationparity"><a class="viewcode-back" href="../../utils.html#medianshape.utils.permutationparity">[docs]</a><span class="k">def</span> <span class="nf">permutationparity</span><span class="p">(</span><span class="n">P</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    permutationparity</span>
+<span class="sd">       p = permutationparity(P,Dim)</span>
+
+<span class="sd">       Returns the parity of a permutation. A value of 0 indicates an even </span>
+<span class="sd">       permutation, while a value of 1 indicates an odd permutation.</span>
+
+<span class="sd">       The parity of permutations with duplicate values cannot be determined</span>
+<span class="sd">       with this routine.</span>
+
+<span class="sd">       `Dim` specifies which dimension the permutations are located on. </span>
+<span class="sd">       If Dim == 1 each column of the matrix `P` is treated as a permutation,</span>
+<span class="sd">       If Dim == 2 each row of the matrix `P` is treated as a permutation.</span>
+<span class="sd">       If Dim is empty or unspecified, if defaults to treating each column as </span>
+<span class="sd">       a different permutation.</span>
+<span class="sd">       </span>
+<span class="sd">       Example</span>
+<span class="sd">           P = [1 2 3 5 4];            % An odd permutation</span>
+<span class="sd">           pP = permutationparity(P)   % Get parity</span>
+<span class="sd">           pP = 1</span>
+
+<span class="sd">           P = [1 2 3 5 4; 1 2 4 5 3];     </span>
+<span class="sd">           pP = permutationparity(P,2)</span>
+<span class="sd">           pP = 1 </span>
+<span class="sd">                0</span>
+
+<span class="sd">           P = [1 2 3; 3 1 2; 2 3 1];  % Rows are odd, columns are even</span>
+<span class="sd">           pP = permutationparity(P,1)</span>
+<span class="sd">           pP = 0 0 0</span>
+
+<span class="sd">           pP = permutationparity(P,2)</span>
+<span class="sd">           pP = 1</span>
+<span class="sd">                1</span>
+<span class="sd">                1</span>
+
+<span class="sd">       See also</span>
+<span class="sd">           permutationparity perms randperm</span>
+
+
+<span class="sd">        Reference</span>
+<span class="sd">       &#39;Pretty Permutation Parity Proof&#39;</span>
+<span class="sd">       Alan Macdonald</span>
+<span class="sd">       Department of Mathematics</span>
+<span class="sd">       Luther College,</span>
+<span class="sd">       Decorah, IA 52101, U.S.A.</span>
+<span class="sd">       macdonal@luther.edu</span>
+<span class="sd">       June 16, 2004</span>
+<span class="sd">       </span>
+<span class="sd">       Let p be a permutation of [1 2 ... n]. Let G(p) be the number of times </span>
+<span class="sd">       in p that a number is greater than a number to its right. For example,</span>
+<span class="sd">       G([2 4 1 3]) = 3. Note that G[1 2 ... n] = 0. </span>
+<span class="sd">       A transposition of numbers in adjacent positions changes G by ±1. Every </span>
+<span class="sd">       transposition can be expressed as a product of an odd number of such </span>
+<span class="sd">       transpositions. Therefore every transposition changes the parity of G. </span>
+<span class="sd">       Thus the number of transpositions used to obtain p is always even or </span>
+<span class="sd">       always odd, according as G(p) is even or odd.</span>
+
+
+<span class="sd">     Author Information</span>
+<span class="sd">     ------------------</span>
+<span class="sd">     Pierce Brady</span>
+<span class="sd">     Smart Systems Integration Group - SSIG</span>
+<span class="sd">     Cork Institute of Technology, Ireland.</span>
+
+
+<span class="sd">     License</span>
+<span class="sd">     -------</span>
+<span class="sd">     Copyright (c) 2010, Pierce</span>
+<span class="sd">     All rights reserved.</span>
+<span class="sd">     </span>
+<span class="sd">     Redistribution and use in source and binary forms, with or without </span>
+<span class="sd">     modification, are permitted provided that the following conditions are </span>
+<span class="sd">     met:</span>
+<span class="sd">     </span>
+<span class="sd">         * Redistributions of source code must retain the above copyright </span>
+<span class="sd">           notice, this list of conditions and the following disclaimer.</span>
+<span class="sd">         * Redistributions in binary form must reproduce the above copyright </span>
+<span class="sd">           notice, this list of conditions and the following disclaimer in </span>
+<span class="sd">           the documentation and/or other materials provided with the distribution</span>
+<span class="sd">           </span>
+<span class="sd">     THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&quot; </span>
+<span class="sd">     AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE </span>
+<span class="sd">     IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE </span>
+<span class="sd">     ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE </span>
+<span class="sd">     LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR </span>
+<span class="sd">     CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF </span>
+<span class="sd">     SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS </span>
+<span class="sd">     INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN </span>
+<span class="sd">     CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) </span>
+<span class="sd">     ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE </span>
+<span class="sd">     POSSIBILITY OF SUCH DAMAGE.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+    <span class="n">nRows</span><span class="p">,</span> <span class="n">mCols</span> <span class="o">=</span> <span class="n">P</span><span class="o">.</span><span class="n">shape</span>
+    <span class="k">if</span> <span class="n">nRows</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">dim</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">dim</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="k">elif</span> <span class="n">mCols</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">dim</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">dim</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">dim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">nRows</span><span class="p">):</span>
+            <span class="n">p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">P</span><span class="p">[</span><span class="n">i</span><span class="p">,:]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="n">nRows</span><span class="o">-</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span> <span class="mi">1</span><span class="p">))</span> <span class="o">&gt;</span> <span class="n">P</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">:,:],</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="n">p</span>
+    <span class="k">elif</span> <span class="n">dim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">mCols</span><span class="p">):</span>
+            <span class="n">p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">P</span><span class="p">[:,</span> <span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">mCols</span><span class="o">-</span><span class="p">(</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">)))</span> <span class="o">&gt;</span> <span class="n">P</span><span class="p">[:,</span> <span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">:],</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">p</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mod</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">p</span></div>
+
+<div class="viewcode-block" id="edge_sign"><a class="viewcode-back" href="../../utils.html#medianshape.utils.edge_sign">[docs]</a><span class="k">def</span> <span class="nf">edge_sign</span><span class="p">(</span><span class="n">simplex</span><span class="p">,</span> <span class="n">edge</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Given a triangle and its edge, return the induced orientation</span>
+<span class="sd">    of the edge.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+        <span class="n">idx</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">j</span><span class="p">)</span>
+        <span class="n">e</span> <span class="o">=</span> <span class="n">simplex</span><span class="o">.</span><span class="n">take</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span>
+        <span class="n">flag</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">**</span><span class="n">j</span>
+        <span class="k">if</span> <span class="n">flag</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="n">e</span> <span class="o">=</span> <span class="n">e</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">e</span> <span class="o">==</span> <span class="n">edge</span><span class="p">):</span>
+            <span class="k">return</span> <span class="mi">1</span>
+        <span class="k">elif</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">e</span><span class="o">==</span><span class="n">edge</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
+            <span class="k">return</span> <span class="o">-</span><span class="mi">1</span></div>
+
+<div class="viewcode-block" id="check_orientation"><a class="viewcode-back" href="../../utils.html#medianshape.utils.check_orientation">[docs]</a><span class="k">def</span> <span class="nf">check_orientation</span><span class="p">(</span><span class="n">simplices</span><span class="p">,</span><span class="n">edges</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        1. Create boundary matrix without any orientation with 0,1,-1 entries</span>
+<span class="sd">            and use it to filter adjacent triangles and edges of a triangle</span>
+<span class="sd">        2. Add all triangles to all_tris list</span>
+<span class="sd">        3. Start with 0th triangle</span>
+<span class="sd">        4. Propograte orientation to adjacent triangles:</span>
+<span class="sd">            for each edge, find adjacent triangle and compute induced orientation of the edge on it.</span>
+<span class="sd">                if adjacent triangle is not in oriented_tris</span>
+<span class="sd">                    if induced orientations on the shared edge doesn&#39;t cancel each other,</span>
+<span class="sd">                        do one swap on adjacent triangle and </span>
+<span class="sd">                        put corresponding orientation entry current triangle </span>
+<span class="sd">                        and edge in the boundary matrix</span>
+<span class="sd">                    Add current and adjacent triangles to oriented_tris set</span>
+
+<span class="sd">                if adjacent triangle is in oriented_tris </span>
+<span class="sd">                    check if the induced orientations on the shared edge are opposit,</span>
+<span class="sd">                    then put the orientation entry in the boundary matrix position [edge, adj_traingle]</span>
+<span class="sd">                    if not, return False</span>
+<span class="sd">        5. Remove current triangle from all_tris</span>
+<span class="sd">        6. Repeat 4 till all_tris list is empty(so all the triangles are checked)</span>
+<span class="sd">        7. Return True</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">triangles</span> <span class="o">=</span> <span class="n">simplices</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">boundary_2</span> <span class="o">=</span> <span class="n">boundary_matrix</span><span class="p">(</span><span class="n">triangles</span><span class="p">,</span> <span class="n">edges</span><span class="p">,</span> <span class="n">format</span><span class="o">=</span><span class="s2">&quot;dok&quot;</span><span class="p">)</span>
+    <span class="n">all_tris</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">triangles</span><span class="p">))</span>
+    <span class="n">oriented_tris</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="n">tris</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+    <span class="n">tris</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="c1">#k = 0</span>
+    <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">all_tris</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">t_idx</span> <span class="o">=</span> <span class="n">tris</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">all_tris</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">t_idx</span><span class="p">)</span>
+        <span class="n">oriented_tris</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">t_idx</span><span class="p">)</span>
+        <span class="n">triangle</span> <span class="o">=</span> <span class="n">triangles</span><span class="p">[</span><span class="n">t_idx</span><span class="p">]</span>
+        <span class="n">e_indices</span> <span class="o">=</span>  <span class="p">[</span> <span class="nb">int</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span> <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="n">boundary_2</span><span class="p">[:,</span><span class="n">t_idx</span><span class="p">]</span><span class="o">.</span><span class="n">nonzero</span><span class="p">()[</span><span class="mi">0</span><span class="p">]]</span>
+        <span class="k">for</span> <span class="n">edge_idx</span> <span class="ow">in</span> <span class="n">e_indices</span><span class="p">:</span>
+            <span class="n">edge</span> <span class="o">=</span> <span class="n">edges</span><span class="p">[</span><span class="n">edge_idx</span><span class="p">]</span>
+            <span class="n">flag1</span> <span class="o">=</span> <span class="n">edge_sign</span><span class="p">(</span><span class="n">triangle</span><span class="p">,</span> <span class="n">edge</span><span class="p">)</span>
+            <span class="n">boundary_2</span><span class="p">[</span><span class="n">edge_idx</span><span class="p">,</span> <span class="n">t_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">flag1</span>
+            <span class="n">adj_t</span> <span class="o">=</span>  <span class="p">[</span> <span class="nb">int</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span> <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="n">boundary_2</span><span class="p">[</span><span class="n">edge_idx</span><span class="p">,:]</span><span class="o">.</span><span class="n">nonzero</span><span class="p">()[</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">idx</span><span class="o">!=</span> <span class="n">t_idx</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">adj_t</span><span class="p">)</span> <span class="o">!=</span><span class="mi">0</span><span class="p">:</span>
+                <span class="n">adj_t</span> <span class="o">=</span> <span class="n">adj_t</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">flag2</span> <span class="o">=</span> <span class="n">edge_sign</span><span class="p">(</span><span class="n">triangles</span><span class="p">[</span><span class="n">adj_t</span><span class="p">],</span> <span class="n">edge</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">adj_t</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">oriented_tris</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">flag2</span> <span class="o">==</span> <span class="n">flag1</span><span class="p">:</span>
+                        <span class="c1">#k += 1               </span>
+                        <span class="n">triangles</span><span class="p">[</span><span class="n">adj_t</span><span class="p">]</span> <span class="o">=</span> <span class="n">triangles</span><span class="p">[</span><span class="n">adj_t</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">]]</span>
+                        <span class="n">boundary_2</span><span class="p">[</span><span class="n">edge_idx</span><span class="p">,</span><span class="n">adj_t</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">flag1</span>
+                    <span class="n">oriented_tris</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">adj_t</span><span class="p">)</span>
+                    <span class="n">tris</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">adj_t</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">flag2</span> <span class="o">==</span> <span class="n">flag1</span><span class="p">:</span>
+                        <span class="k">return</span> <span class="bp">False</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">boundary_2</span><span class="p">[</span><span class="n">edge_idx</span><span class="p">,</span><span class="n">adj_t</span><span class="p">]</span> <span class="o">=</span> <span class="n">flag2</span>
+    <span class="c1">#print &quot;swappped &quot;, k</span>
+    <span class="k">return</span> <span class="bp">True</span><span class="p">,</span> <span class="n">triangles</span></div>
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">]])</span>
+    <span class="n">simplices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">]])</span>
+    <span class="n">simplices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">]])</span>
+    <span class="n">permutationparity</span><span class="p">(</span><span class="n">simplices</span><span class="p">)</span>
+    <span class="n">simpvol1</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">simplices</span><span class="p">)</span>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright GNU GPL.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'1.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

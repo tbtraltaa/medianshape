@@ -1,0 +1,307 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Getting started &mdash; MedianShape 1.0 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="MedianShape 1.0 documentation" href="index.html"/>
+        <link rel="next" title="Linear Programs" href="core/lp.html"/>
+        <link rel="prev" title="Welcome to MedianShape’s documentation!" href="index.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> MedianShape
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#"><strong>Getting started</strong></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#run-source-code-using-conda-package-management">Run source code using conda package management</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#linux">Linux</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#installing-pydistmesh">Installing PyDistMesh</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#export-the-medianshape-library-location-to-pythonpath">Export the <cite>medianshape</cite> library location to PYTHONPATH</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#install-cplex">Install cplex</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#run-tetview">Run tetview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#install-tetgen">Install tetgen</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#documentation">Documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#requirements">Requirements</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="core/lp.html"><strong>Linear Programs</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="experiments/experiments.html"><strong>Experiments</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="simplicial/simplicial-settings.html"><strong>Simplicial Settings</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="viz/viz.html"><strong>Visualization</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="utils.html"><strong>Utils</strong></a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">MedianShape</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li><strong>Getting started</strong></li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/getting-started.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="getting-started">
+<h1><strong>Getting started</strong><a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h1>
+<p><a class="reference external" href="https://bitbucket.org/altaa22/medianshape">MedianShape</a> is a python package called <strong>Mass Regularized Simplicial Median Shape (MRSMS)</strong>. The purpose of the package is to compute the median of shapes. Input shapes can be any dimensional, closed or open such as curves, 2D shapes or 3D objects represented by <strong>currents</strong> which is a mathematical concepts adapted from Geometric Measure Theory(GMT). We used <strong>flat norm</strong> which is also a concept from GMT to measure distances between a median current and input currents. Input currents are approximated in an underlying simplicial complex and <em>simplicial flat norm</em> is used to compare simplicial currents with median. Finding a median which locates within minimum distance from each input current is an optimization problem and we constructed the median shape problem as a <strong>Linear Program(LP)</strong> by relaxing <strong>Integer Optimization problem</strong> and solved it using LP solvers such as <strong>cplex</strong> and <strong>cvxopt</strong>. There are several experiments included in the package which works on 1-currents in 2D (codimension one cases) and 3D (codimension two cases). MRSMS itself is dimension-free and the same MRSMS runs for both 2D and 3D experiments. That is the generality adapted from Geometric Measure Theory.</p>
+<div class="section" id="run-source-code-using-conda-package-management">
+<h2>Run source code using conda package management<a class="headerlink" href="#run-source-code-using-conda-package-management" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="linux">
+<h2>Linux<a class="headerlink" href="#linux" title="Permalink to this headline">¶</a></h2>
+<p>We used Ubuntu16.04.</p>
+<ul class="simple">
+<li>Install conda</li>
+<li>conda create -name medianshape python=2</li>
+<li>source ~/.bashrc</li>
+<li>source activate medianshape</li>
+<li>conda install scipy=0.17.1</li>
+<li>conda install numpy=1.11.1</li>
+<li>conda install matplotlib=1.5.1</li>
+<li>conda install cvxopt=1.1.8</li>
+</ul>
+</div>
+<div class="section" id="installing-pydistmesh">
+<h2>Installing PyDistMesh<a class="headerlink" href="#installing-pydistmesh" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>conda install cython=0.24.1 #needed for pydistmesh</li>
+<li>sudo apt-get install libblas-dev liblapack-dev</li>
+<li>pip install pydistmesh</li>
+</ul>
+</div>
+<div class="section" id="export-the-medianshape-library-location-to-pythonpath">
+<h2>Export the <cite>medianshape</cite> library location to PYTHONPATH<a class="headerlink" href="#export-the-medianshape-library-location-to-pythonpath" title="Permalink to this headline">¶</a></h2>
+<p>To use Medianshape library, put the following lines in the files, ~/.profile or ~/.bashrc
+* export PYTHONPATH=$PYTHONPATH:$HOME/medianshape/</p>
+</div>
+<div class="section" id="install-cplex">
+<h2>Install cplex<a class="headerlink" href="#install-cplex" title="Permalink to this headline">¶</a></h2>
+<p>To install the CPLEX-Python modules on your system, use the script setuy.py located in yourCplexhome/python/PLATFORM. If you want to install the CPLEX-Python modules in a nondefault location, use the option &#8211;home to identify the installation directory. For example, to install the CPLEX-Python modules in the default location, use the following command from the command line:</p>
+<ul class="simple">
+<li>sudo chmode a+x cplex_studio1251.linux-x86-32.bin</li>
+<li>sudo ./cplex_studio1251.linux-x86-32.bin</li>
+<li>sudo chmod -R 777 &lt;cplex_HOME_folder&gt; - cplex lacks permission to a create folder when you install it from conda environment.</li>
+<li>source activate medianshape</li>
+<li>python setup.py install</li>
+</ul>
+<p>cplex throws error when row and col args are not explicitly typecasted to int.
+prob.linear_constraints.set_coefficients(zip(cons.row.astype(int), cons.col.astype(int), cons.data.astype(float)))</p>
+</div>
+<div class="section" id="run-tetview">
+<h2>Run tetview<a class="headerlink" href="#run-tetview" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Download tetview-linux</li>
+<li>gunzip tetview-linux.gz</li>
+<li>chmod +x tetview-linux</li>
+<li>sudo apt-get install libglu1-mesa:i386</li>
+<li>Tetview requires 32-bit version of the package</li>
+<li>Tetview doesn&#8217;t run on Ubuntu 16.05 64-bit</li>
+<li>Install Wine</li>
+<li>Download tetview-win.exe</li>
+<li>Run it using Wine</li>
+</ul>
+</div>
+<div class="section" id="install-tetgen">
+<h2>Install tetgen<a class="headerlink" href="#install-tetgen" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>sudo apt-get install tetgen</li>
+</ul>
+</div>
+<div class="section" id="documentation">
+<h2>Documentation<a class="headerlink" href="#documentation" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>conda install sphinx</li>
+<li>source activate medianshape</li>
+<li>cd medinashape/docs</li>
+<li>make html</li>
+<li>google-chrome medianshape/docs/_build/html/index.html</li>
+</ul>
+</div>
+<div class="section" id="requirements">
+<h2>Requirements<a class="headerlink" href="#requirements" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><a class="reference external" href="http://numpy.org/">NumPy</a></li>
+<li><a class="reference external" href="https://scipy.org/">SciPy</a></li>
+<li><a class="reference external" href="https://pypi.python.org/pypi/PyDistMesh/1.2">PyDistMesh</a></li>
+<li><a class="reference external" href="https://www-01.ibm.com/software/commerce/optimization/cplex-optimizer/">cplex</a> or <a class="reference external" href="http://cvxopt.org">cvxopt</a></li>
+<li><a class="reference external" href="http://matplotlib.org">matplotlib</a> (optional)</li>
+</ul>
+<p>Please refer to their own documentation for different version compatability.
+You can use <a class="reference external" href="https://www.continuum.io">Anaconda</a> tool to easily install numpy, scipy.
+Anaconda is a collection python packages for scientific computation and it provides <a class="reference external" href="https://conda.io">conda</a>
+a package manager and an environment manager additionally.</p>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="core/lp.html" class="btn btn-neutral float-right" title="Linear Programs" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="index.html" class="btn btn-neutral" title="Welcome to MedianShape’s documentation!" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright GNU GPL.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'1.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

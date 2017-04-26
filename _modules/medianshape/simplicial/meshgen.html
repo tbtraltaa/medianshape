@@ -1,0 +1,478 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>medianshape.simplicial.meshgen &mdash; MedianShape 1.0 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="MedianShape 1.0 documentation" href="../../../index.html"/>
+        <link rel="up" title="Module code" href="../../index.html"/> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> MedianShape
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../getting-started.html"><strong>Getting started</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../core/lp.html"><strong>Linear Programs</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../experiments/experiments.html"><strong>Experiments</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../simplicial/simplicial-settings.html"><strong>Simplicial Settings</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../viz/viz.html"><strong>Visualization</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../utils.html"><strong>Utils</strong></a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../../index.html">MedianShape</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      
+    <li>medianshape.simplicial.meshgen</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for medianshape.simplicial.meshgen</h1><div class="highlight"><pre>
+<span></span><span class="c1"># encoding: utf-8</span>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">Mesh generation</span>
+<span class="sd">===============</span>
+
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
+
+<span class="kn">import</span> <span class="nn">importlib</span>
+<span class="kn">import</span> <span class="nn">copy</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">scipy.spatial</span> <span class="kn">import</span> <span class="n">Delaunay</span>
+<span class="kn">import</span> <span class="nn">scipy.sparse</span> <span class="kn">as</span> <span class="nn">sparse</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">medianshape.viz.plot3d</span> <span class="kn">as</span> <span class="nn">plt3d</span>
+
+<span class="kn">import</span> <span class="nn">distmesh</span> <span class="kn">as</span> <span class="nn">dm</span>
+
+<span class="kn">from</span> <span class="nn">medianshape.simplicial.mesh</span> <span class="kn">import</span> <span class="n">Mesh2D</span><span class="p">,</span> <span class="n">Mesh3D</span>
+<span class="kn">import</span> <span class="nn">medianshape.utils</span> <span class="kn">as</span> <span class="nn">utils</span> 
+
+<div class="viewcode-block" id="get_mesh_surface"><a class="viewcode-back" href="../../../simplicial/meshgen.html#medianshape.simplicial.meshgen.get_mesh_surface">[docs]</a><span class="k">def</span> <span class="nf">get_mesh_surface</span><span class="p">(</span><span class="n">mesh</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Gets a surface mesh out of a tetrahedralized simplicial complex K.</span>
+
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">smesh</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">mesh</span><span class="p">)</span>
+    <span class="n">b_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">utils</span><span class="o">.</span><span class="n">boundary_matrix</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">triangles</span><span class="p">,</span> <span class="n">mesh</span><span class="o">.</span><span class="n">edges</span><span class="p">,</span> <span class="n">format</span><span class="o">=</span><span class="s1">&#39;dok&#39;</span><span class="p">))</span>
+    <span class="n">s_edges_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">b_matrix</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">==</span><span class="mi">3</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">s_edges_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">s_edges_idx</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">b_matrix</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">==</span><span class="mi">4</span><span class="p">)[</span><span class="mi">0</span><span class="p">]))</span>
+
+    <span class="n">interior_edges_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">edges</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">if</span> <span class="n">i</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">s_edges_idx</span><span class="p">])</span>
+
+    <span class="n">s_edges</span> <span class="o">=</span> <span class="n">mesh</span><span class="o">.</span><span class="n">edges</span><span class="p">[</span><span class="n">s_edges_idx</span><span class="o">.</span><span class="n">tolist</span><span class="p">()]</span>
+    <span class="n">surface_points</span><span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">s_edges</span><span class="o">.</span><span class="n">flatten</span><span class="p">())</span>
+
+    <span class="n">interior_edges</span> <span class="o">=</span> <span class="n">mesh</span><span class="o">.</span><span class="n">edges</span><span class="p">[</span><span class="n">interior_edges_idx</span><span class="o">.</span><span class="n">tolist</span><span class="p">()]</span>
+    <span class="n">tmp</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">p_idx</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">surface_points</span><span class="p">):</span>
+        <span class="n">k</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">argwhere</span><span class="p">(</span><span class="n">interior_edges</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span><span class="o">==</span><span class="n">p_idx</span><span class="p">))</span>
+        <span class="n">k</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">argwhere</span><span class="p">(</span><span class="n">interior_edges</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span><span class="o">==</span><span class="n">p_idx</span><span class="p">))</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">argwhere</span><span class="p">(</span><span class="n">s_edges</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span><span class="o">==</span><span class="n">p_idx</span><span class="p">))</span>
+        <span class="n">s</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">argwhere</span><span class="p">(</span><span class="n">s_edges</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span><span class="o">==</span><span class="n">p_idx</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">k</span> <span class="o">&gt;</span> <span class="n">s</span><span class="p">:</span>
+            <span class="k">pass</span>
+            <span class="c1">#print len(s_edges)</span>
+            <span class="c1">#s_edges = np.array([e for e in s_edges if p_idx not in e]).reshape(-1,2)</span>
+            <span class="c1">#print len(s_edges)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">tmp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">p_idx</span><span class="p">)</span>
+    <span class="n">surface_points</span> <span class="o">=</span> <span class="n">tmp</span>
+
+    <span class="n">s_triangles</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span>
+    <span class="n">t_idx</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">triangles</span><span class="p">):</span>
+        <span class="n">counter</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">surface_points</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">t</span><span class="o">==</span><span class="n">p</span><span class="p">):</span>
+                <span class="n">counter</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="n">counter</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="n">s_triangles</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="n">s_triangles</span><span class="p">,</span> <span class="n">t</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">)))</span>
+            <span class="n">t_idx</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+    <span class="n">smesh</span><span class="o">.</span><span class="n">triangles</span> <span class="o">=</span> <span class="n">s_triangles</span><span class="p">[</span><span class="mi">1</span><span class="p">:,:]</span>
+    <span class="n">smesh</span><span class="o">.</span><span class="n">edges</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">get_subsimplices</span><span class="p">(</span><span class="n">smesh</span><span class="o">.</span><span class="n">triangles</span><span class="p">)</span>
+    <span class="n">smesh</span><span class="o">.</span><span class="n">surf_points</span> <span class="o">=</span> <span class="n">surface_points</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    plt3d.plot_simplices3d(smesh, np.array(t_idx))</span>
+<span class="sd">    plt.show()</span>
+<span class="sd">    plt3d.plot_curve3d(smesh, np.ones(len(smesh.edges)))</span>
+<span class="sd">    plt.show()</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="n">smesh</span></div>
+
+<div class="viewcode-block" id="meshgen2d"><a class="viewcode-back" href="../../../simplicial/meshgen.html#medianshape.simplicial.meshgen.meshgen2d">[docs]</a><span class="k">def</span> <span class="nf">meshgen2d</span><span class="p">(</span><span class="n">bbox</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">l</span><span class="o">=</span><span class="mf">0.02</span><span class="p">,</span> <span class="n">fixed_points</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">include_corners</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Generates a simplical complex K of dimension 2, a triangulated mesh.</span>
+
+<span class="sd">    :param float bbox: a bounding box, [:math:`x_{min}, y_{min}, x_{max}, y_{max}`].</span>
+<span class="sd">    :param float l: initial edge length.</span>
+<span class="sd">    :param float fixed_points: fixed points that should be in K.</span>
+<span class="sd">    :param bool include_corners: If True, the corner points of the given boundary box must be in K.</span>
+<span class="sd">    :returns: mesh -- an object of Mesh2D class.</span>
+<span class="sd">    :rtype: object.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">mesh</span> <span class="o">=</span> <span class="n">Mesh2D</span><span class="p">()</span>
+    <span class="c1">#l - initial length of triangle sides. Change it to vary traingle size</span>
+    <span class="n">mesh</span><span class="o">.</span><span class="n">bbox</span> <span class="o">=</span> <span class="n">bbox</span>
+    <span class="n">mesh</span><span class="o">.</span><span class="n">set_boundary_points</span><span class="p">()</span>
+    <span class="n">mesh</span><span class="o">.</span><span class="n">set_diagonal</span><span class="p">()</span>
+    <span class="n">mesh</span><span class="o">.</span><span class="n">set_boundary_values</span><span class="p">()</span>
+    <span class="n">mesh</span><span class="o">.</span><span class="n">fixed_points</span> <span class="o">=</span> <span class="n">fixed_points</span>
+    <span class="k">if</span> <span class="n">include_corners</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">mesh</span><span class="o">.</span><span class="n">fixed_points</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">mesh</span><span class="o">.</span><span class="n">fixed_points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="n">mesh</span><span class="o">.</span><span class="n">fixed_points</span><span class="p">,</span> <span class="n">mesh</span><span class="o">.</span><span class="n">boundary_points</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">mesh</span><span class="o">.</span><span class="n">fixed_points</span> <span class="o">=</span> <span class="n">mesh</span><span class="o">.</span><span class="n">boundary_points</span>
+    <span class="n">mesh</span><span class="o">.</span><span class="n">points</span><span class="p">,</span> <span class="n">mesh</span><span class="o">.</span><span class="n">simplices</span> <span class="o">=</span> <span class="n">distmesh2d</span><span class="p">(</span><span class="n">bbox</span><span class="o">=</span><span class="n">mesh</span><span class="o">.</span><span class="n">bbox</span><span class="p">,</span> <span class="n">l</span><span class="o">=</span><span class="n">l</span><span class="p">,</span> <span class="n">fixed_points</span><span class="o">=</span><span class="n">mesh</span><span class="o">.</span><span class="n">fixed_points</span><span class="p">)</span>
+    <span class="n">mesh</span><span class="o">.</span><span class="n">edges</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">get_subsimplices</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">simplices</span><span class="p">)</span>
+    <span class="n">mesh</span><span class="o">.</span><span class="n">orient_simplices_2D</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">mesh</span></div>
+
+<div class="viewcode-block" id="meshgen3d"><a class="viewcode-back" href="../../../simplicial/meshgen.html#medianshape.simplicial.meshgen.meshgen3d">[docs]</a><span class="k">def</span> <span class="nf">meshgen3d</span><span class="p">(</span><span class="n">bbox</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">l</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">fixed_points</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">include_corners</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">load_data</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="s2">&quot;ball&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Generates a simplical complex K of dimension 3, a tetrahedralized mesh.</span>
+
+<span class="sd">    :param float bbox: a bounding box, [:math:`x_{min}, y_{min}, z_{min}, x_{max}, y_{max}, z_{max}`].</span>
+<span class="sd">    :param float l: initial edge length.</span>
+<span class="sd">    :param float fixed_points: fixed points that should be in K.</span>
+<span class="sd">    :param bool include_corners: If True, the corner points of the given boundary box must be in K.</span>
+<span class="sd">    :returns: mesh -- an object of Mesh3D class.</span>
+<span class="sd">    :rtype: object.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">mesh</span> <span class="o">=</span> <span class="n">Mesh3D</span><span class="p">()</span>
+    <span class="n">mesh</span><span class="o">.</span><span class="n">bbox</span> <span class="o">=</span> <span class="n">bbox</span>
+    <span class="n">mesh</span><span class="o">.</span><span class="n">set_boundary_points</span><span class="p">()</span>
+    <span class="n">mesh</span><span class="o">.</span><span class="n">set_diagonal</span><span class="p">()</span>
+    <span class="n">mesh</span><span class="o">.</span><span class="n">set_boundary_values</span><span class="p">()</span>
+    <span class="n">mesh</span><span class="o">.</span><span class="n">fixed_points</span> <span class="o">=</span> <span class="n">fixed_points</span>
+    <span class="k">if</span> <span class="n">include_corners</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">mesh</span><span class="o">.</span><span class="n">fixed_points</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">mesh</span><span class="o">.</span><span class="n">fixed_points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="n">mesh</span><span class="o">.</span><span class="n">fixed_points</span><span class="p">,</span> <span class="n">mesh</span><span class="o">.</span><span class="n">boundary_points</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">mesh</span><span class="o">.</span><span class="n">fixed_points</span> <span class="o">=</span> <span class="n">mesh</span><span class="o">.</span><span class="n">boundary_points</span>
+    <span class="n">mesh</span><span class="o">.</span><span class="n">points</span><span class="p">,</span> <span class="n">mesh</span><span class="o">.</span><span class="n">simplices</span><span class="o">=</span> <span class="n">distmesh3d</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">bbox</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">mesh</span><span class="o">.</span><span class="n">fixed_points</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="c1">#mesh.points, mesh.simplices = scipy_mesh3d(mesh.bbox, l, mesh.fixed_points)</span>
+    <span class="n">mesh</span><span class="o">.</span><span class="n">triangles</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">get_subsimplices</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">simplices</span><span class="p">)</span>
+    <span class="n">mesh</span><span class="o">.</span><span class="n">edges</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">get_subsimplices</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">triangles</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">mesh</span></div>
+
+<div class="viewcode-block" id="scipy_mesh3d"><a class="viewcode-back" href="../../../simplicial/meshgen.html#medianshape.simplicial.meshgen.scipy_mesh3d">[docs]</a><span class="k">def</span> <span class="nf">scipy_mesh3d</span><span class="p">(</span><span class="n">bbox</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">fixed_points</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Generates a simplical complex K of dimension 3, a tetrahedralized mesh.</span>
+
+<span class="sd">    :param float bbox: a bounding box, [:math:`x_{min}, y_{min}, z_{min}, x_{max}, y_{max}, z_{max}`].</span>
+<span class="sd">    :param float l: initial edge length.</span>
+<span class="sd">    :param float fixed_points: fixed points that should be in K.</span>
+<span class="sd">    :returns: points, tetrahedras.</span>
+<span class="sd">    :rtype: float, int.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">bbox</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">bbox</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">dim</span> <span class="o">=</span> <span class="n">bbox</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mgrid</span><span class="p">[</span><span class="nb">tuple</span><span class="p">(</span><span class="nb">slice</span><span class="p">(</span><span class="nb">min</span><span class="p">,</span> <span class="nb">max</span><span class="o">+</span><span class="n">l</span><span class="p">,</span> <span class="n">l</span><span class="p">)</span> <span class="k">for</span> <span class="nb">min</span><span class="p">,</span> <span class="nb">max</span> <span class="ow">in</span> <span class="n">bbox</span><span class="o">.</span><span class="n">T</span><span class="p">)]</span>
+    <span class="n">points</span> <span class="o">=</span> <span class="n">points</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">dim</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">(</span><span class="n">projection</span><span class="o">=</span><span class="s1">&#39;3d&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">points</span><span class="p">[:,</span><span class="mi">0</span><span class="p">],</span><span class="n">points</span><span class="p">[:,</span><span class="mi">1</span><span class="p">],</span> <span class="n">points</span><span class="p">[:,</span><span class="mi">2</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">points</span><span class="p">,</span> <span class="n">Delaunay</span><span class="p">(</span><span class="n">points</span><span class="p">)</span><span class="o">.</span><span class="n">simplices</span></div>
+
+<span class="c1">#def meshpy_cuboid3d(bbox, fixed_points, max_volume):</span>
+<span class="c1">#    mesh_info = MeshInfo()</span>
+<span class="c1">#    mesh_info.set_points(fixed_points)</span>
+<span class="c1">#    mesh_info.set_facets([[0,1,2,3],\</span>
+<span class="c1">#                            [4,5,6,7],\</span>
+<span class="c1">#                            [0,4,5,1],\</span>
+<span class="c1">#                            [1,5,6,2],\</span>
+<span class="c1">#                            [2,6,7,3],\</span>
+<span class="c1">#                            [3,7,4,0],\</span>
+<span class="c1">#                                ])</span>
+<span class="c1">#    mesh = build(mesh_info, volume_constraints=True, max_volume=max_volume)</span>
+<span class="c1">#    return np.array(mesh.points), np.array(mesh.elements)</span>
+
+<div class="viewcode-block" id="distmesh2d"><a class="viewcode-back" href="../../../simplicial/meshgen.html#medianshape.simplicial.meshgen.distmesh2d">[docs]</a><span class="k">def</span> <span class="nf">distmesh2d</span><span class="p">(</span><span class="n">bbox</span><span class="p">,</span> <span class="n">l</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">fixed_points</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="s2">&quot;square&quot;</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Generates a simplical complex K of dimension 2, a triangulated mesh.</span>
+
+<span class="sd">    :param float bbox: a bounding box, [:math:`x_{min}, y_{min}, x_{max}, y_{max}`].</span>
+<span class="sd">    :param float l: initial edge length.</span>
+<span class="sd">    :param float fixed_points: fixed points that should be in K.</span>
+<span class="sd">    :param str shape: the shape of K.</span>
+<span class="sd">    :returns: points, triangles.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">if</span> <span class="n">shape</span> <span class="o">==</span> <span class="s2">&quot;square&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">square_mesh</span><span class="p">(</span><span class="n">bbox</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">fixed_points</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="distmesh3d"><a class="viewcode-back" href="../../../simplicial/meshgen.html#medianshape.simplicial.meshgen.distmesh3d">[docs]</a><span class="k">def</span> <span class="nf">distmesh3d</span><span class="p">(</span><span class="n">bbox</span><span class="p">,</span> <span class="n">l</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">fixed_points</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="s2">&quot;ball&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Generates tetrahedral mesh, K in 3D with a given shape using Distmesh.</span>
+
+<span class="sd">    :param float bbox: a bounding box, [:math:`x_{min}, y_{min}, z_{min}, x_{max}, y_{max}, z_{max}`].</span>
+<span class="sd">    :param float l: initial edge length.</span>
+<span class="sd">    :param float fixed_points: fixed points that should be in K.</span>
+<span class="sd">    :param str shape: a shape of K</span>
+<span class="sd">    :returns: points, tetrahedras.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="c1">#distmesh.distmeshnd accepts None(not []) if there is no fixed points.</span>
+    <span class="k">if</span>  <span class="n">fixed_points</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">fixed_points</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">fixed_points</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="c1">#if shape == &quot;cuboid&quot;:</span>
+        <span class="c1">#return cuboid_mesh(bbox, fixed_points, l)</span>
+    <span class="k">if</span> <span class="n">shape</span> <span class="o">==</span> <span class="s2">&quot;ball&quot;</span><span class="p">:</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">bbox</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">-</span> <span class="n">bbox</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">*</span><span class="mf">1.0</span><span class="o">/</span><span class="mi">2</span>  
+        <span class="n">center</span> <span class="o">=</span> <span class="p">[(</span><span class="n">bbox</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="n">bbox</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span><span class="o">*</span><span class="mf">1.0</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="p">(</span><span class="n">bbox</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">bbox</span><span class="p">[</span><span class="mi">4</span><span class="p">])</span><span class="o">*</span><span class="mf">1.0</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="p">(</span><span class="n">bbox</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">+</span><span class="n">bbox</span><span class="p">[</span><span class="mi">5</span><span class="p">])</span><span class="o">*</span><span class="mf">1.0</span><span class="o">/</span><span class="mi">2</span><span class="p">]</span>
+        <span class="n">dist_function</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">p</span><span class="p">:</span> <span class="n">dm</span><span class="o">.</span><span class="n">dsphere</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">center</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">center</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">center</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">r</span><span class="p">)</span>
+        <span class="n">points</span><span class="p">,</span> <span class="n">simplices</span> <span class="o">=</span> <span class="n">dm</span><span class="o">.</span><span class="n">distmeshnd</span><span class="p">(</span><span class="n">dist_function</span><span class="p">,</span> <span class="n">dm</span><span class="o">.</span><span class="n">huniform</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">bbox</span><span class="p">,</span> <span class="n">fixed_points</span><span class="p">,</span> <span class="n">fig</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span> 
+    <span class="k">if</span> <span class="n">shape</span> <span class="o">==</span> <span class="s2">&quot;sphere&quot;</span><span class="p">:</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">bbox</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">-</span> <span class="n">bbox</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">*</span><span class="mf">1.0</span><span class="o">/</span><span class="mi">2</span>  
+        <span class="n">center</span> <span class="o">=</span> <span class="p">[(</span><span class="n">bbox</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="n">bbox</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span><span class="o">*</span><span class="mf">1.0</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="p">(</span><span class="n">bbox</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">bbox</span><span class="p">[</span><span class="mi">4</span><span class="p">])</span><span class="o">*</span><span class="mf">1.0</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="p">(</span><span class="n">bbox</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">+</span><span class="n">bbox</span><span class="p">[</span><span class="mi">5</span><span class="p">])</span><span class="o">*</span><span class="mf">1.0</span><span class="o">/</span><span class="mi">2</span><span class="p">]</span>
+        <span class="n">dist_function</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">p</span><span class="p">:</span> <span class="n">dm</span><span class="o">.</span><span class="n">dsphere</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">center</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">center</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">center</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span><span class="n">r</span><span class="p">);</span>
+        <span class="n">points</span><span class="p">,</span> <span class="n">simplices</span> <span class="o">=</span> <span class="n">dm</span><span class="o">.</span><span class="n">distmeshnd</span><span class="p">(</span><span class="n">dist_function</span><span class="p">,</span> <span class="n">dm</span><span class="o">.</span><span class="n">huniform</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">bbox</span><span class="p">,</span> <span class="n">fixed_points</span><span class="p">,</span> <span class="n">fig</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span> 
+    <span class="k">if</span> <span class="n">shape</span> <span class="o">==</span> <span class="s2">&quot;torus&quot;</span><span class="p">:</span>
+        <span class="n">radius</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">bbox</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">-</span> <span class="n">bbox</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">*</span><span class="mf">1.0</span><span class="o">/</span><span class="mi">2</span>  
+        <span class="n">r</span> <span class="o">=</span> <span class="n">radius</span><span class="o">/</span><span class="mi">4</span>
+        <span class="n">R</span> <span class="o">=</span> <span class="n">radius</span> <span class="o">-</span> <span class="n">r</span>
+        <span class="k">if</span> <span class="s2">&quot;r&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="n">r</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;r&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s2">&quot;R&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="n">R</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;R&quot;</span><span class="p">]</span>
+        <span class="n">dist_function</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">p</span><span class="p">:</span> <span class="p">((</span><span class="n">p</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">+</span><span class="n">R</span><span class="o">**</span><span class="mi">2</span><span class="o">-</span><span class="n">r</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="o">-</span><span class="mi">4</span><span class="o">*</span><span class="n">R</span><span class="o">**</span><span class="mi">2</span><span class="o">*</span><span class="p">(</span><span class="n">p</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span><span class="o">+</span><span class="n">p</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span><span class="p">);</span>
+        <span class="n">points</span><span class="p">,</span> <span class="n">simplices</span><span class="o">=</span><span class="n">dm</span><span class="o">.</span><span class="n">distmeshnd</span><span class="p">(</span><span class="n">dist_function</span><span class="p">,</span> <span class="n">dm</span><span class="o">.</span><span class="n">huniform</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">bbox</span><span class="p">,</span> <span class="n">fig</span><span class="o">=</span><span class="bp">None</span><span class="p">);</span>
+    <span class="k">return</span> <span class="n">points</span><span class="p">,</span> <span class="n">simplices</span></div>
+
+<div class="viewcode-block" id="square_mesh"><a class="viewcode-back" href="../../../simplicial/meshgen.html#medianshape.simplicial.meshgen.square_mesh">[docs]</a><span class="k">def</span> <span class="nf">square_mesh</span><span class="p">(</span><span class="n">bbox</span><span class="p">,</span> <span class="n">l</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">fixed_points</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Generates a simplical complex K of dimension 2, a triangulated mesh,</span>
+<span class="sd">    with square shape using Distmesh.</span>
+
+<span class="sd">    :param float bbox: a bounding box, [:math:`x_{min}, y_{min}, x_{max}, y_{max}`].</span>
+<span class="sd">    :param float l: initial edge length. </span>
+<span class="sd">    :param float fixed_points: fixed points that should be in K.</span>
+<span class="sd">    :returns: points, triangles.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="c1">#Square, with size function point and line sources#</span>
+    <span class="n">dist_function</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">p</span><span class="p">:</span> <span class="n">dm</span><span class="o">.</span><span class="n">drectangle</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">bbox</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">bbox</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> \
+                                                <span class="n">bbox</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="n">bbox</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+    <span class="n">points</span><span class="p">,</span> <span class="n">triangles</span> <span class="o">=</span> <span class="n">dm</span><span class="o">.</span><span class="n">distmesh2d</span><span class="p">(</span><span class="n">dist_function</span><span class="p">,</span> <span class="n">dm</span><span class="o">.</span><span class="n">huniform</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">bbox</span><span class="p">,</span> <span class="n">fixed_points</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">points</span><span class="p">,</span> <span class="n">triangles</span> </div>
+
+<div class="viewcode-block" id="cuboid_mesh"><a class="viewcode-back" href="../../../simplicial/meshgen.html#medianshape.simplicial.meshgen.cuboid_mesh">[docs]</a><span class="k">def</span> <span class="nf">cuboid_mesh</span><span class="p">(</span><span class="n">bbox</span><span class="p">,</span> <span class="n">l</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">fixed_points</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Generates tetrahedral mesh in 3D using DistMesh with cubic shape using Distmesh.</span>
+
+<span class="sd">    :param float bbox: a bounding box, [:math:`x_{min}, y_{min}, z_{min}, x_{max}, y_{max}, z_{max}`].</span>
+<span class="sd">    :param float l: initial edge length.</span>
+<span class="sd">    :param float fixed_points: fixed points that should be in K.</span>
+<span class="sd">    :returns: points, tetrahedras.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">dist_function</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">p</span><span class="p">:</span> <span class="n">dcuboid</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">bbox</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">bbox</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">bbox</span><span class="p">[</span><span class="mi">2</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">bbox</span><span class="p">[</span><span class="mi">3</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">bbox</span><span class="p">[</span><span class="mi">4</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">bbox</span><span class="p">[</span><span class="mi">5</span><span class="p">]))</span> 
+    <span class="n">points</span><span class="p">,</span> <span class="n">tetrahedras</span> <span class="o">=</span> <span class="n">dm</span><span class="o">.</span><span class="n">distmeshnd</span><span class="p">(</span><span class="n">dist_function</span><span class="p">,</span> <span class="n">dm</span><span class="o">.</span><span class="n">huniform</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">bbox</span><span class="p">,</span> <span class="n">fixed_points</span><span class="p">)</span> 
+    <span class="k">return</span> <span class="n">points</span><span class="p">,</span> <span class="n">tetrahedras</span></div>
+
+<div class="viewcode-block" id="dcuboid"><a class="viewcode-back" href="../../../simplicial/meshgen.html#medianshape.simplicial.meshgen.dcuboid">[docs]</a><span class="k">def</span> <span class="nf">dcuboid</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">x1</span><span class="p">,</span> <span class="n">y1</span><span class="p">,</span> <span class="n">z1</span><span class="p">,</span> <span class="n">x2</span><span class="p">,</span> <span class="n">y2</span><span class="p">,</span> <span class="n">z2</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Signed distance function for cubiod with corners (x1,y1,z1), (x1,y1,z2),</span>
+<span class="sd">    (x1,y2,z1), (x1,y2,z2), (x2,y1,z1), (x2,y2,z1), (x2,y1,z2), (x2,y2,z2).</span>
+
+<span class="sd">    This has an incorrect distance to the four corners. </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">d1</span> <span class="o">=</span> <span class="n">x1</span> <span class="o">-</span> <span class="n">p</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">d2</span> <span class="o">=</span> <span class="o">-</span><span class="n">x2</span> <span class="o">+</span> <span class="n">p</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">d3</span> <span class="o">=</span> <span class="n">y1</span> <span class="o">-</span> <span class="n">p</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">d4</span> <span class="o">=</span> <span class="o">-</span><span class="n">y2</span>  <span class="o">+</span> <span class="n">p</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">d5</span> <span class="o">=</span> <span class="n">z1</span> <span class="o">-</span> <span class="n">p</span><span class="p">[:,</span><span class="mi">2</span><span class="p">]</span>
+    <span class="n">d6</span> <span class="o">=</span> <span class="o">-</span><span class="n">z2</span> <span class="o">+</span> <span class="n">p</span><span class="p">[:,</span><span class="mi">2</span><span class="p">]</span>
+
+    <span class="n">d135</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">d1</span><span class="o">**</span><span class="mi">2</span><span class="o">+</span><span class="n">d3</span><span class="o">**</span><span class="mi">2</span><span class="o">+</span><span class="n">d5</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">d136</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">d1</span><span class="o">**</span><span class="mi">2</span><span class="o">+</span><span class="n">d3</span><span class="o">**</span><span class="mi">2</span><span class="o">+</span><span class="n">d6</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">d145</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">d1</span><span class="o">**</span><span class="mi">2</span><span class="o">+</span><span class="n">d4</span><span class="o">**</span><span class="mi">2</span><span class="o">+</span><span class="n">d5</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">d146</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">d1</span><span class="o">**</span><span class="mi">2</span><span class="o">+</span><span class="n">d4</span><span class="o">**</span><span class="mi">2</span><span class="o">+</span><span class="n">d6</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">d235</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">d2</span><span class="o">**</span><span class="mi">2</span><span class="o">+</span><span class="n">d3</span><span class="o">**</span><span class="mi">2</span><span class="o">+</span><span class="n">d5</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">d236</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">d2</span><span class="o">**</span><span class="mi">2</span><span class="o">+</span><span class="n">d3</span><span class="o">**</span><span class="mi">2</span><span class="o">+</span><span class="n">d6</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">d245</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">d2</span><span class="o">**</span><span class="mi">2</span><span class="o">+</span><span class="n">d4</span><span class="o">**</span><span class="mi">2</span><span class="o">+</span><span class="n">d5</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">d246</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">d2</span><span class="o">**</span><span class="mi">2</span><span class="o">+</span><span class="n">d4</span><span class="o">**</span><span class="mi">2</span><span class="o">+</span><span class="n">d6</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+    
+    <span class="n">d</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="o">-</span><span class="n">d1</span><span class="p">,</span><span class="o">-</span><span class="n">d2</span><span class="p">),</span><span class="o">-</span><span class="n">d3</span><span class="p">),</span><span class="o">-</span><span class="n">d4</span><span class="p">),</span><span class="o">-</span><span class="n">d5</span><span class="p">),</span><span class="o">-</span><span class="n">d6</span><span class="p">)</span>
+    <span class="n">ix</span> <span class="o">=</span> <span class="p">(</span><span class="n">d1</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">d3</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">d5</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">d</span><span class="p">[</span><span class="n">ix</span><span class="p">]</span> <span class="o">=</span> <span class="n">d135</span><span class="p">[</span><span class="n">ix</span><span class="p">]</span>
+    <span class="n">ix</span> <span class="o">=</span> <span class="p">(</span><span class="n">d1</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">d3</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">d6</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">d</span><span class="p">[</span><span class="n">ix</span><span class="p">]</span> <span class="o">=</span> <span class="n">d136</span><span class="p">[</span><span class="n">ix</span><span class="p">]</span>
+    <span class="n">ix</span> <span class="o">=</span> <span class="p">(</span><span class="n">d1</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">d4</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">d5</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">d</span><span class="p">[</span><span class="n">ix</span><span class="p">]</span> <span class="o">=</span> <span class="n">d145</span><span class="p">[</span><span class="n">ix</span><span class="p">]</span>
+    <span class="n">ix</span> <span class="o">=</span> <span class="p">(</span><span class="n">d1</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">d4</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">d6</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">d</span><span class="p">[</span><span class="n">ix</span><span class="p">]</span> <span class="o">=</span> <span class="n">d146</span><span class="p">[</span><span class="n">ix</span><span class="p">]</span>
+    <span class="n">ix</span> <span class="o">=</span> <span class="p">(</span><span class="n">d2</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">d3</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">d5</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">d</span><span class="p">[</span><span class="n">ix</span><span class="p">]</span> <span class="o">=</span> <span class="n">d235</span><span class="p">[</span><span class="n">ix</span><span class="p">]</span>
+    <span class="n">ix</span> <span class="o">=</span> <span class="p">(</span><span class="n">d2</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">d3</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">d6</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">d</span><span class="p">[</span><span class="n">ix</span><span class="p">]</span> <span class="o">=</span> <span class="n">d236</span><span class="p">[</span><span class="n">ix</span><span class="p">]</span>
+    <span class="n">ix</span> <span class="o">=</span> <span class="p">(</span><span class="n">d2</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">d4</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">d5</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">d</span><span class="p">[</span><span class="n">ix</span><span class="p">]</span> <span class="o">=</span> <span class="n">d245</span><span class="p">[</span><span class="n">ix</span><span class="p">]</span>
+    <span class="n">ix</span> <span class="o">=</span> <span class="p">(</span><span class="n">d2</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">d4</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">d4</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">d</span><span class="p">[</span><span class="n">ix</span><span class="p">]</span> <span class="o">=</span> <span class="n">d246</span><span class="p">[</span><span class="n">ix</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">d</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright GNU GPL.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'1.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

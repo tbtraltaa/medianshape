@@ -1,4 +1,0 @@
-include *.txt
-include *.json
-include */data/*
-recursive-include  docs *.rst

@@ -1,0 +1,426 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>medianshape.simplicial.utils &mdash; MedianShape 1.0 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="MedianShape 1.0 documentation" href="../../../index.html"/>
+        <link rel="up" title="Module code" href="../../index.html"/> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> MedianShape
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../getting-started.html"><strong>Getting started</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../core/lp.html"><strong>Linear Programs</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../experiments/experiments.html"><strong>Experiments</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../simplicial/simplicial-settings.html"><strong>Simplicial Settings</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../viz/viz.html"><strong>Visualization</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../utils.html"><strong>Utils</strong></a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../../index.html">MedianShape</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      
+    <li>medianshape.simplicial.utils</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for medianshape.simplicial.utils</h1><div class="highlight"><pre>
+<span></span><span class="c1"># encoding: utf-8</span>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">Utils</span>
+<span class="sd">=====</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span>
+
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">importlib</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">math</span>
+
+<div class="viewcode-block" id="get_bbox_diagonal"><a class="viewcode-back" href="../../../simplicial/utils.html#medianshape.simplicial.utils.get_bbox_diagonal">[docs]</a><span class="k">def</span> <span class="nf">get_bbox_diagonal</span><span class="p">(</span><span class="n">mesh_points</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">bbox</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Returns the diagonal of a bounding box in 2D or 3D.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">if</span> <span class="n">mesh_points</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">==</span><span class="mi">2</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">bbox</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">and</span> <span class="n">mesh_points</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">bbox</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+            <span class="n">bbox</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">amin</span><span class="p">(</span><span class="n">mesh_points</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]))</span>
+            <span class="n">bbox</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">amin</span><span class="p">(</span><span class="n">mesh_points</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]))</span>
+            <span class="n">bbox</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">amax</span><span class="p">(</span><span class="n">mesh_points</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]))</span>
+            <span class="n">bbox</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">amax</span><span class="p">(</span><span class="n">mesh_points</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]))</span>
+        <span class="k">if</span> <span class="n">bbox</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span> 
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">bbox</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">-</span><span class="n">bbox</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="n">bbox</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">-</span><span class="n">bbox</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">None</span>
+    <span class="k">elif</span> <span class="n">mesh_points</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">==</span><span class="mi">3</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">bbox</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">and</span> <span class="n">mesh_points</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">bbox</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+            <span class="n">bbox</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">amin</span><span class="p">(</span><span class="n">mesh_points</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]))</span>
+            <span class="n">bbox</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">amin</span><span class="p">(</span><span class="n">mesh_points</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]))</span>
+            <span class="n">bbox</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">amin</span><span class="p">(</span><span class="n">mesh_points</span><span class="p">[:,</span><span class="mi">2</span><span class="p">]))</span>
+            <span class="n">bbox</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">amax</span><span class="p">(</span><span class="n">mesh_points</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]))</span>
+            <span class="n">bbox</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">amax</span><span class="p">(</span><span class="n">mesh_points</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]))</span>
+            <span class="n">bbox</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">amax</span><span class="p">(</span><span class="n">mesh_points</span><span class="p">[:,</span><span class="mi">2</span><span class="p">]))</span>
+        <span class="k">if</span> <span class="n">bbox</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span> 
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">bbox</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">-</span><span class="n">bbox</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="n">bbox</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">-</span><span class="n">bbox</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="n">bbox</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span><span class="o">-</span><span class="n">bbox</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">None</span></div>
+
+<div class="viewcode-block" id="boundary_points"><a class="viewcode-back" href="../../../simplicial/utils.html#medianshape.simplicial.utils.boundary_points">[docs]</a><span class="k">def</span> <span class="nf">boundary_points</span><span class="p">(</span><span class="n">bbox</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Returns corner points of a boundary box in which</span>
+<span class="sd">    4 corners of the bottom rectangle are the first 4 points,</span>
+<span class="sd">    oriented CCW starting from (xmin, ymin, zmin).</span>
+<span class="sd">    Similarly, 4 corners of the top rectangle are the last 4 points,</span>
+<span class="sd">    oriented CCW starting from (xmin, ymin, zmax).</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">if</span> <span class="n">bbox</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">bbox</span><span class="p">)</span> <span class="o">==</span> <span class="mi">6</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">bbox</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">bbox</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">bbox</span><span class="p">[</span><span class="mi">2</span><span class="p">]],</span>\
+                    <span class="p">[</span><span class="n">bbox</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">bbox</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">bbox</span><span class="p">[</span><span class="mi">2</span><span class="p">]],</span>\
+                    <span class="p">[</span><span class="n">bbox</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">bbox</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span> <span class="n">bbox</span><span class="p">[</span><span class="mi">2</span><span class="p">]],</span>\
+                    <span class="p">[</span><span class="n">bbox</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">bbox</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">bbox</span><span class="p">[</span><span class="mi">2</span><span class="p">]],</span>\
+                    <span class="p">[</span><span class="n">bbox</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">bbox</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">bbox</span><span class="p">[</span><span class="mi">5</span><span class="p">]],</span>\
+                    <span class="p">[</span><span class="n">bbox</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">bbox</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">bbox</span><span class="p">[</span><span class="mi">5</span><span class="p">]],</span>\
+                    <span class="p">[</span><span class="n">bbox</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">bbox</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span> <span class="n">bbox</span><span class="p">[</span><span class="mi">5</span><span class="p">]],</span>\
+                    <span class="p">[</span><span class="n">bbox</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">bbox</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span> <span class="n">bbox</span><span class="p">[</span><span class="mi">5</span><span class="p">]]])</span></div>
+
+<span class="k">def</span> <span class="nf">mid_corners</span><span class="p">(</span><span class="n">bbox</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">bbox</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">bbox</span><span class="p">)</span> <span class="o">==</span> <span class="mi">6</span><span class="p">:</span>
+        <span class="n">xmin</span> <span class="o">=</span> <span class="n">bbox</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">xmax</span>  <span class="o">=</span> <span class="n">bbox</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+        <span class="n">ymin</span> <span class="o">=</span> <span class="n">bbox</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">ymax</span> <span class="o">=</span> <span class="n">bbox</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span>
+        <span class="n">zmin</span> <span class="o">=</span> <span class="n">bbox</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+        <span class="n">zmax</span> <span class="o">=</span> <span class="n">bbox</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span>
+        <span class="n">zmid</span> <span class="o">=</span> <span class="p">(</span><span class="n">zmax</span><span class="o">+</span> <span class="n">zmin</span><span class="p">)</span><span class="o">/</span><span class="mf">2.0</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">xmin</span><span class="p">,</span> <span class="n">ymin</span><span class="p">,</span> <span class="n">zmid</span><span class="p">],</span>\
+                    <span class="p">[</span><span class="n">xmax</span><span class="p">,</span> <span class="n">ymin</span><span class="p">,</span> <span class="n">zmid</span><span class="p">],</span>\
+                    <span class="p">[</span><span class="n">xmax</span><span class="p">,</span> <span class="n">ymax</span><span class="p">,</span> <span class="n">zmid</span><span class="p">],</span>\
+                    <span class="p">[</span><span class="n">xmin</span><span class="p">,</span> <span class="n">ymax</span><span class="p">,</span> <span class="n">zmid</span><span class="p">]])</span>
+
+<div class="viewcode-block" id="get_combination"><a class="viewcode-back" href="../../../simplicial/utils.html#medianshape.simplicial.utils.get_combination">[docs]</a><span class="k">def</span> <span class="nf">get_combination</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">vals</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Returns all combinations of given values for n positions.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">if</span> <span class="n">n</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">comb</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+        <span class="n">successors</span> <span class="o">=</span> <span class="n">get_combination</span><span class="p">(</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">vals</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">vals</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">successors</span><span class="p">:</span>
+                <span class="n">row</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">comb</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">comb</span> <span class="o">=</span> <span class="n">row</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">comb</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="n">comb</span><span class="p">,</span><span class="n">row</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">comb</span>
+    <span class="k">elif</span> <span class="n">n</span><span class="o">==</span><span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">vals</span></div>
+
+<div class="viewcode-block" id="vectorize"><a class="viewcode-back" href="../../../simplicial/utils.html#medianshape.simplicial.utils.vectorize">[docs]</a><span class="k">def</span> <span class="nf">vectorize</span><span class="p">(</span><span class="n">func_str</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Computes function values on X domain.</span>
+
+<span class="sd">    :param str func_str: a name of a function in math module in python or \ a name of a function within this module (medianshape.simplicial.utils).</span>
+<span class="sd">    :returns: func_values -- function values on the given domain.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">func_points</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="n">func_str</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+        <span class="n">mod_name</span><span class="p">,</span> <span class="n">func_name</span> <span class="o">=</span> <span class="n">func_str</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">mod</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="n">mod_name</span><span class="p">)</span>
+        <span class="n">func</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">mod</span><span class="p">,</span> <span class="n">func_name</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">func</span><span class="p">:</span>
+            <span class="n">vec_func</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vectorize</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>    
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">this_module</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="n">__name__</span><span class="p">]</span>
+        <span class="n">func</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">this_module</span><span class="p">,</span> <span class="n">func_str</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">vec_func</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vectorize</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>    
+    <span class="n">func_values</span> <span class="o">=</span> <span class="n">vec_func</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">func_values</span></div>
+
+<div class="viewcode-block" id="x"><a class="viewcode-back" href="../../../simplicial/utils.html#medianshape.simplicial.utils.x">[docs]</a><span class="k">def</span> <span class="nf">x</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    :math:`f(x) = x`</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="n">x</span></div>
+<div class="viewcode-block" id="x2"><a class="viewcode-back" href="../../../simplicial/utils.html#medianshape.simplicial.utils.x2">[docs]</a><span class="k">def</span> <span class="nf">x2</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    :math:`f(x) = x^2`</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="n">x</span><span class="o">**</span><span class="mi">2</span></div>
+<div class="viewcode-block" id="x5"><a class="viewcode-back" href="../../../simplicial/utils.html#medianshape.simplicial.utils.x5">[docs]</a><span class="k">def</span> <span class="nf">x5</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    :math:`f(x) = x^5`</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="n">x</span><span class="o">**</span><span class="mi">5</span></div>
+<div class="viewcode-block" id="sin2pi"><a class="viewcode-back" href="../../../simplicial/utils.html#medianshape.simplicial.utils.sin2pi">[docs]</a><span class="k">def</span> <span class="nf">sin2pi</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    :math:`f(x) = |\sin(2\pi x)|`</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">x</span><span class="p">))</span></div>
+<div class="viewcode-block" id="sin1pi"><a class="viewcode-back" href="../../../simplicial/utils.html#medianshape.simplicial.utils.sin1pi">[docs]</a><span class="k">def</span> <span class="nf">sin1pi</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    :math:`f(x) = |\sin(\pi x)|`</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">x</span><span class="p">))</span></div>
+<div class="viewcode-block" id="half_sin1pi"><a class="viewcode-back" href="../../../simplicial/utils.html#medianshape.simplicial.utils.half_sin1pi">[docs]</a><span class="k">def</span> <span class="nf">half_sin1pi</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    :math:`f(x) = \\frac{1}{2}|\sin(\pi x)|`</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="mf">1.0</span><span class="o">/</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">x</span><span class="p">))</span> </div>
+<div class="viewcode-block" id="small_sin1pi"><a class="viewcode-back" href="../../../simplicial/utils.html#medianshape.simplicial.utils.small_sin1pi">[docs]</a><span class="k">def</span> <span class="nf">small_sin1pi</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    :math:`f(x) = \\frac{1}{4}|\sin(\pi x)|`</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">x</span><span class="p">))</span><span class="o">/</span><span class="mi">4</span></div>
+
+<div class="viewcode-block" id="func1"><a class="viewcode-back" href="../../../simplicial/utils.html#medianshape.simplicial.utils.func1">[docs]</a><span class="k">def</span> <span class="nf">func1</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    :math:`f(x) = \\frac{2}{\pi \cos^{-1}(x)}`</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="mi">2</span><span class="o">/</span><span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">math</span><span class="o">.</span><span class="n">acos</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="func2"><a class="viewcode-back" href="../../../simplicial/utils.html#medianshape.simplicial.utils.func2">[docs]</a><span class="k">def</span> <span class="nf">func2</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    :math:`f(x) = \\frac{1}{2}(1 + \sin2\pi x)`</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="mi">1</span><span class="o">/</span><span class="mi">2</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">+</span><span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">x</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="curve1"><a class="viewcode-back" href="../../../simplicial/utils.html#medianshape.simplicial.utils.curve1">[docs]</a><span class="k">def</span> <span class="nf">curve1</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    :math:`f(x) = 10e^{\\frac{x}{180}}\sin(\\frac{1}{100}\pi x) +25`</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="mi">10</span><span class="o">*</span><span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="mi">100</span><span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">x</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="mi">180</span> <span class="o">*</span> <span class="n">x</span><span class="p">)</span>  <span class="o">+</span> <span class="mi">25</span></div>
+<div class="viewcode-block" id="curve2"><a class="viewcode-back" href="../../../simplicial/utils.html#medianshape.simplicial.utils.curve2">[docs]</a><span class="k">def</span> <span class="nf">curve2</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    :math:`f(x) = -10e^{\\frac{x}{200}}\sin(\\frac{1}{50}\pi x) +25`</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="o">-</span><span class="mi">10</span><span class="o">*</span><span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="mi">50</span><span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">x</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="mi">200</span> <span class="o">*</span> <span class="n">x</span><span class="p">)</span> <span class="o">+</span> <span class="mi">25</span></div>
+<div class="viewcode-block" id="curve3"><a class="viewcode-back" href="../../../simplicial/utils.html#medianshape.simplicial.utils.curve3">[docs]</a><span class="k">def</span> <span class="nf">curve3</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    :math:`f(x) = 30e^{\\frac{-x}{150}}\sin(\\frac{1}{50}\pi x) +20`</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="mi">30</span><span class="o">*</span><span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="mi">50</span><span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">x</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="o">/</span><span class="mi">150</span> <span class="o">*</span> <span class="n">x</span><span class="p">)</span> <span class="o">+</span> <span class="mi">20</span></div>
+<div class="viewcode-block" id="curve4"><a class="viewcode-back" href="../../../simplicial/utils.html#medianshape.simplicial.utils.curve4">[docs]</a><span class="k">def</span> <span class="nf">curve4</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    :math:`f(x) = 10e^{\\frac{-x}{200}}\sin(\\frac{1}{30}\pi x) +40`</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="mi">10</span><span class="o">*</span><span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="mi">30</span><span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">x</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="o">/</span><span class="mi">200</span> <span class="o">*</span> <span class="n">x</span><span class="p">)</span> <span class="o">+</span> <span class="mi">40</span></div>
+<div class="viewcode-block" id="curve5"><a class="viewcode-back" href="../../../simplicial/utils.html#medianshape.simplicial.utils.curve5">[docs]</a><span class="k">def</span> <span class="nf">curve5</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    :math:`f(x) = 20\sin(\\frac{1}{200}\pi x) +25`</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="mi">20</span><span class="o">*</span><span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="mi">200</span><span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">x</span><span class="p">)</span> <span class="o">+</span> <span class="mi">25</span></div>
+<div class="viewcode-block" id="curve6"><a class="viewcode-back" href="../../../simplicial/utils.html#medianshape.simplicial.utils.curve6">[docs]</a><span class="k">def</span> <span class="nf">curve6</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    :math:`f(x) = 10e^{\\frac{-1}{200}x}\sin(\\frac{1}{55}\pi x) +10`</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="mi">10</span><span class="o">*</span><span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="mi">55</span><span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">x</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="o">/</span><span class="mi">200</span> <span class="o">*</span> <span class="n">x</span><span class="p">)</span> <span class="o">+</span> <span class="mi">10</span></div>
+
+<div class="viewcode-block" id="deformcurve1"><a class="viewcode-back" href="../../../simplicial/utils.html#medianshape.simplicial.utils.deformcurve1">[docs]</a><span class="k">def</span> <span class="nf">deformcurve1</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    :math:`f(x) = 20\sin(\\frac{1}{190}\pi x) +25`</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="mi">20</span><span class="o">*</span><span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="mi">190</span><span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">x</span><span class="p">)</span> <span class="o">+</span> <span class="mi">25</span></div>
+
+<div class="viewcode-block" id="deformcurve2"><a class="viewcode-back" href="../../../simplicial/utils.html#medianshape.simplicial.utils.deformcurve2">[docs]</a><span class="k">def</span> <span class="nf">deformcurve2</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    :math:`f(x) = -20\sin(\\frac{1}{190}\pi x) +25`</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="o">-</span><span class="mi">20</span><span class="o">*</span><span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="mi">190</span><span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">x</span><span class="p">)</span> <span class="o">+</span> <span class="mi">25</span></div>
+    
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">Xs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">20</span><span class="p">)</span>
+    <span class="n">Ys</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+    <span class="n">Ys2</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+    <span class="n">Ys3</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+    <span class="n">Ys4</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+    <span class="n">Ys5</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+    <span class="n">Ys6</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">Xs</span><span class="p">:</span>
+        <span class="n">Ys</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">curve1</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+        <span class="n">Ys2</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">curve2</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+        <span class="n">Ys3</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">curve3</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+        <span class="n">Ys4</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">curve4</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+        <span class="n">Ys5</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">curve5</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+        <span class="n">Ys6</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">curve6</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+    <span class="c1">#plt.ylim(0, 60)</span>
+    <span class="c1">#plt.xlim(0, 210)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+    <span class="c1">#plt.plot(Xs, Ys, &#39;-&#39;, label=&quot;1&quot;)</span>
+    <span class="c1">#plt.plot(Xs, Ys2, &#39;-&#39;, label=&quot;2&quot;)</span>
+    <span class="c1">#plt.plot(Xs, Ys3, &#39;-&#39;, label=&quot;3&quot;)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">Xs</span><span class="p">,</span> <span class="n">Ys4</span><span class="p">,</span> <span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;4&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">Xs</span><span class="p">,</span> <span class="n">Ys5</span><span class="p">,</span> <span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;5&quot;</span><span class="p">)</span>
+    <span class="c1">#plt.plot(Xs, Ys6, &#39;-&#39;, label=&quot;6&quot;)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright GNU GPL.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'1.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

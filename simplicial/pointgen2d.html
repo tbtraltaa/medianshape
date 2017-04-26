@@ -1,0 +1,244 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Point generation 2D &mdash; MedianShape 1.0 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="MedianShape 1.0 documentation" href="../index.html"/>
+        <link rel="up" title="Simplicial Settings" href="simplicial-settings.html"/>
+        <link rel="next" title="Point generation 3D" href="pointgen3d.html"/>
+        <link rel="prev" title="1-current generation" href="currentgen.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> MedianShape
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../getting-started.html"><strong>Getting started</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../core/lp.html"><strong>Linear Programs</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../experiments/experiments.html"><strong>Experiments</strong></a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="simplicial-settings.html"><strong>Simplicial Settings</strong></a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="mesh.html">Mesh</a></li>
+<li class="toctree-l2"><a class="reference internal" href="meshgen.html">Mesh generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="currentgen.html">1-current generation</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Point generation 2D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pointgen3d.html">Point generation 3D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="surfgen.html">2D surface embedded in 3D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html">Utils</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../viz/viz.html"><strong>Visualization</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../utils.html"><strong>Utils</strong></a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">MedianShape</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="simplicial-settings.html"><strong>Simplicial Settings</strong></a> &raquo;</li>
+      
+    <li>Point generation 2D</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/simplicial/pointgen2d.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <span class="target" id="module-medianshape.simplicial.pointgen2d"></span><div class="section" id="point-generation-2d">
+<h1>Point generation 2D<a class="headerlink" href="#point-generation-2d" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="medianshape.simplicial.pointgen2d.sample_function">
+<code class="descclassname">medianshape.simplicial.pointgen2d.</code><code class="descname">sample_function</code><span class="sig-paren">(</span><em>func_str</em>, <em>boundary_box</em>, <em>sample_size</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/medianshape/simplicial/pointgen2d.html#sample_function"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#medianshape.simplicial.pointgen2d.sample_function" title="Permalink to this definition">¶</a></dt>
+<dd><p>Samples points of a function within the boundary box.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="medianshape.simplicial.pointgen2d.sample_function_mesh">
+<code class="descclassname">medianshape.simplicial.pointgen2d.</code><code class="descname">sample_function_mesh</code><span class="sig-paren">(</span><em>mesh</em>, <em>func_str</em>, <em>sample_size=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/medianshape/simplicial/pointgen2d.html#sample_function_mesh"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#medianshape.simplicial.pointgen2d.sample_function_mesh" title="Permalink to this definition">¶</a></dt>
+<dd><p>Samples points of a function based on x-coordinates of points of the mesh given.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="medianshape.simplicial.pointgen2d.sample_ellipse">
+<code class="descclassname">medianshape.simplicial.pointgen2d.</code><code class="descname">sample_ellipse</code><span class="sig-paren">(</span><em>a</em>, <em>b</em>, <em>sample_size=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/medianshape/simplicial/pointgen2d.html#sample_ellipse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#medianshape.simplicial.pointgen2d.sample_ellipse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Samples points of an ellipse centered at the origin described by its major and minor axis.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="medianshape.simplicial.pointgen2d.twisted_curves">
+<code class="descclassname">medianshape.simplicial.pointgen2d.</code><code class="descname">twisted_curves</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/medianshape/simplicial/pointgen2d.html#twisted_curves"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#medianshape.simplicial.pointgen2d.twisted_curves" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates two twisted curves which intersect with each other.</p>
+</dd></dl>
+
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="pointgen3d.html" class="btn btn-neutral float-right" title="Point generation 3D" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="currentgen.html" class="btn btn-neutral" title="1-current generation" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright GNU GPL.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'1.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

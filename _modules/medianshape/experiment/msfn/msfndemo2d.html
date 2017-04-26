@@ -1,0 +1,256 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>medianshape.experiment.msfn.msfndemo2d &mdash; MedianShape 1.0 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="MedianShape 1.0 documentation" href="../../../../index.html"/>
+        <link rel="up" title="Module code" href="../../../index.html"/> 
+
+  
+  <script src="../../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../../index.html" class="icon icon-home"> MedianShape
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../getting-started.html"><strong>Getting started</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../core/lp.html"><strong>Linear Programs</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../experiments/experiments.html"><strong>Experiments</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../simplicial/simplicial-settings.html"><strong>Simplicial Settings</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../viz/viz.html"><strong>Visualization</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../utils.html"><strong>Utils</strong></a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../../../index.html">MedianShape</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../../../index.html">Module code</a> &raquo;</li>
+      
+    <li>medianshape.experiment.msfn.msfndemo2d</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for medianshape.experiment.msfn.msfndemo2d</h1><div class="highlight"><pre>
+<span></span><span class="c1"># encoding: utf-8</span>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">MSFN demo 2D</span>
+<span class="sd">++++++++++++</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
+
+<span class="kn">import</span> <span class="nn">time</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">scipy.sparse</span> <span class="kn">import</span> <span class="n">csr_matrix</span>
+
+<span class="kn">from</span> <span class="nn">medianshape.simplicial.meshgen</span> <span class="kn">import</span> <span class="n">distmesh2d</span>
+<span class="kn">from</span> <span class="nn">medianshape.simplicial.mesh</span> <span class="kn">import</span> <span class="n">Mesh2D</span>
+<span class="kn">from</span> <span class="nn">medianshape.simplicial</span> <span class="kn">import</span> <span class="n">pointgen2d</span><span class="p">,</span> <span class="n">currentgen</span>
+<span class="kn">from</span> <span class="nn">medianshape.viz</span> <span class="kn">import</span> <span class="n">plot2d</span>
+<span class="kn">from</span> <span class="nn">medianshape.core.msfn</span> <span class="kn">import</span> <span class="n">msfn</span>
+
+<div class="viewcode-block" id="msfndemo2d"><a class="viewcode-back" href="../../../../experiments/msfn.html#medianshape.experiment.msfn.msfndemo2d.msfndemo2d">[docs]</a><span class="k">def</span> <span class="nf">msfndemo2d</span><span class="p">():</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    MSFN demo 2D</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+    <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="mi">8</span><span class="p">))</span>
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span>
+    <span class="n">mesh</span> <span class="o">=</span> <span class="n">Mesh2D</span><span class="p">()</span>
+    <span class="c1"># l - initial length of triangle sides. Change it to vary traingle size</span>
+    <span class="n">mesh</span><span class="o">.</span><span class="n">bbox</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">mesh</span><span class="o">.</span><span class="n">set_diagonal</span><span class="p">()</span>
+    <span class="n">mesh</span><span class="o">.</span><span class="n">set_boundary_values</span><span class="p">()</span>
+    <span class="n">mesh</span><span class="o">.</span><span class="n">set_boundary_points</span><span class="p">()</span>
+    <span class="n">mesh</span><span class="o">.</span><span class="n">points</span><span class="p">,</span> <span class="n">mesh</span><span class="o">.</span><span class="n">simplices</span> <span class="o">=</span> <span class="n">distmesh2d</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">bbox</span><span class="p">,</span> <span class="n">l</span><span class="o">=</span><span class="mf">0.06</span><span class="p">,</span> <span class="n">fixed_points</span><span class="o">=</span><span class="n">mesh</span><span class="o">.</span><span class="n">boundary_points</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="s1">&#39;square&#39;</span><span class="p">)</span>
+    <span class="n">mesh</span><span class="o">.</span><span class="n">set_edges</span><span class="p">()</span>
+    <span class="n">mesh</span><span class="o">.</span><span class="n">orient_simplices_2D</span><span class="p">()</span>
+
+    <span class="n">points</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+    <span class="n">points</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pointgen2d</span><span class="o">.</span><span class="n">sample_function</span><span class="p">(</span><span class="s1">&#39;sin1pi&#39;</span><span class="p">,</span> <span class="n">mesh</span><span class="o">.</span><span class="n">bbox</span><span class="p">,</span> <span class="mi">20</span><span class="p">))</span>
+    <span class="n">points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">points</span><span class="p">)</span>
+    <span class="n">vertices</span><span class="p">,</span> <span class="n">paths</span><span class="p">,</span> <span class="n">input_currents</span> <span class="o">=</span> <span class="n">currentgen</span><span class="o">.</span><span class="n">push_curves_on_mesh</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">points</span><span class="p">,</span> <span class="n">mesh</span><span class="o">.</span><span class="n">edges</span><span class="p">,</span> <span class="n">points</span><span class="p">)</span>
+    <span class="c1">#title = mesh.get_info()</span>
+    <span class="n">title</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">plot2d</span><span class="o">.</span><span class="n">plot_curves_approx2d</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">points</span><span class="p">,</span> <span class="n">vertices</span><span class="p">,</span> <span class="n">paths</span><span class="p">,</span> <span class="n">title</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+    <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="mi">8</span><span class="p">))</span>
+
+    <span class="n">lambdas</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">20</span> <span class="p">]</span>
+    <span class="n">comb</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">input_current</span> <span class="ow">in</span> <span class="n">input_currents</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">lambdas</span><span class="p">:</span>
+            <span class="n">title</span> <span class="o">=</span> <span class="s2">&quot;lambda=</span><span class="si">%.04f</span><span class="s2">&quot;</span><span class="o">%</span><span class="n">l</span>
+            <span class="n">x</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">norm</span> <span class="o">=</span> <span class="n">msfn</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">points</span><span class="p">,</span> <span class="n">mesh</span><span class="o">.</span><span class="n">simplices</span><span class="p">,</span> <span class="n">mesh</span><span class="o">.</span><span class="n">edges</span><span class="p">,</span> <span class="n">input_current</span><span class="p">,</span> <span class="n">l</span><span class="p">)</span>
+            <span class="n">plot2d</span><span class="o">.</span><span class="n">plot_decomposition2d</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">input_currents</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">lim</span> <span class="o">=</span> <span class="mf">0.2</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+            <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="mi">8</span><span class="p">))</span></div>
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">msfndemo2d</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright GNU GPL.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../../',
+            VERSION:'1.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

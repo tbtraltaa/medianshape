@@ -1,0 +1,459 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>medianshape.simplicial.surfgen &mdash; MedianShape 1.0 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="MedianShape 1.0 documentation" href="../../../index.html"/>
+        <link rel="up" title="Module code" href="../../index.html"/> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> MedianShape
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../getting-started.html"><strong>Getting started</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../core/lp.html"><strong>Linear Programs</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../experiments/experiments.html"><strong>Experiments</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../simplicial/simplicial-settings.html"><strong>Simplicial Settings</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../viz/viz.html"><strong>Visualization</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../utils.html"><strong>Utils</strong></a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../../index.html">MedianShape</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      
+    <li>medianshape.simplicial.surfgen</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for medianshape.simplicial.surfgen</h1><div class="highlight"><pre>
+<span></span><span class="c1"># encoding: utf-8</span>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">2D surface embedded in 3D</span>
+<span class="sd">-------------------------</span>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
+<span class="kn">import</span> <span class="nn">importlib</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">medianshape.simplicial</span> <span class="kn">import</span> <span class="n">pointgen3d</span><span class="p">,</span> <span class="n">mesh</span><span class="p">,</span> <span class="n">utils</span>
+<span class="kn">from</span> <span class="nn">medianshape.simplicial.meshgen</span> <span class="kn">import</span> <span class="n">meshgen2d</span>
+
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">mpl_toolkits.mplot3d</span> <span class="kn">import</span> <span class="n">Axes3D</span>
+<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">cm</span>
+
+<span class="kn">from</span> <span class="nn">medianshape.viz</span> <span class="kn">import</span> <span class="n">plot2d</span><span class="p">,</span> <span class="n">plot3d</span>
+<span class="kn">from</span> <span class="nn">distmesh.plotting</span> <span class="kn">import</span> <span class="n">axes_simpplot3d</span>
+<span class="kn">from</span> <span class="nn">medianshape.simplicial.utils</span> <span class="kn">import</span> <span class="n">boundary_points</span>
+
+<div class="viewcode-block" id="func"><a class="viewcode-back" href="../../../simplicial/surfgen.html#medianshape.simplicial.surfgen.func">[docs]</a><span class="k">def</span> <span class="nf">func</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sign</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span> 
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    :math:`\sin\pi x \cos \pi y`.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">x</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">y</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="sample_surf"><a class="viewcode-back" href="../../../simplicial/surfgen.html#medianshape.simplicial.surfgen.sample_surf">[docs]</a><span class="k">def</span> <span class="nf">sample_surf</span><span class="p">(</span><span class="n">scale</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="mf">0.2</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Returns a tuple X, Y, Z of a surface for an experiment.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="mf">4.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">,</span> <span class="n">step</span><span class="p">)</span>
+    <span class="n">X</span><span class="p">,</span> <span class="n">Y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+    <span class="kn">from</span> <span class="nn">matplotlib.mlab</span> <span class="kn">import</span>  <span class="n">bivariate_normal</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Z1 = bivariate_normal(X, Y, 1.0, 1.0, 0.0, 0.0)</span>
+<span class="sd">    Z2 = bivariate_normal(X, Y, 1.5, 0.5, 1, 1)</span>
+<span class="sd">    #Z3 = bivariate_normal(X, Y, 1, 1, -2, -2)</span>
+<span class="sd">    Z = Z2 - Z1</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="c1"># Ups</span>
+    <span class="n">ZU1</span> <span class="o">=</span> <span class="n">bivariate_normal</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">Y</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">ZU2</span> <span class="o">=</span> <span class="n">bivariate_normal</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">ZU3</span> <span class="o">=</span> <span class="n">bivariate_normal</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">4</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="c1">#ZU4 = bivariate_normal(X, Y, 1.5, 1.5, -4, -4)</span>
+    <span class="c1">#ZU5 = bivariate_normal(X, Y, 1, 1, 4, -4)</span>
+    <span class="n">ZU4</span> <span class="o">=</span> <span class="n">bivariate_normal</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">4</span><span class="p">)</span>
+    <span class="c1"># Downs</span>
+    <span class="n">ZD1</span> <span class="o">=</span> <span class="n">bivariate_normal</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">ZD2</span> <span class="o">=</span> <span class="n">bivariate_normal</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="o">-</span><span class="mi">4</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">ZD3</span> <span class="o">=</span> <span class="n">bivariate_normal</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">ZD4</span> <span class="o">=</span> <span class="n">bivariate_normal</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+    <span class="n">Z1</span> <span class="o">=</span> <span class="n">ZU1</span> <span class="o">+</span> <span class="n">ZU2</span> <span class="o">+</span> <span class="n">ZU3</span> <span class="o">-</span> <span class="n">ZD1</span> <span class="o">-</span> <span class="n">ZD2</span> <span class="o">-</span> <span class="n">ZD3</span> <span class="o">-</span> <span class="n">ZD4</span>
+    <span class="n">Zmax1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">amax</span><span class="p">(</span><span class="n">Z1</span><span class="p">))</span>
+    <span class="n">Z1</span> <span class="o">=</span> <span class="n">Z1</span><span class="o">/</span><span class="n">Zmax1</span> <span class="o">*</span> <span class="n">scale</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+    
+    <span class="c1"># Visualization</span>
+    <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">gca</span><span class="p">(</span><span class="n">projection</span><span class="o">=</span><span class="s2">&quot;3d&quot;</span><span class="p">)</span>
+    <span class="n">surf</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">plot_surface</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">Z1</span><span class="p">,</span> <span class="n">rstride</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">cstride</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cm</span><span class="o">.</span><span class="n">winter</span><span class="p">,</span>
+                           <span class="n">linewidth</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">antialiased</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+    <span class="c1"># Ups</span>
+    <span class="n">ZU1</span> <span class="o">=</span> <span class="n">bivariate_normal</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">Y</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">ZU2</span> <span class="o">=</span> <span class="n">bivariate_normal</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+    <span class="n">ZU3</span> <span class="o">=</span> <span class="n">bivariate_normal</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">)</span>
+    <span class="c1">#ZU4 = bivariate_normal(X, Y, 1.5, 1.5, -4, -4)</span>
+    <span class="c1">#ZU5 = bivariate_normal(X, Y, 1, 1, 4, -4)</span>
+    <span class="n">ZU4</span> <span class="o">=</span> <span class="n">bivariate_normal</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="o">-</span><span class="mi">4</span><span class="p">)</span>
+    <span class="c1"># Downs</span>
+    <span class="n">ZD1</span> <span class="o">=</span> <span class="n">bivariate_normal</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="n">ZD2</span> <span class="o">=</span> <span class="n">bivariate_normal</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="n">ZD3</span> <span class="o">=</span> <span class="n">bivariate_normal</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">ZD4</span> <span class="o">=</span> <span class="n">bivariate_normal</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">4</span><span class="p">)</span>
+    <span class="n">Z2</span> <span class="o">=</span> <span class="n">ZU1</span> <span class="o">+</span> <span class="n">ZU2</span> <span class="o">+</span> <span class="n">ZU3</span> <span class="o">-</span> <span class="n">ZD1</span> <span class="o">-</span> <span class="n">ZD2</span> <span class="o">-</span> <span class="n">ZD3</span> <span class="o">-</span> <span class="n">ZD4</span>
+    <span class="n">Zmax2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">amax</span><span class="p">(</span><span class="n">Z2</span><span class="p">))</span>
+    <span class="n">Z2</span> <span class="o">=</span> <span class="n">Z2</span><span class="o">/</span><span class="n">Zmax2</span> <span class="o">*</span> <span class="n">scale</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+
+    <span class="n">X</span> <span class="o">=</span> <span class="n">X</span> <span class="o">*</span> <span class="n">scale</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">/</span><span class="mf">4.0</span>
+    <span class="n">Y</span> <span class="o">=</span> <span class="n">Y</span> <span class="o">*</span> <span class="n">scale</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">/</span><span class="mf">4.0</span>
+
+    <span class="c1"># Visualization</span>
+    <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">gca</span><span class="p">(</span><span class="n">projection</span><span class="o">=</span><span class="s2">&quot;3d&quot;</span><span class="p">)</span>
+    <span class="n">surf</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">plot_surface</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">Z2</span><span class="p">,</span> <span class="n">rstride</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">cstride</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cm</span><span class="o">.</span><span class="n">winter</span><span class="p">,</span>
+                           <span class="n">linewidth</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">antialiased</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">Z1</span><span class="p">,</span> <span class="n">Z2</span></div>
+
+
+<span class="k">def</span> <span class="nf">interpolate_surf</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">ipoints</span><span class="p">,</span> <span class="n">method</span> <span class="o">=</span> <span class="s2">&quot;nearest&quot;</span><span class="p">):</span>
+    <span class="kn">from</span> <span class="nn">scipy.interpolate</span> <span class="kn">import</span> <span class="n">griddata</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Used to interpolate a sample surface to a surface in a mesh.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="n">griddata</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">ipoints</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span> <span class="n">method</span><span class="p">)</span>
+
+<div class="viewcode-block" id="surfgen_shared_boundary"><a class="viewcode-back" href="../../../simplicial/surfgen.html#medianshape.simplicial.surfgen.surfgen_shared_boundary">[docs]</a><span class="k">def</span> <span class="nf">surfgen_shared_boundary</span><span class="p">(</span><span class="n">bbox</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">],</span> <span class="n">l</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Generates two surfaces in 3D with shared boundary for an experiment.</span>
+<span class="sd">    Writes the two surface as .poly file for tetgen.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="c1"># Generating point grids for two surfaces</span>
+    <span class="n">xmin</span> <span class="o">=</span> <span class="n">bbox</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">xmax</span>  <span class="o">=</span> <span class="n">bbox</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+    <span class="n">ymin</span> <span class="o">=</span> <span class="n">bbox</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">ymax</span> <span class="o">=</span> <span class="n">bbox</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span>
+    <span class="n">zmin</span> <span class="o">=</span> <span class="n">bbox</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+    <span class="n">zmax</span> <span class="o">=</span> <span class="n">bbox</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span>
+    <span class="n">Xmin</span><span class="p">,</span> <span class="n">Ymin</span><span class="p">,</span> <span class="n">Zmin</span><span class="p">,</span> <span class="n">Xmax</span><span class="p">,</span> <span class="n">Ymax</span><span class="p">,</span> <span class="n">Zmax</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">bbox</span><span class="p">)</span><span class="o">*</span><span class="mf">0.8</span>
+    <span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">Z1</span><span class="p">,</span> <span class="n">Z2</span> <span class="o">=</span> <span class="n">sample_surf</span><span class="p">([</span><span class="n">Xmax</span><span class="p">,</span> <span class="n">Ymax</span><span class="p">,</span> <span class="n">zmax</span><span class="o">*</span><span class="mf">0.3</span><span class="p">],</span> <span class="n">step</span><span class="o">=</span><span class="mf">0.8</span><span class="p">)</span>
+    <span class="n">Z1</span> <span class="o">=</span> <span class="n">Z1</span> <span class="o">+</span> <span class="n">zmax</span><span class="o">*</span><span class="mf">0.4</span>
+    <span class="n">Z2</span> <span class="o">=</span> <span class="n">Z2</span> <span class="o">-</span> <span class="n">zmax</span><span class="o">*</span><span class="mf">0.4</span>
+    <span class="c1">#Symmertic surfs</span>
+    <span class="c1">#Z2 = -Z1 - zmax*0.4</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    # Plotting the two surfaces</span>
+<span class="sd">    fig = plt.figure()</span>
+<span class="sd">    ax = fig.gca(projection=&quot;3d&quot;)</span>
+<span class="sd">    surf = ax.scatter(X, Y, Z1.reshape(-1,1), color=&#39;b&#39;)</span>
+<span class="sd">    surf = ax.scatter(X, Y, Z2.reshape(-1,1), color=&#39;r&#39;)</span>
+<span class="sd">    plt.show()</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">mesh</span> <span class="o">=</span> <span class="n">meshgen2d</span><span class="p">([</span><span class="n">Xmin</span><span class="p">,</span> <span class="n">Ymin</span><span class="p">,</span> <span class="n">Xmax</span><span class="p">,</span> <span class="n">Ymax</span><span class="p">],</span> <span class="n">l</span><span class="p">,</span> <span class="n">include_corners</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">sample_points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">X</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span> <span class="n">Y</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)))</span>
+
+    <span class="c1"># Interpolating the surface mesh into two different surfaces</span>
+    <span class="c1"># similar to the the sample surfaces generated before</span>
+    <span class="n">Z1</span> <span class="o">=</span> <span class="n">interpolate_surf</span><span class="p">(</span><span class="n">sample_points</span><span class="p">,</span> <span class="n">Z1</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span> <span class="n">mesh</span><span class="o">.</span><span class="n">points</span><span class="p">)</span>
+    <span class="n">Z2</span> <span class="o">=</span> <span class="n">interpolate_surf</span><span class="p">(</span><span class="n">sample_points</span><span class="p">,</span> <span class="n">Z2</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span> <span class="n">mesh</span><span class="o">.</span><span class="n">points</span><span class="p">)</span>
+    
+    <span class="c1"># Integrating two surfaces</span>
+    <span class="n">points1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">mesh</span><span class="o">.</span><span class="n">points</span><span class="p">,</span> <span class="n">Z1</span><span class="p">))</span>
+    <span class="k">print</span> <span class="n">points1</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">points2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">mesh</span><span class="o">.</span><span class="n">points</span><span class="p">,</span> <span class="n">Z2</span><span class="p">))</span>
+    <span class="k">print</span> <span class="n">points2</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">corners</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">boundary_points</span><span class="p">(</span><span class="n">bbox</span><span class="p">)</span>
+    <span class="n">midcorners</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">mid_corners</span><span class="p">(</span><span class="n">bbox</span><span class="p">)</span>
+    <span class="n">offset1</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">corners</span><span class="p">)</span> <span class="o">+</span><span class="nb">len</span><span class="p">(</span><span class="n">midcorners</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="n">offset2</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">corners</span><span class="p">)</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">midcorners</span><span class="p">)</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">points1</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="n">points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">corners</span><span class="p">,</span> <span class="n">midcorners</span><span class="p">,</span> <span class="n">points1</span><span class="p">,</span> <span class="n">points2</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">print</span> <span class="n">points</span><span class="o">.</span><span class="n">shape</span>
+
+    <span class="n">triangles1</span> <span class="o">=</span> <span class="n">mesh</span><span class="o">.</span><span class="n">simplices</span> <span class="o">+</span> <span class="n">offset1</span>
+    <span class="n">triangles2</span> <span class="o">=</span> <span class="n">mesh</span><span class="o">.</span><span class="n">simplices</span> <span class="o">+</span> <span class="n">offset2</span>
+   
+    <span class="c1"># Adding the indices of the points as the last column of the coordainate list</span>
+    <span class="n">Xmin_s1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argwhere</span><span class="p">(</span><span class="n">points1</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span><span class="o">==</span><span class="n">Xmin</span><span class="p">)</span>
+    <span class="n">Xmin_s1_points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">points1</span><span class="p">[</span><span class="n">Xmin_s1</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,)],</span> <span class="n">Xmin_s1</span><span class="p">))</span>
+    <span class="c1"># Sorting the indices such that the points are in increasing order of its y-component</span>
+    <span class="n">Xmin_s1</span> <span class="o">=</span> <span class="p">(</span><span class="n">Xmin_s1_points</span><span class="p">[:,</span><span class="mi">3</span><span class="p">][</span><span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">Xmin_s1_points</span><span class="p">[:,</span><span class="mi">1</span><span class="p">])]</span> <span class="o">+</span> <span class="n">offset1</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+
+    <span class="n">Xmin_s2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argwhere</span><span class="p">(</span><span class="n">points2</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span><span class="o">==</span><span class="n">Xmin</span><span class="p">)</span>
+    <span class="n">Xmin_s2_points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">points2</span><span class="p">[</span><span class="n">Xmin_s2</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,)],</span> <span class="n">Xmin_s2</span><span class="p">))</span>
+    <span class="n">Xmin_s2</span> <span class="o">=</span> <span class="p">(</span><span class="n">Xmin_s2_points</span><span class="p">[:,</span><span class="mi">3</span><span class="p">][</span><span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">Xmin_s2_points</span><span class="p">[:,</span><span class="mi">1</span><span class="p">])]</span> <span class="o">+</span> <span class="n">offset2</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+
+    <span class="n">Xmax_s1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argwhere</span><span class="p">(</span><span class="n">points1</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span><span class="o">==</span><span class="n">Xmax</span><span class="p">)</span>
+    <span class="n">Xmax_s1_points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">points1</span><span class="p">[</span><span class="n">Xmax_s1</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,)],</span> <span class="n">Xmax_s1</span><span class="p">))</span>
+    <span class="n">Xmax_s1</span> <span class="o">=</span> <span class="p">(</span><span class="n">Xmax_s1_points</span><span class="p">[:,</span><span class="mi">3</span><span class="p">][</span><span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">Xmax_s1_points</span><span class="p">[:,</span><span class="mi">1</span><span class="p">])]</span> <span class="o">+</span> <span class="n">offset1</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+
+    <span class="n">Xmax_s2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argwhere</span><span class="p">(</span><span class="n">points2</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span><span class="o">==</span><span class="n">Xmax</span><span class="p">)</span>
+    <span class="n">Xmax_s2_points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">points2</span><span class="p">[</span><span class="n">Xmax_s2</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,)],</span> <span class="n">Xmax_s2</span><span class="p">))</span>
+    <span class="n">Xmax_s2</span> <span class="o">=</span> <span class="p">(</span><span class="n">Xmax_s2_points</span><span class="p">[:,</span><span class="mi">3</span><span class="p">][</span><span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">Xmax_s2_points</span><span class="p">[:,</span><span class="mi">1</span><span class="p">])]</span> <span class="o">+</span> <span class="n">offset2</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+
+    <span class="n">Ymin_s1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argwhere</span><span class="p">(</span><span class="n">points1</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span><span class="o">==</span><span class="n">Ymin</span><span class="p">)</span>
+    <span class="n">Ymin_s1_points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">points1</span><span class="p">[</span><span class="n">Ymin_s1</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,)],</span> <span class="n">Ymin_s1</span><span class="p">))</span>
+    <span class="n">Ymin_s1</span> <span class="o">=</span> <span class="p">(</span><span class="n">Ymin_s1_points</span><span class="p">[:,</span><span class="mi">3</span><span class="p">][</span><span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">Ymin_s1_points</span><span class="p">[:,</span><span class="mi">0</span><span class="p">])]</span> <span class="o">+</span> <span class="n">offset1</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+
+    <span class="n">Ymin_s2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argwhere</span><span class="p">(</span><span class="n">points2</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span><span class="o">==</span><span class="n">Ymin</span><span class="p">)</span>
+    <span class="n">Ymin_s2_points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">points2</span><span class="p">[</span><span class="n">Ymin_s2</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,)],</span> <span class="n">Ymin_s2</span><span class="p">))</span>
+    <span class="n">Ymin_s2</span> <span class="o">=</span> <span class="p">(</span><span class="n">Ymin_s2_points</span><span class="p">[:,</span><span class="mi">3</span><span class="p">][</span><span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">Ymin_s2_points</span><span class="p">[:,</span><span class="mi">0</span><span class="p">])]</span> <span class="o">+</span> <span class="n">offset2</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+
+    <span class="n">Ymax_s1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argwhere</span><span class="p">(</span><span class="n">points1</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span><span class="o">==</span><span class="n">Ymax</span><span class="p">)</span>
+    <span class="n">Ymax_s1_points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">points1</span><span class="p">[</span><span class="n">Ymax_s1</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,)],</span> <span class="n">Ymax_s1</span><span class="p">))</span>
+    <span class="n">Ymax_s1</span> <span class="o">=</span> <span class="p">(</span><span class="n">Ymax_s1_points</span><span class="p">[:,</span><span class="mi">3</span><span class="p">][</span><span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">Ymax_s1_points</span><span class="p">[:,</span><span class="mi">0</span><span class="p">])]</span> <span class="o">+</span> <span class="n">offset1</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+
+    <span class="n">Ymax_s2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argwhere</span><span class="p">(</span><span class="n">points2</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span><span class="o">==</span><span class="n">Ymax</span><span class="p">)</span>
+    <span class="n">Ymax_s2_points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">points2</span><span class="p">[</span><span class="n">Ymax_s2</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,)],</span> <span class="n">Ymax_s2</span><span class="p">))</span>
+    <span class="n">Ymax_s2</span> <span class="o">=</span> <span class="p">(</span><span class="n">Ymax_s2_points</span><span class="p">[:,</span><span class="mi">3</span><span class="p">][</span><span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">Ymax_s2_points</span><span class="p">[:,</span><span class="mi">0</span><span class="p">])]</span> <span class="o">+</span> <span class="n">offset2</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">Xmin_s1</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+        <span class="n">triangles1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="n">triangles1</span><span class="p">,</span> <span class="p">[</span><span class="mi">9</span><span class="p">,</span> <span class="n">Xmin_s1</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">Xmin_s1</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]]))</span>
+    <span class="n">triangles1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="n">triangles1</span><span class="p">,</span> <span class="p">[</span><span class="mi">9</span><span class="p">,</span> <span class="n">Xmin_s1</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="mi">12</span><span class="p">]))</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">Xmin_s2</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+        <span class="n">triangles2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="n">triangles2</span><span class="p">,</span> <span class="p">[</span><span class="mi">9</span><span class="p">,</span> <span class="n">Xmin_s2</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">Xmin_s2</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]]))</span>
+    <span class="n">triangles2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="n">triangles2</span><span class="p">,</span> <span class="p">[</span><span class="mi">9</span><span class="p">,</span> <span class="n">Xmin_s2</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="mi">12</span><span class="p">]))</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">Xmax_s1</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+        <span class="n">triangles1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="n">triangles1</span><span class="p">,</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="n">Xmax_s1</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">Xmax_s1</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]]))</span>
+    <span class="n">triangles1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="n">triangles1</span><span class="p">,</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="n">Xmax_s1</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="mi">11</span><span class="p">]))</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">Xmax_s2</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+        <span class="n">triangles2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="n">triangles2</span><span class="p">,</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="n">Xmax_s2</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">Xmax_s2</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]]))</span>
+    <span class="n">triangles2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="n">triangles2</span><span class="p">,</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="n">Xmax_s2</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="mi">11</span><span class="p">]))</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">Ymin_s1</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+        <span class="n">triangles1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="n">triangles1</span><span class="p">,</span> <span class="p">[</span><span class="mi">9</span><span class="p">,</span> <span class="n">Ymin_s1</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">Ymin_s1</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]]))</span>
+    <span class="n">triangles1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="n">triangles1</span><span class="p">,</span> <span class="p">[</span><span class="mi">9</span><span class="p">,</span> <span class="n">Ymin_s1</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="mi">10</span><span class="p">]))</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">Ymin_s2</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+        <span class="n">triangles2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="n">triangles2</span><span class="p">,</span> <span class="p">[</span><span class="mi">9</span><span class="p">,</span> <span class="n">Ymin_s2</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">Ymin_s2</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]]))</span>
+    <span class="n">triangles2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="n">triangles2</span><span class="p">,</span> <span class="p">[</span><span class="mi">9</span><span class="p">,</span> <span class="n">Ymin_s2</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="mi">10</span><span class="p">]))</span>
+    
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">Ymax_s1</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+        <span class="n">triangles1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="n">triangles1</span><span class="p">,</span> <span class="p">[</span><span class="mi">12</span><span class="p">,</span> <span class="n">Ymax_s1</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">Ymax_s1</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]]))</span>
+    <span class="n">triangles1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="n">triangles1</span><span class="p">,</span> <span class="p">[</span><span class="mi">12</span><span class="p">,</span> <span class="n">Ymax_s1</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="mi">11</span><span class="p">]))</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">Ymax_s2</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+        <span class="n">triangles2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="n">triangles2</span><span class="p">,</span> <span class="p">[</span><span class="mi">12</span><span class="p">,</span> <span class="n">Ymax_s2</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">Ymax_s2</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]]))</span>
+    <span class="n">triangles2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="n">triangles2</span><span class="p">,</span> <span class="p">[</span><span class="mi">12</span><span class="p">,</span> <span class="n">Ymax_s2</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="mi">11</span><span class="p">]))</span>
+
+    <span class="n">triangles</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="n">triangles1</span><span class="p">,</span> <span class="n">triangles2</span><span class="p">))</span> 
+
+    <span class="c1"># Preparing PLC and save it to .poly file for tetgen</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;HOME&#39;</span><span class="p">]</span> <span class="o">+</span><span class="s1">&#39;/mediansurf.poly&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;#Part 1 - the node list</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;#</span><span class="si">%d</span><span class="s2"> nodes in 3d, no attributes, no boundary marker</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">%</span><span class="n">points</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%d</span><span class="s1"> </span><span class="si">%d</span><span class="s1"> </span><span class="si">%d</span><span class="s1"> </span><span class="si">%d</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">%</span><span class="p">(</span><span class="n">points</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">points</span><span class="p">):</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> </span><span class="si">%f</span><span class="s2"> </span><span class="si">%f</span><span class="s2"> </span><span class="si">%f</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">%</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">p</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
+        <span class="c1"># Each 4 sides has 3 polygons</span>
+        <span class="c1"># Top and bottom</span>
+        <span class="c1"># Each triangle of the two surfaces are facets</span>
+        <span class="n">fn</span> <span class="o">=</span> <span class="mi">6</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">triangles</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;#Part 2 - the facet list.</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;#</span><span class="si">%d</span><span class="s2"> facets with boundary markers</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">%</span><span class="n">fn</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%d</span><span class="s1"> </span><span class="si">%d</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">%</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;#Boundary facet list.</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> </span><span class="si">%d</span><span class="s2"> </span><span class="si">%d</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">%</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;4 1 2 3 4</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> </span><span class="si">%d</span><span class="s2"> </span><span class="si">%d</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">%</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;4 5 6 7 8</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="c1">#xmin side</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;2 0 1</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;4 1 4 8 5</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;2 9 12</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="c1">#ymin side</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;2 0 1</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;4 1 2 6 5</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;2 9 10</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="c1">#xmax side</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;2 0 1</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;4 2 3 7 6</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;2 10 11</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="c1">#ymax side</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;2 0 1</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;4 3 4 8 7</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;2 11 12</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;#Facet list of surface1.</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">triangles1</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> </span><span class="si">%d</span><span class="s2"> </span><span class="si">%d</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">%</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> </span><span class="si">%d</span><span class="s2"> </span><span class="si">%d</span><span class="s2"> </span><span class="si">%d</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">%</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">t</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;#Facet list of surface2.</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">triangles2</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> </span><span class="si">%d</span><span class="s2"> </span><span class="si">%d</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">%</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">))</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> </span><span class="si">%d</span><span class="s2"> </span><span class="si">%d</span><span class="s2"> </span><span class="si">%d</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">%</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">t</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
+
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;#Part 3 - the hole list.</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%d</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">%</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;#Part 4 - the region list.</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%d</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">%</span><span class="mi">0</span><span class="p">)</span></div>
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">surfgen_shared_boundary</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright GNU GPL.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'1.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

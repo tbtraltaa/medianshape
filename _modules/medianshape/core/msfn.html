@@ -1,0 +1,247 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>medianshape.core.msfn &mdash; MedianShape 1.0 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="MedianShape 1.0 documentation" href="../../../index.html"/>
+        <link rel="up" title="Module code" href="../../index.html"/> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> MedianShape
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../getting-started.html"><strong>Getting started</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../core/lp.html"><strong>Linear Programs</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../experiments/experiments.html"><strong>Experiments</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../simplicial/simplicial-settings.html"><strong>Simplicial Settings</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../viz/viz.html"><strong>Visualization</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../utils.html"><strong>Utils</strong></a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../../index.html">MedianShape</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      
+    <li>medianshape.core.msfn</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for medianshape.core.msfn</h1><div class="highlight"><pre>
+<span></span><span class="c1">#encoding: utf-8</span>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">Multiscale flat norm (MSFN)</span>
+<span class="sd">===========================</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">sparse</span>
+
+<span class="kn">from</span> <span class="nn">medianshape</span> <span class="kn">import</span> <span class="n">utils</span>
+<span class="kn">from</span> <span class="nn">medianshape.core.lp_solver</span> <span class="kn">import</span> <span class="n">lp_solver</span>
+
+<div class="viewcode-block" id="msfn"><a class="viewcode-back" href="../../../core/msfn.html#medianshape.core.msfn.msfn">[docs]</a><span class="k">def</span> <span class="nf">msfn</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">simplices</span><span class="p">,</span> <span class="n">subsimplices</span><span class="p">,</span> <span class="n">input_current</span><span class="p">,</span> <span class="n">lambda_</span><span class="p">,</span> <span class="n">w</span><span class="o">=</span><span class="p">[],</span> <span class="n">v</span><span class="o">=</span><span class="p">[],</span> <span class="n">cons</span><span class="o">=</span><span class="p">[]):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    MSFN - Multiscale flat norm</span>
+
+<span class="sd">    Accepts simplicial settings, an input current, multiscale factor(:math:`\lambda`).</span>
+<span class="sd">    Returns flat norm decomposition of the input current and the flat norm.</span>
+<span class="sd">    Let K be an underlying simplicial complex of dimension q.</span>
+
+<span class="sd">    :param float points: points in K.</span>
+<span class="sd">    :param int simplices: (p+1)-simplices in K, an array of dimension (nx(p+1)) </span>
+<span class="sd">        where :math:`p+1 \leq q` and n is the number of p+1-simplices in K. </span>
+<span class="sd">    :param int subsimplices: p-simplices in K, an array of dimension (mxp) </span>
+<span class="sd">        where :math:`p \leq q` and m is the number of p-simplice in K. </span>
+<span class="sd">    :param int input_current: a vector for an input current. </span>
+<span class="sd">    :param float lambda_: multiscale factor.  </span>
+<span class="sd">    :param float w: a vector of subsimplices volumes.</span>
+<span class="sd">    :param float v: a vector of simplices volumes.</span>
+<span class="sd">    :param int cons: a constraint matrix A.</span>
+<span class="sd">    :returns: x, s, norm-- p-chain, (p+1)-chain of flat norm decompostion, flat norm.</span>
+<span class="sd">    :rtype: int, int, float.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">m_subsimplices</span> <span class="o">=</span> <span class="n">subsimplices</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">n_simplices</span> <span class="o">=</span> <span class="n">simplices</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">w</span> <span class="o">==</span> <span class="p">[]:</span>
+        <span class="n">w</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">simpvol</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">subsimplices</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">v</span> <span class="o">==</span> <span class="p">[]:</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">simpvol</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">simplices</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">cons</span> <span class="o">==</span> <span class="p">[]:</span>
+        <span class="n">b_matrix</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">boundary_matrix</span><span class="p">(</span><span class="n">simplices</span><span class="p">,</span> <span class="n">subsimplices</span><span class="p">,</span> <span class="n">format</span><span class="o">=</span><span class="s1">&#39;coo&#39;</span><span class="p">)</span>
+        <span class="n">m_subsimplices_identity</span> <span class="o">=</span> <span class="n">sparse</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="n">m_subsimplices</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">,</span> <span class="n">format</span><span class="o">=</span><span class="s1">&#39;coo&#39;</span><span class="p">)</span>
+        <span class="n">cons</span> <span class="o">=</span> <span class="n">sparse</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">m_subsimplices_identity</span><span class="p">,</span> <span class="o">-</span><span class="n">m_subsimplices_identity</span><span class="p">,</span> <span class="n">b_matrix</span><span class="p">,</span> <span class="o">-</span><span class="n">b_matrix</span><span class="p">))</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="nb">abs</span><span class="p">(</span><span class="n">w</span><span class="p">),</span> <span class="nb">abs</span><span class="p">(</span><span class="n">w</span><span class="p">),</span> <span class="n">lambda_</span><span class="o">*</span><span class="nb">abs</span><span class="p">(</span><span class="n">v</span><span class="p">),</span> <span class="n">lambda_</span><span class="o">*</span><span class="nb">abs</span><span class="p">(</span><span class="n">v</span><span class="p">)))</span> 
+    <span class="n">c</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">c</span><span class="p">),</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">sol</span><span class="p">,</span> <span class="n">norm</span> <span class="o">=</span> <span class="n">lp_solver</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">cons</span><span class="p">,</span> <span class="n">input_current</span><span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="p">(</span><span class="n">sol</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">m_subsimplices</span><span class="p">]</span> <span class="o">-</span> <span class="n">sol</span><span class="p">[</span><span class="n">m_subsimplices</span><span class="p">:</span><span class="mi">2</span><span class="o">*</span><span class="n">m_subsimplices</span><span class="p">])</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span><span class="n">m_subsimplices</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="p">(</span><span class="n">sol</span><span class="p">[</span><span class="mi">2</span><span class="o">*</span><span class="n">m_subsimplices</span><span class="p">:</span><span class="mi">2</span><span class="o">*</span><span class="n">m_subsimplices</span><span class="o">+</span><span class="n">n_simplices</span><span class="p">]</span> <span class="o">-</span> <span class="n">sol</span><span class="p">[</span><span class="mi">2</span><span class="o">*</span><span class="n">m_subsimplices</span><span class="o">+</span><span class="n">n_simplices</span><span class="p">:])</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_simplices</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">x</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">norm</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright GNU GPL.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'1.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

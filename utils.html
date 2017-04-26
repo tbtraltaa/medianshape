@@ -1,0 +1,380 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Utils &mdash; MedianShape 1.0 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="MedianShape 1.0 documentation" href="index.html"/>
+        <link rel="prev" title="3D plotting" href="viz/plot3d.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> MedianShape
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="getting-started.html"><strong>Getting started</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="core/lp.html"><strong>Linear Programs</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="experiments/experiments.html"><strong>Experiments</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="simplicial/simplicial-settings.html"><strong>Simplicial Settings</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="viz/viz.html"><strong>Visualization</strong></a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#"><strong>Utils</strong></a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">MedianShape</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li><strong>Utils</strong></li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/utils.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <span class="target" id="module-medianshape.utils"></span><div class="section" id="utils">
+<h1><strong>Utils</strong><a class="headerlink" href="#utils" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="medianshape.utils.get_subsimplices">
+<code class="descclassname">medianshape.utils.</code><code class="descname">get_subsimplices</code><span class="sig-paren">(</span><em>simplices</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medianshape/utils.html#get_subsimplices"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#medianshape.utils.get_subsimplices" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns one-dimension lower simplices embedded in the given set of simplices.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="medianshape.utils.orient_simplices">
+<code class="descclassname">medianshape.utils.</code><code class="descname">orient_simplices</code><span class="sig-paren">(</span><em>points</em>, <em>simplices</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medianshape/utils.html#orient_simplices"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#medianshape.utils.orient_simplices" title="Permalink to this definition">¶</a></dt>
+<dd><p>Orient simplices.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="medianshape.utils.simpvol">
+<code class="descclassname">medianshape.utils.</code><code class="descname">simpvol</code><span class="sig-paren">(</span><em>points</em>, <em>simplices</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medianshape/utils.html#simpvol"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#medianshape.utils.simpvol" title="Permalink to this definition">¶</a></dt>
+<dd><p>SIMPVOL Simplex volume.
+V=SIMPVOL(points, simplices)
+Copyright (C) 2004-2006 Per-Olof Persson. See COPYRIGHT.TXT for details.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="medianshape.utils.boundary_matrix">
+<code class="descclassname">medianshape.utils.</code><code class="descname">boundary_matrix</code><span class="sig-paren">(</span><em>simplices</em>, <em>subsimplices</em>, <em>is_oriented=True</em>, <em>is_sparse=True</em>, <em>format='coo'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medianshape/utils.html#boundary_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#medianshape.utils.boundary_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Builds a boundary matrix of given simplices. The format of a boundary matrix is as follows.
+boundary_matrix = (number of subsimplices) x (number of simplices)</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="medianshape.utils.boundary">
+<code class="descclassname">medianshape.utils.</code><code class="descname">boundary</code><span class="sig-paren">(</span><em>simplex</em>, <em>idx=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medianshape/utils.html#boundary"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#medianshape.utils.boundary" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns simplex boundary as faces.
+if an index given, returns n-1 simplex by removing the element at the index.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="medianshape.utils.permutationparity">
+<code class="descclassname">medianshape.utils.</code><code class="descname">permutationparity</code><span class="sig-paren">(</span><em>P</em>, <em>dim=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medianshape/utils.html#permutationparity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#medianshape.utils.permutationparity" title="Permalink to this definition">¶</a></dt>
+<dd><p>p = permutationparity(P,Dim)</p>
+<blockquote>
+<div><p>Returns the parity of a permutation. A value of 0 indicates an even 
+permutation, while a value of 1 indicates an odd permutation.</p>
+<p>The parity of permutations with duplicate values cannot be determined
+with this routine.</p>
+<p><cite>Dim</cite> specifies which dimension the permutations are located on. 
+If Dim == 1 each column of the matrix <cite>P</cite> is treated as a permutation,
+If Dim == 2 each row of the matrix <cite>P</cite> is treated as a permutation.
+If Dim is empty or unspecified, if defaults to treating each column as 
+a different permutation.</p>
+<dl class="docutils">
+<dt>Example</dt>
+<dd><p class="first">P = [1 2 3 5 4];            % An odd permutation
+pP = permutationparity(P)   % Get parity
+pP = 1</p>
+<p>P = [1 2 3 5 4; 1 2 4 5 3];     
+pP = permutationparity(P,2)
+pP = 1</p>
+<blockquote>
+<div>0</div></blockquote>
+<p>P = [1 2 3; 3 1 2; 2 3 1];  % Rows are odd, columns are even
+pP = permutationparity(P,1)
+pP = 0 0 0</p>
+<p>pP = permutationparity(P,2)
+pP = 1</p>
+<blockquote class="last">
+<div>1
+1</div></blockquote>
+</dd>
+<dt>See also</dt>
+<dd><blockquote class="first">
+<div>permutationparity perms randperm</div></blockquote>
+<p class="last">Reference</p>
+</dd>
+</dl>
+<p>&#8216;Pretty Permutation Parity Proof&#8217;
+Alan Macdonald
+Department of Mathematics
+Luther College,
+Decorah, IA 52101, U.S.A.
+<a class="reference external" href="mailto:macdonal&#37;&#52;&#48;luther&#46;edu">macdonal<span>&#64;</span>luther<span>&#46;</span>edu</a>
+June 16, 2004</p>
+<p>Let p be a permutation of [1 2 ... n]. Let G(p) be the number of times 
+in p that a number is greater than a number to its right. For example,
+G([2 4 1 3]) = 3. Note that G[1 2 ... n] = 0. 
+A transposition of numbers in adjacent positions changes G by ±1. Every 
+transposition can be expressed as a product of an odd number of such 
+transpositions. Therefore every transposition changes the parity of G. 
+Thus the number of transpositions used to obtain p is always even or 
+always odd, according as G(p) is even or odd.</p>
+</div></blockquote>
+<p>Pierce Brady
+Smart Systems Integration Group - SSIG
+Cork Institute of Technology, Ireland.</p>
+<p>Copyright (c) 2010, Pierce
+All rights reserved.</p>
+<p>Redistribution and use in source and binary forms, with or without 
+modification, are permitted provided that the following conditions are 
+met:</p>
+<blockquote>
+<div><ul class="simple">
+<li>Redistributions of source code must retain the above copyright 
+notice, this list of conditions and the following disclaimer.</li>
+<li>Redistributions in binary form must reproduce the above copyright 
+notice, this list of conditions and the following disclaimer in 
+the documentation and/or other materials provided with the distribution</li>
+</ul>
+</div></blockquote>
+<p>THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &#8220;AS IS&#8221; 
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE 
+ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE 
+LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR 
+CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF 
+SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS 
+INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
+CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
+ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
+POSSIBILITY OF SUCH DAMAGE.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="medianshape.utils.edge_sign">
+<code class="descclassname">medianshape.utils.</code><code class="descname">edge_sign</code><span class="sig-paren">(</span><em>simplex</em>, <em>edge</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medianshape/utils.html#edge_sign"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#medianshape.utils.edge_sign" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a triangle and its edge, return the induced orientation
+of the edge.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="medianshape.utils.check_orientation">
+<code class="descclassname">medianshape.utils.</code><code class="descname">check_orientation</code><span class="sig-paren">(</span><em>simplices</em>, <em>edges</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medianshape/utils.html#check_orientation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#medianshape.utils.check_orientation" title="Permalink to this definition">¶</a></dt>
+<dd><ol class="arabic">
+<li><dl class="first docutils">
+<dt>Create boundary matrix without any orientation with 0,1,-1 entries</dt>
+<dd><p class="first last">and use it to filter adjacent triangles and edges of a triangle</p>
+</dd>
+</dl>
+</li>
+<li><p class="first">Add all triangles to all_tris list</p>
+</li>
+<li><p class="first">Start with 0th triangle</p>
+</li>
+<li><dl class="first docutils">
+<dt>Propograte orientation to adjacent triangles:</dt>
+<dd><dl class="first last docutils">
+<dt>for each edge, find adjacent triangle and compute induced orientation of the edge on it.</dt>
+<dd><dl class="first last docutils">
+<dt>if adjacent triangle is not in oriented_tris</dt>
+<dd><dl class="first docutils">
+<dt>if induced orientations on the shared edge doesn&#8217;t cancel each other,</dt>
+<dd><p class="first last">do one swap on adjacent triangle and 
+put corresponding orientation entry current triangle 
+and edge in the boundary matrix</p>
+</dd>
+</dl>
+<p class="last">Add current and adjacent triangles to oriented_tris set</p>
+</dd>
+<dt>if adjacent triangle is in oriented_tris </dt>
+<dd><p class="first last">check if the induced orientations on the shared edge are opposit,
+then put the orientation entry in the boundary matrix position [edge, adj_traingle]
+if not, return False</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd>
+</dl>
+</li>
+<li><p class="first">Remove current triangle from all_tris</p>
+</li>
+<li><p class="first">Repeat 4 till all_tris list is empty(so all the triangles are checked)</p>
+</li>
+<li><p class="first">Return True</p>
+</li>
+</ol>
+</dd></dl>
+
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="viz/plot3d.html" class="btn btn-neutral" title="3D plotting" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright GNU GPL.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'1.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

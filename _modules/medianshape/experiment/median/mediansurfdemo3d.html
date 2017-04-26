@@ -1,0 +1,368 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>medianshape.experiment.median.mediansurfdemo3d &mdash; MedianShape 1.0 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="MedianShape 1.0 documentation" href="../../../../index.html"/>
+        <link rel="up" title="Module code" href="../../../index.html"/> 
+
+  
+  <script src="../../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../../index.html" class="icon icon-home"> MedianShape
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../getting-started.html"><strong>Getting started</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../core/lp.html"><strong>Linear Programs</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../experiments/experiments.html"><strong>Experiments</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../simplicial/simplicial-settings.html"><strong>Simplicial Settings</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../viz/viz.html"><strong>Visualization</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../utils.html"><strong>Utils</strong></a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../../../index.html">MedianShape</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../../../index.html">Module code</a> &raquo;</li>
+      
+    <li>medianshape.experiment.median.mediansurfdemo3d</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for medianshape.experiment.median.mediansurfdemo3d</h1><div class="highlight"><pre>
+<span></span><span class="c1"># encoding: utf-8</span>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">----------------------</span>
+<span class="sd">Median surface demo 3D</span>
+<span class="sd">−−−−−−−−−−−−−−−−--−−−−</span>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">importlib</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">from</span> <span class="nn">shutil</span> <span class="kn">import</span> <span class="n">copyfile</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">mpl_toolkits.mplot3d</span> <span class="kn">import</span> <span class="n">Axes3D</span>
+<span class="kn">from</span> <span class="nn">medianshape.core</span> <span class="kn">import</span> <span class="n">median</span>
+<span class="kn">from</span> <span class="nn">medianshape</span> <span class="kn">import</span> <span class="n">utils</span>
+<span class="kn">import</span> <span class="nn">medianshape.experiment.inout</span> <span class="kn">as</span> <span class="nn">inout</span>
+
+<div class="viewcode-block" id="load_tetgen_mesh"><a class="viewcode-back" href="../../../../experiments/median/mediansurf.html#medianshape.experiment.median.mediansurfdemo3d.load_tetgen_mesh">[docs]</a><span class="k">def</span> <span class="nf">load_tetgen_mesh</span><span class="p">(</span><span class="n">fname</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Loads .node, .face, .ele files. Usually their indexing starts from 1.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="c1"># point1, point2, point3</span>
+    <span class="n">points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">.node&quot;</span><span class="o">%</span><span class="n">fname</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">skiprows</span><span class="o">=</span><span class="mi">1</span><span class="p">)[:,</span><span class="mi">1</span><span class="p">:</span><span class="mi">4</span><span class="p">]</span>
+    <span class="c1"># point1, point2, point3, label</span>
+    <span class="n">triangles</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">.face&quot;</span><span class="o">%</span><span class="n">fname</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">skiprows</span><span class="o">=</span><span class="mi">1</span><span class="p">)[:,</span><span class="mi">1</span><span class="p">:</span><span class="mi">5</span><span class="p">]</span>
+    <span class="c1"># point1, point2, point3, point4</span>
+    <span class="n">tetras</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">.ele&quot;</span><span class="o">%</span><span class="n">fname</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">skiprows</span><span class="o">=</span><span class="mi">1</span><span class="p">)[:,</span><span class="mi">1</span><span class="p">:</span><span class="mi">5</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">points</span><span class="p">,</span> <span class="n">triangles</span><span class="p">,</span> <span class="n">tetras</span></div>
+
+<span class="k">def</span> <span class="nf">save_tetgen_mesh</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">fname</span><span class="p">):</span>
+    <span class="n">points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">.node&quot;</span><span class="o">%</span><span class="n">fname</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">skiprows</span><span class="o">=</span><span class="mi">1</span><span class="p">)[:,</span><span class="mi">1</span><span class="p">:</span><span class="mi">4</span><span class="p">]</span>
+    <span class="n">triangles</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">.face&quot;</span><span class="o">%</span><span class="n">fname</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">skiprows</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">tetrahedras</span><span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">.ele&quot;</span><span class="o">%</span><span class="n">fname</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">skiprows</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">t_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argwhere</span><span class="p">(</span><span class="n">t</span><span class="o">!=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,)</span>
+    <span class="n">t_flag</span> <span class="o">=</span> <span class="o">-</span><span class="mi">3</span>
+    <span class="n">q_flag</span> <span class="o">=</span> <span class="o">-</span><span class="mi">41</span>
+    <span class="n">r_flag</span> <span class="o">=</span> <span class="o">-</span><span class="mi">51</span>
+    <span class="k">print</span> <span class="n">triangles</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">overlaps</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">t_idx</span><span class="p">)</span><span class="o">!=</span><span class="mi">0</span><span class="p">:</span>
+        <span class="n">tris</span> <span class="o">=</span> <span class="n">triangles</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">t_idx</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">tris</span><span class="p">[</span><span class="n">t</span><span class="p">,</span><span class="mi">4</span><span class="p">]</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span> <span class="ow">or</span> <span class="n">tris</span><span class="p">[</span><span class="n">t</span><span class="p">,</span><span class="mi">4</span><span class="p">]</span><span class="o">==-</span><span class="mi">2</span><span class="p">:</span>
+                <span class="n">overlaps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tris</span><span class="p">[</span><span class="n">t</span><span class="p">][</span><span class="mi">1</span><span class="p">:</span><span class="mi">4</span><span class="p">]</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+                <span class="k">print</span> <span class="s2">&quot;overlapping&quot;</span>
+        <span class="n">tris</span><span class="p">[</span><span class="n">t_idx</span><span class="p">,</span> <span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="n">t_flag</span>
+        <span class="n">t_tris</span> <span class="o">=</span> <span class="n">tris</span><span class="p">[</span><span class="n">t_idx</span><span class="p">][:,</span><span class="mi">1</span><span class="p">:</span><span class="mi">4</span><span class="p">]</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+        <span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">gca</span><span class="p">(</span><span class="n">projection</span><span class="o">=</span><span class="s1">&#39;3d&#39;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">plot_trisurf</span><span class="p">(</span><span class="n">points</span><span class="p">[:,</span><span class="mi">0</span><span class="p">],</span> <span class="n">points</span><span class="p">[:,</span><span class="mi">1</span><span class="p">],</span> <span class="n">points</span><span class="p">[:,</span><span class="mi">2</span><span class="p">],</span> <span class="n">triangles</span><span class="o">=</span><span class="n">t_tris</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">plot_trisurf</span><span class="p">(</span><span class="n">points</span><span class="p">[:,</span><span class="mi">0</span><span class="p">],</span> <span class="n">points</span><span class="p">[:,</span><span class="mi">1</span><span class="p">],</span> <span class="n">points</span><span class="p">[:,</span><span class="mi">2</span><span class="p">],</span> <span class="n">triangles</span><span class="o">=</span><span class="n">overlaps</span><span class="p">)</span>
+       <span class="c1"># plt.title(&quot;T&quot;)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+        <span class="n">copyfile</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">.node&quot;</span><span class="o">%</span><span class="n">fname</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">.1.node&quot;</span><span class="o">%</span><span class="n">fname</span><span class="p">)</span>
+        <span class="n">copyfile</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">.ele&quot;</span><span class="o">%</span><span class="n">fname</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">.1.ele&quot;</span><span class="o">%</span><span class="n">fname</span><span class="p">)</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">savetxt</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">.1.face&quot;</span><span class="o">%</span><span class="n">fname</span><span class="p">,</span> <span class="n">tris</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">delimiter</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> </span><span class="si">%d</span><span class="s2">&quot;</span><span class="o">%</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">tris</span><span class="p">),</span> <span class="mi">1</span><span class="p">),</span> <span class="n">comments</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">q</span><span class="p">)):</span>
+        <span class="n">copyfile</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">.node&quot;</span><span class="o">%</span><span class="n">fname</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">.d</span><span class="si">%d</span><span class="s2">.node&quot;</span><span class="o">%</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
+        <span class="n">qi</span> <span class="o">=</span> <span class="n">q</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="n">tris</span> <span class="o">=</span> <span class="n">triangles</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">qi_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argwhere</span><span class="p">(</span><span class="n">qi</span><span class="o">!=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">qi_idx</span><span class="p">)</span><span class="o">!=</span><span class="mi">0</span><span class="p">:</span>
+            <span class="n">tris</span><span class="p">[</span><span class="n">qi_idx</span><span class="p">,</span> <span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="n">q_flag</span> <span class="o">-</span> <span class="n">i</span>
+            <span class="n">qi_tris</span> <span class="o">=</span> <span class="n">tris</span><span class="p">[</span><span class="n">qi_idx</span><span class="p">][:,</span><span class="mi">1</span><span class="p">:</span><span class="mi">4</span><span class="p">]</span> <span class="o">-</span><span class="mi">1</span>
+            <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+            <span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">gca</span><span class="p">(</span><span class="n">projection</span><span class="o">=</span><span class="s1">&#39;3d&#39;</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">plot_trisurf</span><span class="p">(</span><span class="n">points</span><span class="p">[:,</span><span class="mi">0</span><span class="p">],</span> <span class="n">points</span><span class="p">[:,</span><span class="mi">1</span><span class="p">],</span> <span class="n">points</span><span class="p">[:,</span><span class="mi">2</span><span class="p">],</span> <span class="n">triangles</span><span class="o">=</span><span class="n">qi_tris</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Q</span><span class="si">%d</span><span class="s2">&quot;</span><span class="o">%</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">savetxt</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">.d</span><span class="si">%d</span><span class="s2">.face&quot;</span><span class="o">%</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span> <span class="n">tris</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">delimiter</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> </span><span class="si">%d</span><span class="s2">&quot;</span><span class="o">%</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">tris</span><span class="p">),</span> <span class="mi">1</span><span class="p">),</span> <span class="n">comments</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+
+        <span class="n">ri</span> <span class="o">=</span> <span class="n">r</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="n">tetras</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">tetrahedras</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">tetrahedras</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="mi">1</span><span class="p">))))</span>
+        <span class="n">ri_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argwhere</span><span class="p">(</span><span class="n">ri</span><span class="o">!=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ri_idx</span><span class="p">)</span><span class="o">!=</span><span class="mi">0</span><span class="p">:</span>
+            <span class="n">tetras</span><span class="p">[</span><span class="n">ri_idx</span><span class="p">,</span> <span class="mi">5</span><span class="p">]</span> <span class="o">=</span> <span class="n">r_flag</span> <span class="o">-</span> <span class="n">i</span>
+            <span class="n">ri_tetras</span> <span class="o">=</span> <span class="n">tetras</span><span class="p">[</span><span class="n">ri_idx</span><span class="p">][:,</span><span class="mi">1</span><span class="p">:</span><span class="mi">5</span><span class="p">]</span> <span class="o">-</span><span class="mi">1</span>
+            <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">            fig = plt.figure()</span>
+<span class="sd">            ax = fig.gca(projection=&#39;3d&#39;)</span>
+<span class="sd">            ax.plot_tetrasurf(points[:,0], points[:,1], points[:,2], triangles=ri_tetras)</span>
+<span class="sd">            plt.show()</span>
+<span class="sd">            &#39;&#39;&#39;</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">savetxt</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">.d</span><span class="si">%d</span><span class="s2">.ele&quot;</span><span class="o">%</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span> <span class="n">tetras</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">delimiter</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> </span><span class="si">%d</span><span class="s2"> </span><span class="si">%d</span><span class="s2">&quot;</span><span class="o">%</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">tetras</span><span class="p">),</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">comments</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    with open(os.environ[&#39;HOME&#39;] + &#39;/mediansurf.1.1.face&#39;, &#39;w&#39;) as f:</span>
+<span class="sd">        f.write(&quot;%d\t%d&quot;%(len(triangles),1))</span>
+<span class="sd">        for tri in triangles:</span>
+<span class="sd">            f.write(&quot;%d\t%d\t%d\t%d&quot;%tuple(tri.astype(int)))</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">print</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+    <span class="k">print</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">q</span><span class="p">)</span>
+    <span class="k">print</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">surfaces3d</span><span class="p">(</span><span class="n">fname</span><span class="p">):</span>
+    <span class="n">points</span><span class="p">,</span> <span class="n">faces</span><span class="p">,</span> <span class="n">tetras</span> <span class="o">=</span> <span class="n">load_tetgen_mesh</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
+    <span class="c1">#Orient tetrahedras to have positive volumes</span>
+    <span class="n">tetras</span> <span class="o">=</span> <span class="n">tetras</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="n">tetras</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">orient_simplices</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">tetras</span><span class="p">)</span>
+    <span class="n">surf1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argwhere</span><span class="p">(</span><span class="n">faces</span><span class="p">[:,</span><span class="mi">3</span><span class="p">]</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,)</span>
+    <span class="n">surf2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argwhere</span><span class="p">(</span><span class="n">faces</span><span class="p">[:,</span><span class="mi">3</span><span class="p">]</span> <span class="o">==</span> <span class="o">-</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,)</span>
+    <span class="n">triangles</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">faces</span><span class="p">[:,:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">surf1_tris</span> <span class="o">=</span> <span class="n">triangles</span><span class="p">[</span><span class="n">surf1</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span>
+    <span class="n">surf1_edges</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">get_subsimplices</span><span class="p">(</span><span class="n">surf1_tris</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">surf2_tris</span> <span class="o">=</span> <span class="n">triangles</span><span class="p">[</span><span class="n">surf2</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span>
+    <span class="n">surf2_tris</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">surf2_tris</span><span class="p">[</span><span class="mi">0</span><span class="p">,[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">]]</span>
+    <span class="n">surf2_edges</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">get_subsimplices</span><span class="p">(</span><span class="n">surf2_tris</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+
+    <span class="n">is_oriented1</span><span class="p">,</span> <span class="n">surf1_tris</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">check_orientation</span><span class="p">(</span><span class="n">surf1_tris</span><span class="p">,</span> <span class="n">surf1_edges</span><span class="p">)</span> 
+    <span class="n">is_oriented2</span><span class="p">,</span> <span class="n">surf2_tris</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">check_orientation</span><span class="p">(</span><span class="n">surf2_tris</span><span class="p">,</span> <span class="n">surf2_edges</span><span class="p">)</span> 
+
+    <span class="n">triangles</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">triangles</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">current1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">triangles</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">current1</span><span class="p">[</span><span class="n">surf1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">current2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">triangles</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">current2</span><span class="p">[</span><span class="n">surf2</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">simplices_sort_idx1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">surf1_tris</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">simplices_parity1</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">permutationparity</span><span class="p">(</span><span class="n">simplices_sort_idx1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="n">simplices_sort_idx2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">surf2_tris</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">simplices_parity2</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">permutationparity</span><span class="p">(</span><span class="n">simplices_sort_idx2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">t_idx</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">surf1</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">simplices_parity1</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">current1</span><span class="p">[</span><span class="n">t_idx</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">t_idx</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">surf2</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">simplices_parity2</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">current2</span><span class="p">[</span><span class="n">t_idx</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+    <span class="n">inputcurrents</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="n">current1</span><span class="p">,</span> <span class="n">current2</span><span class="p">))</span>
+    <span class="n">lambda_</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">mu</span> <span class="o">=</span> <span class="mf">0.999</span>
+    <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">gca</span><span class="p">(</span><span class="n">projection</span><span class="o">=</span><span class="s1">&#39;3d&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot_trisurf</span><span class="p">(</span><span class="n">points</span><span class="p">[:,</span><span class="mi">0</span><span class="p">],</span> <span class="n">points</span><span class="p">[:,</span><span class="mi">1</span><span class="p">],</span> <span class="n">points</span><span class="p">[:,</span><span class="mi">2</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">triangles</span><span class="o">=</span><span class="n">triangles</span><span class="p">[</span><span class="n">surf1</span><span class="p">])</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+    <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">gca</span><span class="p">(</span><span class="n">projection</span><span class="o">=</span><span class="s1">&#39;3d&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot_trisurf</span><span class="p">(</span><span class="n">points</span><span class="p">[:,</span><span class="mi">0</span><span class="p">],</span> <span class="n">points</span><span class="p">[:,</span><span class="mi">1</span><span class="p">],</span> <span class="n">points</span><span class="p">[:,</span><span class="mi">2</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;g&quot;</span><span class="p">,</span> <span class="n">triangles</span><span class="o">=</span><span class="n">triangles</span><span class="p">[</span><span class="n">surf2</span><span class="p">])</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">points</span><span class="p">,</span> <span class="n">tetras</span><span class="p">,</span> <span class="n">triangles</span><span class="p">,</span> <span class="n">inputcurrents</span><span class="p">,</span> <span class="n">lambda_</span><span class="p">,</span> <span class="n">mu</span>
+
+<div class="viewcode-block" id="mediansurfdemo3d"><a class="viewcode-back" href="../../../../experiments/median/mediansurf.html#medianshape.experiment.median.mediansurfdemo3d.mediansurfdemo3d">[docs]</a><span class="k">def</span> <span class="nf">mediansurfdemo3d</span><span class="p">(</span><span class="n">outdir</span><span class="o">=</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="n">save</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Median shape demo for median surface.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+    <span class="n">fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;HOME&#39;</span><span class="p">]</span> <span class="o">+</span><span class="s2">&quot;/mediansurf.1&quot;</span>
+    <span class="n">points</span><span class="p">,</span> <span class="n">simplices</span><span class="p">,</span> <span class="n">subsimplices</span><span class="p">,</span> <span class="n">input_currents</span><span class="p">,</span> <span class="n">_lambda</span><span class="p">,</span> <span class="n">mu</span> <span class="o">=</span> <span class="n">surfaces3d</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
+    <span class="n">w</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">b_matrix</span><span class="p">,</span> <span class="n">cons</span> <span class="o">=</span> <span class="n">median</span><span class="o">.</span><span class="n">get_lp_inputs</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">simplices</span><span class="p">,</span> <span class="n">subsimplices</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">input_currents</span><span class="p">))</span>
+    <span class="n">inout</span><span class="o">.</span><span class="n">save_data</span><span class="p">(</span><span class="n">input_currents</span><span class="o">=</span><span class="n">input_currents</span><span class="p">,</span> <span class="n">b_matrix</span><span class="o">=</span><span class="n">b_matrix</span><span class="p">,</span> <span class="n">w</span><span class="o">=</span><span class="n">w</span><span class="p">,</span> <span class="n">v</span><span class="o">=</span><span class="n">v</span><span class="p">)</span>
+    <span class="n">t</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">norm</span> <span class="o">=</span> <span class="n">median</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">simplices</span><span class="p">,</span> <span class="n">subsimplices</span><span class="p">,</span> \
+    <span class="n">input_currents</span><span class="p">,</span> <span class="n">_lambda</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">cons</span><span class="p">)</span>
+    <span class="n">elapsed</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span>
+    <span class="k">print</span> <span class="s1">&#39;Elapsed time </span><span class="si">%f</span><span class="s1"> mins.&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">elapsed</span><span class="o">/</span><span class="mi">60</span><span class="p">)</span>
+    <span class="n">save_tetgen_mesh</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">fname</span><span class="p">)</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;HOME&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;/README.txt&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;Experiment Statistics</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;Number of points: </span><span class="si">%d</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">%</span><span class="nb">len</span><span class="p">(</span><span class="n">points</span><span class="p">))</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;Number of tetrahedras: </span><span class="si">%d</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">%</span><span class="n">simplices</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;Number of triangles: </span><span class="si">%d</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">%</span><span class="n">subsimplices</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;Number of triangles in Surface1: </span><span class="si">%d</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">%</span><span class="nb">len</span><span class="p">(</span><span class="n">input_currents</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">nonzero</span><span class="p">()[</span><span class="mi">0</span><span class="p">]))</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;Number of triangles in Surface2: </span><span class="si">%d</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">%</span><span class="nb">len</span><span class="p">(</span><span class="n">input_currents</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">nonzero</span><span class="p">()[</span><span class="mi">0</span><span class="p">]))</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;Lambda: </span><span class="si">%.5f</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">%</span><span class="n">_lambda</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;Mu: </span><span class="si">%.5f</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">%</span><span class="n">mu</span><span class="p">)</span></div>
+
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">mediansurfdemo3d</span><span class="p">(</span><span class="n">save</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright GNU GPL.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../../',
+            VERSION:'1.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

@@ -1,0 +1,433 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>medianshape.experiment.median.cases3d &mdash; MedianShape 1.0 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="MedianShape 1.0 documentation" href="../../../../index.html"/>
+        <link rel="up" title="Module code" href="../../../index.html"/> 
+
+  
+  <script src="../../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../../index.html" class="icon icon-home"> MedianShape
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../getting-started.html"><strong>Getting started</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../core/lp.html"><strong>Linear Programs</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../experiments/experiments.html"><strong>Experiments</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../simplicial/simplicial-settings.html"><strong>Simplicial Settings</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../viz/viz.html"><strong>Visualization</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../utils.html"><strong>Utils</strong></a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../../../index.html">MedianShape</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../../../index.html">Module code</a> &raquo;</li>
+      
+    <li>medianshape.experiment.median.cases3d</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for medianshape.experiment.median.cases3d</h1><div class="highlight"><pre>
+<span></span><span class="c1"># encoding: utf-8</span>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">Median shape experiment cases in 3D</span>
+<span class="sd">-----------------------------------</span>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
+<span class="kn">import</span> <span class="nn">importlib</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">medianshape.simplicial</span> <span class="kn">import</span> <span class="n">pointgen3d</span>
+<span class="kn">from</span> <span class="nn">medianshape.simplicial.meshgen</span> <span class="kn">import</span> <span class="n">meshgen3d</span><span class="p">,</span> <span class="n">get_mesh_surface</span>
+<span class="kn">import</span> <span class="nn">medianshape.experiment.inout</span> <span class="kn">as</span> <span class="nn">inout</span>
+
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">medianshape.viz.plot3d</span> <span class="kn">as</span> <span class="nn">plot3d</span>
+
+<div class="viewcode-block" id="torus3d"><a class="viewcode-back" href="../../../../experiments/median/cases3d.html#medianshape.experiment.median.cases3d.torus3d">[docs]</a><span class="k">def</span> <span class="nf">torus3d</span><span class="p">():</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Horizontal and vertical cycles on a solid torus.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="c1"># l - initial length of triangle sides. Change it to vary traingle size</span>
+    <span class="n">bbox</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">]</span>
+    <span class="n">l</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="c1">#radius of a sphere inscribed in the boundary box</span>
+    <span class="n">radius</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">bbox</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">-</span> <span class="n">bbox</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">*</span><span class="mf">1.0</span><span class="o">/</span><span class="mi">2</span>  
+    <span class="n">r</span> <span class="o">=</span> <span class="n">radius</span><span class="o">/</span><span class="mi">4</span>
+    <span class="n">R</span> <span class="o">=</span> <span class="n">radius</span> <span class="o">-</span> <span class="n">r</span>
+    <span class="n">mesh</span> <span class="o">=</span> <span class="n">meshgen3d</span><span class="p">(</span><span class="n">bbox</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">include_corners</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="s2">&quot;torus&quot;</span><span class="p">,</span> <span class="n">R</span><span class="o">=</span><span class="n">R</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="n">r</span><span class="p">)</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    bbox = [-1,-1,-0.2,1,1,0.2]</span>
+<span class="sd">    l = 0.06</span>
+<span class="sd">    radius = np.abs(bbox[3] - bbox[0])*1.0/2  </span>
+<span class="sd">    r = 0.2</span>
+<span class="sd">    R = 0.8</span>
+<span class="sd">    mesh  = inout.load_mesh3d(dirname=&#39;data/torus&#39;)</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="c1"># generating horizontal cycle</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="mi">10</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">radius</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="n">n</span><span class="p">))</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">radius</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="n">n</span><span class="p">))</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">curve1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">z</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="c1"># generating vertical cycle</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="mi">5</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">r</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="n">n</span><span class="p">))</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="n">R</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">z</span> <span class="o">=</span> <span class="n">r</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="n">n</span><span class="p">))</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">curve2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">z</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">shapes</span> <span class="o">=</span> <span class="p">[</span><span class="n">curve1</span><span class="p">,</span> <span class="n">curve2</span><span class="p">]</span>
+    <span class="n">input_points</span>  <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">shapes</span><span class="p">)</span>
+    <span class="c1">#lambdas = [0.001]</span>
+    <span class="c1">#mus = [0.00001]</span>
+    <span class="n">lambdas</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.0001</span><span class="p">]</span>
+    <span class="n">mus</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.00001</span><span class="p">]</span>
+    <span class="n">is_closed</span> <span class="o">=</span> <span class="bp">True</span>
+    <span class="n">inout</span><span class="o">.</span><span class="n">save_data</span><span class="p">(</span><span class="n">mesh</span><span class="o">=</span><span class="n">mesh</span><span class="p">,</span> <span class="n">dirname</span><span class="o">=</span><span class="s2">&quot;data/dumps/torus&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">mesh</span><span class="p">,</span> <span class="n">mesh</span><span class="o">.</span><span class="n">triangles</span><span class="p">,</span> <span class="n">mesh</span><span class="o">.</span><span class="n">edges</span><span class="p">,</span> <span class="n">input_points</span><span class="p">,</span> <span class="n">lambdas</span><span class="p">,</span> <span class="n">mus</span><span class="p">,</span> <span class="n">is_closed</span></div>
+
+<div class="viewcode-block" id="torus_surface3d"><a class="viewcode-back" href="../../../../experiments/median/cases3d.html#medianshape.experiment.median.cases3d.torus_surface3d">[docs]</a><span class="k">def</span> <span class="nf">torus_surface3d</span><span class="p">():</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Horizontal and vertical cycles on the surface on a torus.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="c1"># l - initial length of triangle sides. Change it to vary traingle size</span>
+    <span class="n">bbox</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">]</span>
+    <span class="n">bbox</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mf">0.2</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mf">0.2</span><span class="p">]</span>
+    <span class="n">l</span> <span class="o">=</span> <span class="mf">0.06</span>
+    <span class="n">radius</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">bbox</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">-</span> <span class="n">bbox</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">*</span><span class="mf">1.0</span><span class="o">/</span><span class="mi">2</span>  
+    <span class="n">r</span> <span class="o">=</span> <span class="mf">0.2</span>
+    <span class="n">R</span> <span class="o">=</span> <span class="mf">0.8</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    mesh = meshgen3d(bbox, l, include_corners=False, shape=&quot;torus&quot;)</span>
+<span class="sd">    print &quot;mesh Saved&quot;</span>
+<span class="sd">    inout.save_data(mesh, dirname=os.path.abspath(&quot;data/torus&quot;))</span>
+<span class="sd">    smesh = get_mesh_surface(mesh)</span>
+<span class="sd">    inout.save_data(smesh, dirname=os.path.abspath(&quot;data/storus&quot;))</span>
+<span class="sd">    print &quot;Saved&quot;</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="c1">#load mesh from data/storus which is a surface of a torus.</span>
+    <span class="n">smesh</span> <span class="o">=</span> <span class="n">inout</span><span class="o">.</span><span class="n">load_mesh3d</span><span class="p">(</span><span class="n">dirname</span><span class="o">=</span><span class="s1">&#39;data/storus&#39;</span><span class="p">)</span>
+    <span class="c1">#plot3d.plot_simplices3d(smesh, np.ones(len(smesh.triangles)))</span>
+    <span class="c1">#plt.show()</span>
+
+    <span class="c1"># generating horizontal cycle</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="mi">10</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">radius</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="n">n</span><span class="p">))</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">radius</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="n">n</span><span class="p">))</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">curve1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">z</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="c1"># generating vertical cycle</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="mi">5</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">r</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="n">n</span><span class="p">))</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="n">R</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">z</span> <span class="o">=</span> <span class="n">r</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="n">n</span><span class="p">))</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">curve2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">z</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">shapes</span> <span class="o">=</span> <span class="p">[</span><span class="n">curve1</span><span class="p">,</span> <span class="n">curve2</span><span class="p">]</span>
+    <span class="n">input_points</span>  <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">shapes</span><span class="p">)</span>
+    <span class="c1">#lambdas = [0.001]</span>
+    <span class="c1">#mus = [0.00001]</span>
+    <span class="n">lambdas</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.001</span><span class="p">,</span> <span class="mf">0.0001</span><span class="p">]</span>
+    <span class="n">mus</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.00001</span><span class="p">,</span> <span class="mf">0.000001</span><span class="p">]</span>
+    <span class="n">is_closed</span> <span class="o">=</span> <span class="bp">True</span>
+    <span class="k">return</span> <span class="n">smesh</span><span class="p">,</span> <span class="n">smesh</span><span class="o">.</span><span class="n">triangles</span><span class="p">,</span> <span class="n">smesh</span><span class="o">.</span><span class="n">edges</span><span class="p">,</span> <span class="n">input_points</span><span class="p">,</span> <span class="n">lambdas</span><span class="p">,</span> <span class="n">mus</span><span class="p">,</span> <span class="n">is_closed</span></div>
+
+<div class="viewcode-block" id="handle_loops_on_torus_surface3d"><a class="viewcode-back" href="../../../../experiments/median/cases3d.html#medianshape.experiment.median.cases3d.handle_loops_on_torus_surface3d">[docs]</a><span class="k">def</span> <span class="nf">handle_loops_on_torus_surface3d</span><span class="p">():</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Two handle loops on a solid torus.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">smesh</span> <span class="o">=</span> <span class="n">inout</span><span class="o">.</span><span class="n">load_mesh3d</span><span class="p">(</span><span class="n">dirname</span><span class="o">=</span><span class="s1">&#39;data/torus&#39;</span><span class="p">)</span>
+    <span class="n">bbox</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mf">0.2</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mf">0.2</span><span class="p">]</span>
+    <span class="n">l</span> <span class="o">=</span> <span class="mf">0.06</span>
+    <span class="n">radius</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">bbox</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">-</span> <span class="n">bbox</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">*</span><span class="mf">1.0</span><span class="o">/</span><span class="mi">2</span>  
+    <span class="n">r</span> <span class="o">=</span> <span class="mf">0.2</span>
+    <span class="n">R</span> <span class="o">=</span> <span class="mf">0.8</span>
+    <span class="n">loop1</span> <span class="o">=</span> <span class="n">pointgen3d</span><span class="o">.</span><span class="n">vertical_circle_xz</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="p">(</span><span class="n">R</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span> <span class="n">theta</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">6</span><span class="p">)</span>
+    <span class="n">loop2</span> <span class="o">=</span> <span class="n">pointgen3d</span><span class="o">.</span><span class="n">vertical_circle_xz</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="p">(</span><span class="n">R</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span> <span class="n">theta</span><span class="o">=-</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">3</span><span class="p">)</span>
+    <span class="n">shapes</span> <span class="o">=</span> <span class="p">[</span><span class="n">loop1</span><span class="p">,</span> <span class="n">loop2</span><span class="p">]</span>
+    <span class="n">input_points</span>  <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">shapes</span><span class="p">)</span>
+    <span class="c1">#lambdas = [0.001]</span>
+    <span class="c1">#mus = [0.00001]</span>
+    <span class="n">lambdas</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.001</span><span class="p">]</span>
+    <span class="n">mus</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.00001</span><span class="p">]</span>
+    <span class="n">is_closed</span> <span class="o">=</span> <span class="bp">True</span>
+    <span class="k">return</span> <span class="n">smesh</span><span class="p">,</span> <span class="n">smesh</span><span class="o">.</span><span class="n">triangles</span><span class="p">,</span> <span class="n">smesh</span><span class="o">.</span><span class="n">edges</span><span class="p">,</span> <span class="n">input_points</span><span class="p">,</span> <span class="n">lambdas</span><span class="p">,</span> <span class="n">mus</span><span class="p">,</span> <span class="n">is_closed</span></div>
+
+<div class="viewcode-block" id="tunnel_loops_on_torus_surface3d"><a class="viewcode-back" href="../../../../experiments/median/cases3d.html#medianshape.experiment.median.cases3d.tunnel_loops_on_torus_surface3d">[docs]</a><span class="k">def</span> <span class="nf">tunnel_loops_on_torus_surface3d</span><span class="p">():</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Two tunnel loops on a solid torus.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">smesh</span> <span class="o">=</span> <span class="n">inout</span><span class="o">.</span><span class="n">load_mesh3d</span><span class="p">(</span><span class="n">dirname</span><span class="o">=</span><span class="s1">&#39;data/torus&#39;</span><span class="p">)</span>
+    <span class="n">bbox</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mf">0.2</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mf">0.2</span><span class="p">]</span>
+    <span class="n">l</span> <span class="o">=</span> <span class="mf">0.06</span>
+    <span class="n">radius</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">bbox</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">-</span> <span class="n">bbox</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">*</span><span class="mf">1.0</span><span class="o">/</span><span class="mi">2</span>  
+    <span class="n">r</span> <span class="o">=</span> <span class="mf">0.2</span>
+    <span class="n">R</span> <span class="o">=</span> <span class="mf">0.8</span>
+    <span class="n">loop1</span> <span class="o">=</span> <span class="n">pointgen3d</span><span class="o">.</span><span class="n">horizontal_circle</span><span class="p">(</span><span class="n">R</span> <span class="o">+</span> <span class="n">r</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">6</span><span class="p">),</span> <span class="n">n</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span> <span class="n">r</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">6</span><span class="p">)))</span>
+    <span class="n">loop2</span> <span class="o">=</span> <span class="n">pointgen3d</span><span class="o">.</span><span class="n">horizontal_circle</span><span class="p">(</span><span class="n">R</span> <span class="o">+</span> <span class="n">r</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">3</span><span class="p">),</span> <span class="n">n</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="o">-</span><span class="n">r</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">3</span><span class="p">)))</span>
+    <span class="n">loop1</span> <span class="o">=</span> <span class="n">pointgen3d</span><span class="o">.</span><span class="n">horizontal_circle</span><span class="p">(</span><span class="n">R</span><span class="o">-</span><span class="n">r</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">))</span>
+    <span class="n">loop2</span> <span class="o">=</span> <span class="n">pointgen3d</span><span class="o">.</span><span class="n">horizontal_circle</span><span class="p">(</span><span class="n">radius</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">))</span>
+    <span class="n">shapes</span> <span class="o">=</span> <span class="p">[</span><span class="n">loop1</span><span class="p">,</span> <span class="n">loop2</span><span class="p">]</span>
+    <span class="n">input_points</span>  <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">shapes</span><span class="p">)</span>
+    <span class="c1">#lambdas = [0.001]</span>
+    <span class="c1">#mus = [0.00001]</span>
+    <span class="n">lambdas</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.001</span><span class="p">]</span>
+    <span class="n">mus</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.00001</span><span class="p">]</span>
+    <span class="n">is_closed</span> <span class="o">=</span> <span class="bp">True</span>
+    <span class="k">return</span> <span class="n">smesh</span><span class="p">,</span> <span class="n">smesh</span><span class="o">.</span><span class="n">triangles</span><span class="p">,</span> <span class="n">smesh</span><span class="o">.</span><span class="n">edges</span><span class="p">,</span> <span class="n">input_points</span><span class="p">,</span> <span class="n">lambdas</span><span class="p">,</span> <span class="n">mus</span><span class="p">,</span> <span class="n">is_closed</span></div>
+    
+    
+<div class="viewcode-block" id="equally_spaced_longitudes3ds"><a class="viewcode-back" href="../../../../experiments/median/cases3d.html#medianshape.experiment.median.cases3d.equally_spaced_longitudes3ds">[docs]</a><span class="k">def</span> <span class="nf">equally_spaced_longitudes3ds</span><span class="p">():</span> 
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Three equally-spaced longitude curves on the surface of a sphere.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    # l - initial length of triangle sides. Change it to vary traingle size</span>
+<span class="sd">    boundary_box = [0,0,0,20,20,20]</span>
+<span class="sd">    l = 0.6</span>
+<span class="sd">    mesh = meshgen3d(boundary_box, l, include_corners=False)</span>
+<span class="sd">    smesh = get_mesh_surface(mesh)</span>
+<span class="sd">    inout.save_data(mesh, dirname=os.path.abspath(&quot;data/mesh&quot;))</span>
+<span class="sd">    inout.save_data(smesh, dirname=os.path.abspath(&quot;data/smesh&quot;))</span>
+<span class="sd">    print &quot;Saved&quot;</span>
+<span class="sd">    exit()</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">smesh</span> <span class="o">=</span> <span class="n">inout</span><span class="o">.</span><span class="n">load_mesh3d</span><span class="p">(</span><span class="n">dirname</span><span class="o">=</span><span class="s1">&#39;data/smesh&#39;</span><span class="p">)</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    curve1 = pointgen3d.sphere_arc(mesh.bbox, 0, 10)</span>
+<span class="sd">    curve2 = pointgen3d.sphere_arc(mesh.bbox, 2*np.pi/3, 10)</span>
+<span class="sd">    curve3 = pointgen3d.sphere_arc(mesh.bbox, 4*np.pi/3, 10)</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">curve1</span> <span class="o">=</span> <span class="n">pointgen3d</span><span class="o">.</span><span class="n">sphere_arc</span><span class="p">(</span><span class="n">smesh</span><span class="o">.</span><span class="n">bbox</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+    <span class="n">curve2</span> <span class="o">=</span> <span class="n">pointgen3d</span><span class="o">.</span><span class="n">sphere_arc</span><span class="p">(</span><span class="n">smesh</span><span class="o">.</span><span class="n">bbox</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">4</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+    <span class="n">curve3</span> <span class="o">=</span> <span class="n">pointgen3d</span><span class="o">.</span><span class="n">sphere_arc</span><span class="p">(</span><span class="n">smesh</span><span class="o">.</span><span class="n">bbox</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+
+    <span class="n">shapes</span> <span class="o">=</span> <span class="p">[</span><span class="n">curve1</span><span class="p">,</span> <span class="n">curve2</span><span class="p">,</span> <span class="n">curve3</span><span class="p">]</span>
+    <span class="n">input_points</span>  <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">shapes</span><span class="p">)</span>
+    <span class="n">lambdas</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.001</span><span class="p">]</span>
+    <span class="n">mus</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.00001</span><span class="p">]</span>
+    <span class="c1">#lambdas = [0.0000001]</span>
+    <span class="c1">#mus = [0.000000001]</span>
+    <span class="n">is_closed</span> <span class="o">=</span> <span class="bp">False</span>
+    <span class="k">return</span> <span class="n">smesh</span><span class="p">,</span> <span class="n">smesh</span><span class="o">.</span><span class="n">triangles</span><span class="p">,</span> <span class="n">smesh</span><span class="o">.</span><span class="n">edges</span><span class="p">,</span> <span class="n">input_points</span><span class="p">,</span> <span class="n">lambdas</span><span class="p">,</span> <span class="n">mus</span><span class="p">,</span> <span class="n">is_closed</span></div>
+
+<div class="viewcode-block" id="equally_spaced_longitudes3d"><a class="viewcode-back" href="../../../../experiments/median/cases3d.html#medianshape.experiment.median.cases3d.equally_spaced_longitudes3d">[docs]</a><span class="k">def</span> <span class="nf">equally_spaced_longitudes3d</span><span class="p">():</span> 
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Three equally-spaced longitude curves on the surface of a ball.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="c1"># l - initial length of triangle sides. Change it to vary traingle size</span>
+    <span class="c1">#boundary_box = [-10,-10,-10,10,10,10]</span>
+    <span class="n">boundary_box</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">]</span>
+    <span class="n">l</span> <span class="o">=</span> <span class="mi">2</span> 
+    <span class="n">mesh</span> <span class="o">=</span> <span class="n">meshgen3d</span><span class="p">(</span><span class="n">boundary_box</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">include_corners</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="s1">&#39;ball&#39;</span><span class="p">)</span>
+    <span class="c1">#inout.save_data(mesh, dirname=os.path.abspath(&quot;data/mesh_0.8&quot;))</span>
+    <span class="c1">#print &quot;saved&quot;</span>
+    <span class="c1">#mesh = inout.load_mesh3d(dirname=&#39;data/mesh&#39;)</span>
+    <span class="c1">#mesh  = inout.load_mesh3d(dirname=&#39;data/mesh&#39;)</span>
+    <span class="n">curve1</span> <span class="o">=</span> <span class="n">pointgen3d</span><span class="o">.</span><span class="n">sphere_arc</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">bbox</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+    <span class="n">curve2</span> <span class="o">=</span> <span class="n">pointgen3d</span><span class="o">.</span><span class="n">sphere_arc</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">bbox</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">3</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+    <span class="n">curve3</span> <span class="o">=</span> <span class="n">pointgen3d</span><span class="o">.</span><span class="n">sphere_arc</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">bbox</span><span class="p">,</span> <span class="mi">4</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">3</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+    <span class="n">shapes</span> <span class="o">=</span> <span class="p">[</span><span class="n">curve1</span><span class="p">,</span> <span class="n">curve2</span><span class="p">,</span> <span class="n">curve3</span><span class="p">]</span>
+    <span class="n">input_points</span>  <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">shapes</span><span class="p">)</span>
+    <span class="c1">#lambdas = [0.001]</span>
+    <span class="c1">#mus = [0.00001]</span>
+    <span class="n">lambdas</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.001</span><span class="p">]</span>
+    <span class="n">mus</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.0001</span><span class="p">]</span>
+    <span class="n">is_closed</span> <span class="o">=</span> <span class="bp">False</span>
+    <span class="k">return</span> <span class="n">mesh</span><span class="p">,</span> <span class="n">mesh</span><span class="o">.</span><span class="n">triangles</span><span class="p">,</span> <span class="n">mesh</span><span class="o">.</span><span class="n">edges</span><span class="p">,</span> <span class="n">input_points</span><span class="p">,</span> <span class="n">lambdas</span><span class="p">,</span> <span class="n">mus</span><span class="p">,</span> <span class="n">is_closed</span></div>
+
+<div class="viewcode-block" id="differently_spaced_longitudes3d"><a class="viewcode-back" href="../../../../experiments/median/cases3d.html#medianshape.experiment.median.cases3d.differently_spaced_longitudes3d">[docs]</a><span class="k">def</span> <span class="nf">differently_spaced_longitudes3d</span><span class="p">():</span> 
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Three longitude curves on the surface of a ball.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="c1"># l - initial length of triangle sides. Change it to vary traingle size</span>
+    <span class="n">boundary_box</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">20</span><span class="p">,</span><span class="mi">20</span><span class="p">,</span><span class="mi">20</span><span class="p">]</span>
+    <span class="n">l</span> <span class="o">=</span> <span class="mi">4</span>
+    <span class="n">mesh</span> <span class="o">=</span> <span class="n">meshgen3d</span><span class="p">(</span><span class="n">boundary_box</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">include_corners</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="s2">&quot;ball&quot;</span><span class="p">)</span>
+    <span class="n">curve1</span> <span class="o">=</span> <span class="n">pointgen3d</span><span class="o">.</span><span class="n">sphere_arc</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">bbox</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+    <span class="n">curve2</span> <span class="o">=</span> <span class="n">pointgen3d</span><span class="o">.</span><span class="n">sphere_arc</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">bbox</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">4</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+    <span class="n">curve3</span> <span class="o">=</span> <span class="n">pointgen3d</span><span class="o">.</span><span class="n">sphere_arc</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">bbox</span><span class="p">,</span> <span class="mi">9</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">8</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+    <span class="n">shapes</span> <span class="o">=</span> <span class="p">[</span><span class="n">curve1</span><span class="p">,</span> <span class="n">curve2</span><span class="p">,</span> <span class="n">curve3</span><span class="p">]</span>
+    <span class="n">input_points</span>  <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">shapes</span><span class="p">)</span>
+    <span class="n">lambdas</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.001</span><span class="p">]</span>
+    <span class="n">mus</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.00001</span><span class="p">]</span>
+    <span class="n">is_closed</span> <span class="o">=</span> <span class="bp">False</span>
+    <span class="k">return</span> <span class="n">mesh</span><span class="p">,</span> <span class="n">mesh</span><span class="o">.</span><span class="n">triangles</span><span class="p">,</span> <span class="n">mesh</span><span class="o">.</span><span class="n">edges</span><span class="p">,</span> <span class="n">input_points</span><span class="p">,</span> <span class="n">lambdas</span><span class="p">,</span> <span class="n">mus</span><span class="p">,</span> <span class="n">is_closed</span></div>
+
+<div class="viewcode-block" id="get_saved_case"><a class="viewcode-back" href="../../../../experiments/median/cases3d.html#medianshape.experiment.median.cases3d.get_saved_case">[docs]</a><span class="k">def</span> <span class="nf">get_saved_case</span><span class="p">(</span><span class="n">dirname</span><span class="o">=</span><span class="s1">&#39;data/curves_on_sphere&#39;</span><span class="p">):</span> 
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Loads a saved experiment in the given directory.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="c1">#Three longitude curves on a ball made of a finer mesh.</span>
+    <span class="n">mesh</span> <span class="o">=</span> <span class="n">inout</span><span class="o">.</span><span class="n">load_mesh3d</span><span class="p">(</span><span class="n">dirname</span><span class="o">=</span><span class="n">dirname</span><span class="p">)</span>
+    <span class="n">input_currents</span> <span class="o">=</span> <span class="n">inout</span><span class="o">.</span><span class="n">load_input_currents</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">edges</span><span class="p">),</span> <span class="mi">3</span><span class="p">,</span> <span class="n">dirname</span><span class="o">=</span><span class="n">dirname</span><span class="p">)</span>
+    <span class="n">t</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">r</span> <span class="o">=</span> <span class="n">inout</span><span class="o">.</span><span class="n">load_solutions</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">triangles</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">edges</span><span class="p">),</span> <span class="mi">3</span><span class="p">,</span> <span class="n">dirname</span><span class="o">=</span><span class="n">dirname</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">mesh</span><span class="p">,</span> <span class="n">input_currents</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">r</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright GNU GPL.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../../',
+            VERSION:'1.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

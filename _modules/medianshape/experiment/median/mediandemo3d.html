@@ -1,0 +1,277 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>medianshape.experiment.median.mediandemo3d &mdash; MedianShape 1.0 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="MedianShape 1.0 documentation" href="../../../../index.html"/>
+        <link rel="up" title="Module code" href="../../../index.html"/> 
+
+  
+  <script src="../../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../../index.html" class="icon icon-home"> MedianShape
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../getting-started.html"><strong>Getting started</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../core/lp.html"><strong>Linear Programs</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../experiments/experiments.html"><strong>Experiments</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../simplicial/simplicial-settings.html"><strong>Simplicial Settings</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../viz/viz.html"><strong>Visualization</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../utils.html"><strong>Utils</strong></a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../../../index.html">MedianShape</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../../../index.html">Module code</a> &raquo;</li>
+      
+    <li>medianshape.experiment.median.mediandemo3d</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for medianshape.experiment.median.mediandemo3d</h1><div class="highlight"><pre>
+<span></span><span class="c1">#encoding: utf-8</span>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">Median shape demo 3D</span>
+<span class="sd">--------------------</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
+
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">matplotlib.backends.backend_pdf</span> <span class="kn">import</span> <span class="n">PdfPages</span>
+
+<span class="kn">from</span> <span class="nn">medianshape.simplicial</span> <span class="kn">import</span> <span class="n">currentgen</span> 
+<span class="kn">from</span> <span class="nn">medianshape.experiment.median</span> <span class="kn">import</span> <span class="n">runmedians</span> <span class="k">as</span> <span class="n">run</span><span class="p">,</span> <span class="n">cases3d</span>
+
+<span class="kn">from</span> <span class="nn">medianshape.viz</span> <span class="kn">import</span> <span class="n">plot3d</span> 
+
+<div class="viewcode-block" id="show_median3d"><a class="viewcode-back" href="../../../../experiments/median/mediandemo.html#medianshape.experiment.median.mediandemo3d.show_median3d">[docs]</a><span class="k">def</span> <span class="nf">show_median3d</span><span class="p">():</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Shows the results of a saved experiment case.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">mesh</span><span class="p">,</span> <span class="n">input_currents</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">r</span> <span class="o">=</span> <span class="n">cases3d</span><span class="o">.</span><span class="n">get_saved_case</span><span class="p">(</span><span class="n">dirname</span><span class="o">=</span><span class="s1">&#39;data/curves_on_sphere&#39;</span><span class="p">)</span>
+    <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="mi">8</span><span class="p">))</span>
+    <span class="n">plot3d</span><span class="o">.</span><span class="n">plotmesh3d</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">mesh</span><span class="o">.</span><span class="n">get_info</span><span class="p">())</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="mi">8</span><span class="p">))</span>
+    <span class="n">title</span> <span class="o">=</span> <span class="s2">r&quot;$\lambda=0.0010$, $\mu=0.000010$&quot;</span>
+    <span class="n">plot3d</span><span class="o">.</span><span class="n">plot_median3d</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">input_currents</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">)</span> 
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+    <span class="n">plot3d</span><span class="o">.</span><span class="n">plot_decomposition3d</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">input_currents</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="mediandemo3d"><a class="viewcode-back" href="../../../../experiments/median/mediandemo.html#medianshape.experiment.median.mediandemo3d.mediandemo3d">[docs]</a><span class="k">def</span> <span class="nf">mediandemo3d</span><span class="p">(</span><span class="n">outdir</span><span class="o">=</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="n">save</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Median shape demo in 3D. The experiment case is chosen from &#39;medianshape.cases3d&#39;.</span>
+<span class="sd">    Given the experiment case, it gets input currents from the input curves by pushing</span>
+<span class="sd">    the underlying simplicial complex. Then input the simplicial setting to Median LP which</span>
+<span class="sd">    solves median current. The experiment result is saved in outdir.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">lp_times</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+    <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+    <span class="n">pdf_file</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="k">if</span> <span class="n">save</span><span class="p">:</span>
+        <span class="n">pdf_file</span> <span class="o">=</span> <span class="n">PdfPages</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">/mediandemo3d.pdf&#39;</span><span class="o">%</span><span class="n">outdir</span><span class="p">)</span>
+
+    <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="mi">8</span><span class="p">))</span>
+    <span class="n">figcount</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">mesh</span><span class="p">,</span> <span class="n">simplices</span><span class="p">,</span> <span class="n">subsimplices</span><span class="p">,</span> <span class="n">points</span><span class="p">,</span> <span class="n">lambdas</span><span class="p">,</span> <span class="n">mus</span><span class="p">,</span> <span class="n">is_closed</span> \
+    <span class="o">=</span> <span class="n">cases3d</span><span class="o">.</span><span class="n">equally_spaced_longitudes3d</span><span class="p">()</span>
+    <span class="c1">#= cases3d.torus_surface3d()</span>
+    <span class="c1">#= cases3d.equally_spaced_longitudes3d()</span>
+    <span class="c1">#= cases3d.tunnel_loops_on_torus_surface3d()</span>
+    <span class="k">print</span> <span class="n">mesh</span><span class="o">.</span><span class="n">get_info</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">mesh</span><span class="o">.</span><span class="n">surf_points</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">title</span> <span class="o">=</span> <span class="n">mesh</span><span class="o">.</span><span class="n">get_info</span><span class="p">()</span> 
+        <span class="n">title</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="n">plot3d</span><span class="o">.</span><span class="n">plotmesh3d</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">/figures/</span><span class="si">%d</span><span class="s1">&#39;</span><span class="o">%</span><span class="p">(</span><span class="n">outdir</span><span class="p">,</span> <span class="n">figcount</span><span class="p">),</span> <span class="n">pdf_file</span><span class="p">,</span> <span class="n">save</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">title</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="n">plot3d</span><span class="o">.</span><span class="n">plot_simplices3d</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">triangles</span><span class="p">)),</span> <span class="n">title</span><span class="p">,</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">/figures/</span><span class="si">%d</span><span class="s1">&#39;</span><span class="o">%</span><span class="p">(</span><span class="n">outdir</span><span class="p">,</span> <span class="n">figcount</span><span class="p">),</span> <span class="n">pdf_file</span><span class="p">,</span> <span class="n">save</span><span class="p">)</span>
+    <span class="n">figcount</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+    <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="mi">8</span><span class="p">))</span>
+    <span class="n">vertices</span><span class="p">,</span> <span class="n">paths</span><span class="p">,</span> <span class="n">input_currents</span> <span class="o">=</span> <span class="n">currentgen</span><span class="o">.</span><span class="n">push_curves_on_mesh</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">points</span><span class="p">,</span> <span class="n">mesh</span><span class="o">.</span><span class="n">edges</span><span class="p">,</span> <span class="n">points</span><span class="p">,</span> <span class="n">is_closed</span><span class="p">,</span> <span class="n">mesh</span><span class="o">.</span><span class="n">surf_points</span><span class="p">)</span>
+
+    <span class="n">figname</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">/figures/</span><span class="si">%d</span><span class="s1">&#39;</span><span class="o">%</span><span class="p">(</span><span class="n">outdir</span><span class="p">,</span> <span class="n">figcount</span><span class="p">)</span>
+    <span class="n">title</span> <span class="o">=</span> <span class="s1">r&#39;$Curve$ $approximation$&#39;</span>
+    <span class="n">plot3d</span><span class="o">.</span><span class="n">plot_curves_approx3d</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">points</span><span class="p">,</span> <span class="n">vertices</span><span class="p">,</span> <span class="n">paths</span><span class="p">,</span> <span class="n">figname</span><span class="p">,</span> <span class="n">pdf_file</span><span class="p">,</span> <span class="n">save</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
+    <span class="n">figcount</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+    <span class="n">run</span><span class="o">.</span><span class="n">runmedians3d</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">simplices</span><span class="p">,</span> <span class="n">subsimplices</span><span class="p">,</span> <span class="n">input_currents</span><span class="p">,</span> <span class="n">lambdas</span><span class="p">,</span> <span class="n">mus</span><span class="p">,</span> <span class="n">file_doc</span><span class="o">=</span><span class="n">pdf_file</span><span class="p">,</span> <span class="n">save</span><span class="o">=</span><span class="n">save</span><span class="p">,</span> <span class="n">figcount</span><span class="o">=</span><span class="n">figcount</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">save</span><span class="p">:</span>
+        <span class="n">pdf_file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="n">elapsed</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span>
+    <span class="k">print</span> <span class="s1">&#39;Elapsed time </span><span class="si">%f</span><span class="s1"> mins.&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">elapsed</span><span class="o">/</span><span class="mi">60</span><span class="p">)</span></div>
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">mediandemo3d</span><span class="p">(</span><span class="n">save</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="c1">#show_median3d()</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright GNU GPL.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../../',
+            VERSION:'1.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
