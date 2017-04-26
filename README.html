@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Search &mdash; MedianShape 1.0 documentation</title>
+  <title>MedianShape: Simplicial Median Shape &mdash; MedianShape 1.0 documentation</title>
   
 
   
@@ -30,7 +30,8 @@
   
 
   
-    <link rel="top" title="MedianShape 1.0 documentation" href="index.html"/> 
+    <link rel="top" title="MedianShape 1.0 documentation" href="index.html"/>
+        <link rel="prev" title="Utils" href="utils.html"/> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -65,7 +66,7 @@
 
           
 <div role="search">
-  <form id="rtd-search-form" class="wy-form" action="#" method="get">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
@@ -79,14 +80,18 @@
           
             
             
-                <ul>
+                <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="getting-started.html"><strong>Getting started</strong></a></li>
 <li class="toctree-l1"><a class="reference internal" href="core/lp.html"><strong>Linear Programs</strong></a></li>
 <li class="toctree-l1"><a class="reference internal" href="experiments/experiments.html"><strong>Experiments</strong></a></li>
 <li class="toctree-l1"><a class="reference internal" href="simplicial/simplicial-settings.html"><strong>Simplicial Settings</strong></a></li>
 <li class="toctree-l1"><a class="reference internal" href="viz/viz.html"><strong>Visualization</strong></a></li>
 <li class="toctree-l1"><a class="reference internal" href="utils.html"><strong>Utils</strong></a></li>
-<li class="toctree-l1"><a class="reference internal" href="README.html">MedianShape: Simplicial Median Shape</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">MedianShape: Simplicial Median Shape</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#demos">Demos</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dependencies">Dependencies</a></li>
+</ul>
+</li>
 </ul>
 
             
@@ -109,7 +114,7 @@
         <div class="rst-content">
           
 
-
+ 
 
 
 
@@ -117,8 +122,12 @@
   <ul class="wy-breadcrumbs">
     <li><a href="index.html">Docs</a> &raquo;</li>
       
-    <li></li>
+    <li>MedianShape: Simplicial Median Shape</li>
       <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/README.txt" rel="nofollow"> View page source</a>
+          
         
       </li>
   </ul>
@@ -127,23 +136,46 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <noscript>
-  <div id="fallback" class="admonition warning">
-    <p class="last">
-      Please activate JavaScript to enable the search
-      functionality.
-    </p>
-  </div>
-  </noscript>
+  <div class="section" id="medianshape-simplicial-median-shape">
+<h1><a class="reference external" href="https://github.com/tbtraltaa/medianshape">MedianShape</a>: Simplicial Median Shape<a class="headerlink" href="#medianshape-simplicial-median-shape" title="Permalink to this headline">¶</a></h1>
+<p><a class="reference external" href="https://github.com/tbtraltaa/medianshape">MedianShape</a> is a simple Python code for solving <strong>Simplical Median Shape Problem (SMSP)</strong>
+in simplicial settings using <strong>simplicial flat norm distance</strong>. It contains several experiments in 2D and 3D. MedianShape is distributed under the <a class="reference external" href="http://www.gnu.org/copyleft/gpl.html">GNU GPL</a>. A link to a brief <a class="reference external" href="https://tbtraltaa.github.io/medianshape/">documentation</a>.</p>
+<div class="section" id="demos">
+<h2>Demos<a class="headerlink" href="#demos" title="Permalink to this headline">¶</a></h2>
+<p>For a quick demonstration, run:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ python mediandemo2d.py
+</pre></div>
+</div>
+<p>or:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ python mediandemo3d.py
+</pre></div>
+</div>
+</div>
+<div class="section" id="dependencies">
+<h2>Dependencies<a class="headerlink" href="#dependencies" title="Permalink to this headline">¶</a></h2>
+<p>MedianShape is compatible with both Python 2 (The author used only Python 2.7).
+It requires several common Python packages and scientific computing tools:</p>
+<ul class="simple">
+<li><a class="reference external" href="http://numpy.org/">NumPy</a></li>
+<li><a class="reference external" href="https://scipy.org/">SciPy</a></li>
+<li><a class="reference external" href="https://pypi.python.org/pypi/PyDistMesh/1.2">PyDistMesh</a></li>
+<li><a class="reference external" href="https://www-01.ibm.com/software/commerce/optimization/cplex-optimizer/">cplex</a> or <a class="reference external" href="http://cvxopt.org">cvxopt</a></li>
+<li><a class="reference external" href="http://matplotlib.org">matplotlib</a> (optional)</li>
+</ul>
+</div>
+</div>
 
-  
-  <div id="search-results">
-  
-  </div>
 
            </div>
           </div>
           <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="utils.html" class="btn btn-neutral" title="Utils" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
   
 
   <hr/>
@@ -182,7 +214,6 @@
       <script type="text/javascript" src="_static/underscore.js"></script>
       <script type="text/javascript" src="_static/doctools.js"></script>
       <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-      <script type="text/javascript" src="_static/searchtools.js"></script>
 
   
 
@@ -198,14 +229,7 @@
           SphinxRtdTheme.StickyNav.enable();
       });
   </script>
-  
-  <script type="text/javascript">
-    jQuery(function() { Search.loadIndex("searchindex.js"); });
-  </script>
-  
-  <script type="text/javascript" id="searchindexloader"></script>
    
-
 
 </body>
 </html>
