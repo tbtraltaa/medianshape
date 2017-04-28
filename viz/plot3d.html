@@ -187,7 +187,9 @@ RGB color.</p>
 <dl class="function">
 <dt id="medianshape.viz.plot3d.plot_median3d">
 <code class="descclassname">medianshape.viz.plot3d.</code><code class="descname">plot_median3d</code><span class="sig-paren">(</span><em>mesh</em>, <em>input_currents</em>, <em>t</em>, <em>title=''</em>, <em>figname=''</em>, <em>file_doc=None</em>, <em>save=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/medianshape/viz/plot3d.html#plot_median3d"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#medianshape.viz.plot3d.plot_median3d" title="Permalink to this definition">¶</a></dt>
-<dd><p>Plots a median curve in a tetrahedralized mesh.</p>
+<dd><p>Plots a median curve in a tetrahedralized mesh.
+Find the following line in the code and uncomment if you want to plot median on mesh.</p>
+<p>ax.plot_trisurf(mesh.points[:,0], mesh.points[:,1], mesh.points[:,2], triangles=mesh.triangles,  color=(0.8, 0.9, 1), shade=False)</p>
 </dd></dl>
 
 <dl class="function">
