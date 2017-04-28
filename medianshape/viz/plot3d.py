@@ -61,6 +61,7 @@ def plotmesh3d(mesh, title='', figname=None, file_doc=None, save=True):
         axes_simpplot3d(ax, mesh.points, mesh.simplices)
         if title is not None:
             ax.set_title(title, horizontalalignment='center', verticalalignment='top', transform=ax.transAxes)
+        fig.tight_layout()
         if save and figname:
             plt.savefig('%s.png'%figname, pad_inches=-1, box_inches='tight')
         if save and file_doc:
@@ -127,6 +128,7 @@ def plot_simplices3d(mesh, simplices, title=None, figname=None, file_doc=None, s
             hatch = '.' 
         #axes_simpplot3d(ax, mesh.points, mesh.triangles[i].reshape(1,-1), mesh.points[:,1] > 0)
         axes_simpplot3d(ax, mesh.points, mesh.triangles[i].reshape(1,-1))
+    fig.tight_layout()
     if title is not None:
         ax.set_title(title, horizontalalignment='center', verticalalignment='top', transform=ax.transAxes)
     if save and figname:
@@ -151,6 +153,7 @@ def plot_curves_approx3d(mesh, points, vertices, paths, figname=None, file_doc=N
         ax.set_title(title, horizontalalignment='center', verticalalignment='top', transform=ax.transAxes)
     for i, path in enumerate(paths):
         plot_curve_approx3d(mesh, points[i], vertices[i], path, color=colors[i], label=r"$T_{%d}$"%(i+1))
+    fig.tight_layout()
     if save and figname:
         plt.savefig('%s.png'%figname, box_inches='tight')
     if save and file_doc:
@@ -179,6 +182,9 @@ def plot_curve_approx3d(mesh, input_points, closest_vertices, path, title=None, 
 def plot_median3d(mesh, input_currents, t, title='', figname="", file_doc=None, save=True):
     '''
     Plots a median curve in a tetrahedralized mesh.
+    Find the following line in the code and uncomment if you want to plot median on mesh.
+    
+    ax.plot_trisurf(mesh.points[:,0], mesh.points[:,1], mesh.points[:,2], triangles=mesh.triangles,  color=(0.8, 0.9, 1), shade=False)
     '''
     colors= get_colors(len(input_currents))
     ax = plt.gca(projection='3d')
@@ -189,13 +195,14 @@ def plot_median3d(mesh, input_currents, t, title='', figname="", file_doc=None, 
     ax.set_ylim([m1, m2])
     ax.set_zlim([m1, m2])
     ax.set_aspect('equal')
+    # Uncomment it if you want to plot median on mesh
+    #ax.plot_trisurf(mesh.points[:,0], mesh.points[:,1], mesh.points[:,2], triangles=mesh.triangles,  color=(0.8, 0.9, 1), shade=False)
     for i, c in enumerate(input_currents):
         plot_curve3d(mesh, c, color=colors[i], label=r'$T_{%d}$'%(i+1), linewidth=5)
     plot_curve3d(mesh, t, label=r"$Median$")
-    '''
+    fig.tight_layout()
     plt.legend(loc='lower right')
-    plt.title(title, horizontalalignment='center', verticalalignment='top', transform=ax.transAxes)
-    '''
+    #plt.title(title, horizontalalignment='center', verticalalignment='top', transform=ax.transAxes)
     if save and figname:
         plt.savefig("%s.png"%figname, pad_inches=-1, box_inches='tight')
     if save and file_doc:
@@ -219,6 +226,7 @@ def plot_curve_and_median3d(mesh, input_currents, t, title=None, figname=None, f
         label=r'$T%d$'%(i+1))
         plot_curve3d(mesh, t, title, label='Median')
         plt.legend(loc='lower right')
+        fig.tight_layout()
         if save and figname:
             plt.savefig("%s-%d.png" % (figname, i), pad_inches=-1, box_inches='tight')
         if save and file_doc:
@@ -262,11 +270,11 @@ def plot_decomposition3d(mesh, input_currents, t, q, r, title='', figname=None, 
         plot_curve3d(mesh, input_currents[i], color='r', ls='--', \
                 label=r"$T_{%d}$"%(i+1), set_lim=set_lim)
 
-        #plt.legend(loc='lower right')
+        plt.legend(loc='lower right')
         if save and figname:
-
             plt.savefig("%s-%d.png" % (figname, i), pad_inches=-1, box_inches='tight')
         if save and file_doc:
             file_doc.savefig(fig)
         fig.tight_layout()
+        plt.axis("off")
         fig = plt.figure(figsize=(8,8))

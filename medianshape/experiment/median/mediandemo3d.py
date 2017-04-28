@@ -1,4 +1,5 @@
 #encoding: utf-8
+
 '''
 Median shape demo 3D
 --------------------
@@ -48,10 +49,11 @@ def mediandemo3d(outdir='data', save=True):
     fig = plt.figure(figsize=(8,8))
     figcount = 1
     mesh, simplices, subsimplices, points, lambdas, mus, is_closed \
-    = cases3d.equally_spaced_longitudes3d()
+    = cases3d.handle_loops_on_torus_surface3d()
+    #= cases3d.tunnel_loops_on_torus_surface3d()
+    #= cases3d.equally_spaced_longitudes3d()
     #= cases3d.torus_surface3d()
     #= cases3d.equally_spaced_longitudes3d()
-    #= cases3d.tunnel_loops_on_torus_surface3d()
     print mesh.get_info()
     if mesh.surf_points is None:
         title = mesh.get_info() 

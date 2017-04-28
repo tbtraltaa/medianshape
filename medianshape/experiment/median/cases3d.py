@@ -105,9 +105,9 @@ def torus_surface3d():
 
 def handle_loops_on_torus_surface3d():
     '''
-    Two handle loops on a solid torus.
+    Two handle loops on a surface of a torus which is hollow.
     '''
-    smesh = inout.load_mesh3d(dirname='data/torus')
+    smesh = inout.load_mesh3d(dirname='data/storus')
     bbox = [-1,-1,-0.2,1,1,0.2]
     l = 0.06
     radius = np.abs(bbox[3] - bbox[0])*1.0/2  
@@ -126,26 +126,25 @@ def handle_loops_on_torus_surface3d():
 
 def tunnel_loops_on_torus_surface3d():
     '''
-    Two tunnel loops on a solid torus.
+    Two tunnel loops on a surface of a torus which is not filled.
     '''
-    smesh = inout.load_mesh3d(dirname='data/torus')
+    mesh = inout.load_mesh3d(dirname='data/storus')
     bbox = [-1,-1,-0.2,1,1,0.2]
     l = 0.06
     radius = np.abs(bbox[3] - bbox[0])*1.0/2  
     r = 0.2
     R = 0.8
+    #mesh = meshgen3d(bbox, l, include_corners=False, shape="torus", R=R, r=r)
     loop1 = pointgen3d.horizontal_circle(R + r*np.cos(np.pi/6), n=10, center=(0,0, r*np.sin(np.pi/6)))
     loop2 = pointgen3d.horizontal_circle(R + r*np.cos(np.pi/3), n=10, center=(0,0,-r*np.sin(np.pi/3)))
     loop1 = pointgen3d.horizontal_circle(R-r, n=10, center=(0,0,0))
     loop2 = pointgen3d.horizontal_circle(radius, n=20, center=(0,0,0))
     shapes = [loop1, loop2]
     input_points  = np.array(shapes)
-    #lambdas = [0.001]
-    #mus = [0.00001]
     lambdas = [0.001]
     mus = [0.00001]
     is_closed = True
-    return smesh, smesh.triangles, smesh.edges, input_points, lambdas, mus, is_closed
+    return mesh, mesh.triangles, mesh.edges, input_points, lambdas, mus, is_closed
     
     
 def equally_spaced_longitudes3ds(): 
