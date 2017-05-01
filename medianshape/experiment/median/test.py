@@ -12,7 +12,7 @@ from scipy.spatial import Delaunay
 
 from medianshape.simplicial import pointgen3d, mesh
 from medianshape.simplicial.meshgen import meshgen2d, meshgen3d, get_mesh_surface
-import medianshape.experiment.inout as inout
+from medianshape import inout
 
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D

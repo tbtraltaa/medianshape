@@ -5,5 +5,4 @@
     median/median
     deform/deform
     msfn
-    inout
 

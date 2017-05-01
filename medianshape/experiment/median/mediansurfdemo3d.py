@@ -14,8 +14,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from medianshape.core import median
-from medianshape import utils
-import medianshape.experiment.inout as inout
+from medianshape import utils, inout
 
 def load_tetgen_mesh(fname):
     '''

@@ -19,8 +19,7 @@ solvers.options['feastol'] = 1e-10
 solvers.options['show_progress'] = False
 
 
-from medianshape import utils 
-import medianshape.experiment.inout as inout
+from medianshape import utils, inout
 
 def median(points, simplices, subsimplices, input_currents, lambda_, w=[], v=[], cons=[], mu=0.001, alphas=None):
     '''

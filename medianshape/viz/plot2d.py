@@ -160,7 +160,6 @@ def plot_decomposition2d(mesh, input_currents, t, q, r, title='', figname=None, 
         plt.gca().set_aspect('equal')
         if lim is None:
             lim = mesh.ymax*1.0/10
-        print lim
         plt.ylim([mesh.ymin-lim, mesh.ymax+lim])
         plt.xlim([mesh.xmin-lim, mesh.xmax+lim])
         plotmesh2d(mesh)

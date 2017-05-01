@@ -13,7 +13,7 @@ import numpy as np
 from scipy import sparse
 
 from medianshape import utils 
-import medianshape.experiment.inout as inout
+from medianshape import inout
 from medianshape.core.lp_solver import lp_solver
 
 def median(points, simplices, subsimplices, input_currents, lambda_, mu=0.001, w=[], v=[], cons=[], alphas=None):

@@ -10,9 +10,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from medianshape.core import median
-import medianshape.utils as utils 
+from medianshape import utils, inout
 from medianshape.viz import plot2d, plot3d
-import medianshape.experiment.inout as inout
 
 def rundeforms2d(mesh, simplices, subsimplices, input_currents, lambdas, mus, alphas, w=None, v=None, b_matrix=None, file_doc=None, save=True, outdir='data', figcount=2):
     '''

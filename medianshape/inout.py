@@ -1,3 +1,7 @@
+'''
+**Input/output methods**
+-------------------------
+'''
 
 import os.path
 

@@ -13,7 +13,7 @@ from medianshape.simplicial import pointgen3d
 from medianshape.simplicial.mesh import Mesh3D
 from medianshape.simplicial.meshgen import meshgen3d, distmesh3d, get_mesh_surface
 from medianshape.utils import get_subsimplices
-import medianshape.experiment.inout as inout
+from medianshape import inout
 
 def longitudes3ds():
     '''

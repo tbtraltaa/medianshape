@@ -196,7 +196,7 @@ def plot_median3d(mesh, input_currents, t, title='', figname="", file_doc=None, 
     ax.set_zlim([m1, m2])
     ax.set_aspect('equal')
     # Uncomment it if you want to plot median on mesh
-    #ax.plot_trisurf(mesh.points[:,0], mesh.points[:,1], mesh.points[:,2], triangles=mesh.triangles,  color=(0.8, 0.9, 1), shade=False)
+    #ax.plot_trisurf(mesh.points[:,0], mesh.points[:,1], mesh.points[:,2], triangles=mesh.triangles,  color=(0.8, 0.9, 1), shade=False, linewidth=0.7, edgecolor='gray')
     for i, c in enumerate(input_currents):
         plot_curve3d(mesh, c, color=colors[i], label=r'$T_{%d}$'%(i+1), linewidth=5)
     plot_curve3d(mesh, t, label=r"$Median$")

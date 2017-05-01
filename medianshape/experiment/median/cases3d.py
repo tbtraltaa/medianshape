@@ -11,7 +11,7 @@ import numpy as np
 
 from medianshape.simplicial import pointgen3d
 from medianshape.simplicial.meshgen import meshgen3d, get_mesh_surface
-import medianshape.experiment.inout as inout
+from medianshape import inout
 
 import matplotlib.pyplot as plt
 import medianshape.viz.plot3d as plot3d
@@ -117,8 +117,6 @@ def handle_loops_on_torus_surface3d():
     loop2 = pointgen3d.vertical_circle_xz(r, n=5, center=(R,0,0), theta=-np.pi/3)
     shapes = [loop1, loop2]
     input_points  = np.array(shapes)
-    #lambdas = [0.001]
-    #mus = [0.00001]
     lambdas = [0.001]
     mus = [0.00001]
     is_closed = True
