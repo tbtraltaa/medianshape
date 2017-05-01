@@ -87,6 +87,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../simplicial/simplicial-settings.html"><strong>Simplicial Settings</strong></a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../viz/viz.html"><strong>Visualization</strong></a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../utils.html"><strong>Utils</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../inout.html"><strong>Input/output methods</strong></a></li>
 </ul>
 
             
@@ -147,7 +148,7 @@
 <span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">sparse</span>
 
 <span class="kn">from</span> <span class="nn">medianshape</span> <span class="kn">import</span> <span class="n">utils</span> 
-<span class="kn">import</span> <span class="nn">medianshape.experiment.inout</span> <span class="kn">as</span> <span class="nn">inout</span>
+<span class="kn">from</span> <span class="nn">medianshape</span> <span class="kn">import</span> <span class="n">inout</span>
 <span class="kn">from</span> <span class="nn">medianshape.core.lp_solver</span> <span class="kn">import</span> <span class="n">lp_solver</span>
 
 <div class="viewcode-block" id="median"><a class="viewcode-back" href="../../../core/median.html#medianshape.core.median.median">[docs]</a><span class="k">def</span> <span class="nf">median</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">simplices</span><span class="p">,</span> <span class="n">subsimplices</span><span class="p">,</span> <span class="n">input_currents</span><span class="p">,</span> <span class="n">lambda_</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span> <span class="n">w</span><span class="o">=</span><span class="p">[],</span> <span class="n">v</span><span class="o">=</span><span class="p">[],</span> <span class="n">cons</span><span class="o">=</span><span class="p">[],</span> <span class="n">alphas</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>

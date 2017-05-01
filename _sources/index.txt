@@ -20,6 +20,7 @@ in simplicial settings using **simplicial flat norm distance**. It contains seve
     simplicial/simplicial-settings
     viz/viz
     utils
+    inout
 
 
 Indices and tables

@@ -144,58 +144,58 @@
   <div class="section" id="module-medianshape.experiment.inout">
 <span id="input-output-methods"></span><h1>Input/output methods<a class="headerlink" href="#module-medianshape.experiment.inout" title="Permalink to this headline">¶</a></h1>
 <dl class="function">
+<dt id="medianshape.experiment.inout.dump_lp">
+<code class="descclassname">medianshape.experiment.inout.</code><code class="descname">dump_lp</code><span class="sig-paren">(</span><em>A=None</em>, <em>b=None</em>, <em>c=None</em>, <em>dirname='/home/altaa/medianshape/docs/data/dumps'</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#medianshape.experiment.inout.dump_lp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves LP settings.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="medianshape.experiment.inout.load_input_currents">
+<code class="descclassname">medianshape.experiment.inout.</code><code class="descname">load_input_currents</code><span class="sig-paren">(</span><em>m_subsimplices</em>, <em>k</em>, <em>dirname='data/dumps'</em><span class="sig-paren">)</span><a class="headerlink" href="#medianshape.experiment.inout.load_input_currents" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads saved input currents from a directory given as dirname.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="medianshape.experiment.inout.load_lp">
+<code class="descclassname">medianshape.experiment.inout.</code><code class="descname">load_lp</code><span class="sig-paren">(</span><em>dirname='data/dumps'</em><span class="sig-paren">)</span><a class="headerlink" href="#medianshape.experiment.inout.load_lp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads a saved settings of Median shape LP such as c, A, b in sparse dok_matrix format from a directory given as dirname.</p>
+</dd></dl>
+
+<dl class="function">
 <dt id="medianshape.experiment.inout.load_mesh2d">
-<code class="descclassname">medianshape.experiment.inout.</code><code class="descname">load_mesh2d</code><span class="sig-paren">(</span><em>dirname='data/dumps'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/medianshape/experiment/inout.html#load_mesh2d"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#medianshape.experiment.inout.load_mesh2d" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">medianshape.experiment.inout.</code><code class="descname">load_mesh2d</code><span class="sig-paren">(</span><em>dirname='data/dumps'</em><span class="sig-paren">)</span><a class="headerlink" href="#medianshape.experiment.inout.load_mesh2d" title="Permalink to this definition">¶</a></dt>
 <dd><p>Loads previously computed  mesh in 2D, boundary matrix, input currents, w and v
 from a directory given as dirname.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="medianshape.experiment.inout.load_mesh3d">
-<code class="descclassname">medianshape.experiment.inout.</code><code class="descname">load_mesh3d</code><span class="sig-paren">(</span><em>dirname='data/dumps'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/medianshape/experiment/inout.html#load_mesh3d"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#medianshape.experiment.inout.load_mesh3d" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">medianshape.experiment.inout.</code><code class="descname">load_mesh3d</code><span class="sig-paren">(</span><em>dirname='data/dumps'</em><span class="sig-paren">)</span><a class="headerlink" href="#medianshape.experiment.inout.load_mesh3d" title="Permalink to this definition">¶</a></dt>
 <dd><p>Loads previously computed  mesh in 3D, boundary matrix, input currents, w and v
 from a directory given as dirname.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="medianshape.experiment.inout.load_weights_and_boundary">
-<code class="descclassname">medianshape.experiment.inout.</code><code class="descname">load_weights_and_boundary</code><span class="sig-paren">(</span><em>n_simplices</em>, <em>m_subsimplices</em>, <em>dirname='data/dumps'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/medianshape/experiment/inout.html#load_weights_and_boundary"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#medianshape.experiment.inout.load_weights_and_boundary" title="Permalink to this definition">¶</a></dt>
-<dd><p>Loads saved w and v from a directory given as dirname.</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="medianshape.experiment.inout.load_input_currents">
-<code class="descclassname">medianshape.experiment.inout.</code><code class="descname">load_input_currents</code><span class="sig-paren">(</span><em>m_subsimplices</em>, <em>k</em>, <em>dirname='data/dumps'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/medianshape/experiment/inout.html#load_input_currents"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#medianshape.experiment.inout.load_input_currents" title="Permalink to this definition">¶</a></dt>
-<dd><p>Loads saved input currents from a directory given as dirname.</p>
-</dd></dl>
-
-<dl class="function">
 <dt id="medianshape.experiment.inout.load_solutions">
-<code class="descclassname">medianshape.experiment.inout.</code><code class="descname">load_solutions</code><span class="sig-paren">(</span><em>n_simplices</em>, <em>m_subsimplices</em>, <em>k</em>, <em>dirname='data/dumps'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/medianshape/experiment/inout.html#load_solutions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#medianshape.experiment.inout.load_solutions" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">medianshape.experiment.inout.</code><code class="descname">load_solutions</code><span class="sig-paren">(</span><em>n_simplices</em>, <em>m_subsimplices</em>, <em>k</em>, <em>dirname='data/dumps'</em><span class="sig-paren">)</span><a class="headerlink" href="#medianshape.experiment.inout.load_solutions" title="Permalink to this definition">¶</a></dt>
 <dd><p>Loads saved median shape solution from a directory given as dirname.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="medianshape.experiment.inout.load_lp">
-<code class="descclassname">medianshape.experiment.inout.</code><code class="descname">load_lp</code><span class="sig-paren">(</span><em>dirname='data/dumps'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/medianshape/experiment/inout.html#load_lp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#medianshape.experiment.inout.load_lp" title="Permalink to this definition">¶</a></dt>
-<dd><p>Loads a saved settings of Median shape LP such as c, A, b in sparse dok_matrix format from a directory given as dirname.</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="medianshape.experiment.inout.dump_lp">
-<code class="descclassname">medianshape.experiment.inout.</code><code class="descname">dump_lp</code><span class="sig-paren">(</span><em>A=None</em>, <em>b=None</em>, <em>c=None</em>, <em>dirname='/home/altaa/medianshape/docs/data/dumps'</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/medianshape/experiment/inout.html#dump_lp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#medianshape.experiment.inout.dump_lp" title="Permalink to this definition">¶</a></dt>
-<dd><p>Saves LP settings.</p>
+<dt id="medianshape.experiment.inout.load_weights_and_boundary">
+<code class="descclassname">medianshape.experiment.inout.</code><code class="descname">load_weights_and_boundary</code><span class="sig-paren">(</span><em>n_simplices</em>, <em>m_subsimplices</em>, <em>dirname='data/dumps'</em><span class="sig-paren">)</span><a class="headerlink" href="#medianshape.experiment.inout.load_weights_and_boundary" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads saved w and v from a directory given as dirname.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="medianshape.experiment.inout.save_data">
-<code class="descclassname">medianshape.experiment.inout.</code><code class="descname">save_data</code><span class="sig-paren">(</span><em>mesh=None</em>, <em>input_currents=None</em>, <em>b_matrix=None</em>, <em>w=None</em>, <em>v=None</em>, <em>t=None</em>, <em>q=None</em>, <em>r=None</em>, <em>dirname='/home/altaa/medianshape/docs/data/dumps'</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/medianshape/experiment/inout.html#save_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#medianshape.experiment.inout.save_data" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">medianshape.experiment.inout.</code><code class="descname">save_data</code><span class="sig-paren">(</span><em>mesh=None</em>, <em>input_currents=None</em>, <em>b_matrix=None</em>, <em>w=None</em>, <em>v=None</em>, <em>t=None</em>, <em>q=None</em>, <em>r=None</em>, <em>dirname='/home/altaa/medianshape/docs/data/dumps'</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#medianshape.experiment.inout.save_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Saves mesh, input currents, boundary matrix, w and v.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="medianshape.experiment.inout.sparse_savetxt">
-<code class="descclassname">medianshape.experiment.inout.</code><code class="descname">sparse_savetxt</code><span class="sig-paren">(</span><em>fname</em>, <em>matrix</em>, <em>fmt='%d'</em>, <em>include_dim=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/medianshape/experiment/inout.html#sparse_savetxt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#medianshape.experiment.inout.sparse_savetxt" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">medianshape.experiment.inout.</code><code class="descname">sparse_savetxt</code><span class="sig-paren">(</span><em>fname</em>, <em>matrix</em>, <em>fmt='%d'</em>, <em>include_dim=False</em><span class="sig-paren">)</span><a class="headerlink" href="#medianshape.experiment.inout.sparse_savetxt" title="Permalink to this definition">¶</a></dt>
 <dd><p>Saves sparse matrix as text. if the input is not sparse, set is_sparse argument to False.</p>
 </dd></dl>
 
