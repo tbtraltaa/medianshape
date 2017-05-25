@@ -322,21 +322,17 @@
     <span class="c1"># l - initial length of triangle sides. Change it to vary traingle size</span>
     <span class="c1">#boundary_box = [-10,-10,-10,10,10,10]</span>
     <span class="n">boundary_box</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">]</span>
-    <span class="n">l</span> <span class="o">=</span> <span class="mi">2</span> 
+    <span class="n">l</span> <span class="o">=</span> <span class="mi">2</span>
     <span class="n">mesh</span> <span class="o">=</span> <span class="n">meshgen3d</span><span class="p">(</span><span class="n">boundary_box</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">include_corners</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="s1">&#39;ball&#39;</span><span class="p">)</span>
-    <span class="c1">#inout.save_data(mesh, dirname=os.path.abspath(&quot;data/mesh_0.8&quot;))</span>
-    <span class="c1">#print &quot;saved&quot;</span>
-    <span class="c1">#mesh = inout.load_mesh3d(dirname=&#39;data/mesh&#39;)</span>
-    <span class="c1">#mesh  = inout.load_mesh3d(dirname=&#39;data/mesh&#39;)</span>
+    <span class="c1">#inout.save_data(mesh, dirname=os.path.abspath(&quot;data/mesh_2&quot;))</span>
+    <span class="c1">#mesh  = inout.load_mesh3d(dirname=&#39;data/mesh_2&#39;)</span>
     <span class="n">curve1</span> <span class="o">=</span> <span class="n">pointgen3d</span><span class="o">.</span><span class="n">sphere_arc</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">bbox</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
     <span class="n">curve2</span> <span class="o">=</span> <span class="n">pointgen3d</span><span class="o">.</span><span class="n">sphere_arc</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">bbox</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">3</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
     <span class="n">curve3</span> <span class="o">=</span> <span class="n">pointgen3d</span><span class="o">.</span><span class="n">sphere_arc</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">bbox</span><span class="p">,</span> <span class="mi">4</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">3</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
     <span class="n">shapes</span> <span class="o">=</span> <span class="p">[</span><span class="n">curve1</span><span class="p">,</span> <span class="n">curve2</span><span class="p">,</span> <span class="n">curve3</span><span class="p">]</span>
     <span class="n">input_points</span>  <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">shapes</span><span class="p">)</span>
-    <span class="c1">#lambdas = [0.001]</span>
-    <span class="c1">#mus = [0.00001]</span>
     <span class="n">lambdas</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.001</span><span class="p">]</span>
-    <span class="n">mus</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.0001</span><span class="p">]</span>
+    <span class="n">mus</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.00001</span><span class="p">]</span>
     <span class="n">is_closed</span> <span class="o">=</span> <span class="bp">False</span>
     <span class="k">return</span> <span class="n">mesh</span><span class="p">,</span> <span class="n">mesh</span><span class="o">.</span><span class="n">triangles</span><span class="p">,</span> <span class="n">mesh</span><span class="o">.</span><span class="n">edges</span><span class="p">,</span> <span class="n">input_points</span><span class="p">,</span> <span class="n">lambdas</span><span class="p">,</span> <span class="n">mus</span><span class="p">,</span> <span class="n">is_closed</span></div>
 
