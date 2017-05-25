@@ -90,7 +90,7 @@ def longitudes3ds_finer():
     is_closed = False
     alpha2 = np.array([0])
     alpha2 = np.append(alpha2, np.linspace(0.4999, 0.5, 3))
-    alpha2 = np.append(alpha2, np.linspace(0.500001, 0.50001, 10))
+    alpha2 = np.append(alpha2, np.linspace(0.500001, 0.50001, 50))
     alpha2 = np.append(alpha2, np.array([1]))
     alpha2 = alpha2.reshape(alpha2.size, 1) 
     alpha1 = (1-alpha2).reshape(alpha2.size, 1)

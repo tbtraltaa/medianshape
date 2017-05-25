@@ -49,9 +49,9 @@ def mediandemo3d(outdir='data', save=True):
     fig = plt.figure(figsize=(8,8))
     figcount = 1
     mesh, simplices, subsimplices, points, lambdas, mus, is_closed \
-    = cases3d.tunnel_loops_on_torus_surface3d()
+    = cases3d.equally_spaced_longitudes3d()
+    #= cases3d.tunnel_loops_on_torus_surface3d()
     #= cases3d.handle_loops_on_torus_surface3d()
-    #= cases3d.equally_spaced_longitudes3d()
     #= cases3d.torus_surface3d()
     #= cases3d.equally_spaced_longitudes3d()
     print mesh.get_info()
@@ -77,6 +77,7 @@ def mediandemo3d(outdir='data', save=True):
         pdf_file.close()
     elapsed = time.time() - start
     print 'Elapsed time %f mins.' % (elapsed/60)
+    plt.show()
 
 if __name__ == '__main__':
     mediandemo3d(save=True)

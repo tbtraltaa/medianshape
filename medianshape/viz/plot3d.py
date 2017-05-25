@@ -122,12 +122,15 @@ def plot_simplices3d(mesh, simplices, title=None, figname=None, file_doc=None, s
     ax.set_aspect('equal')
     #ccw_symbol = u'\u2941'
     #cw_symbol = u'\u21BB'
+    triangles = mesh.triangles[simplices.nonzero()[0]].reshape(-1,3)
+    ax.plot_trisurf(mesh.points[:,0], mesh.points[:,1], mesh.points[:,2], triangles=triangles,  color=(0.8, 0.9, 1), shade=False, linewidth=0.2, edgecolor='gray')
+
+    '''
+    #Alternative method for the previous two lines to plot the simplices
     for i in simplices.nonzero()[0]:
-        hatch = ''
-        if simplices[i] == -1:
-            hatch = '.' 
         #axes_simpplot3d(ax, mesh.points, mesh.triangles[i].reshape(1,-1), mesh.points[:,1] > 0)
         axes_simpplot3d(ax, mesh.points, mesh.triangles[i].reshape(1,-1))
+    '''
     fig.tight_layout()
     if title is not None:
         ax.set_title(title, horizontalalignment='center', verticalalignment='top', transform=ax.transAxes)
@@ -164,20 +167,16 @@ def plot_curve_approx3d(mesh, input_points, closest_vertices, path, title=None, 
     Plots a curve described as points along with a corresponding interpolated curve in a tetrahedralized mesh.
     '''
     ax = plt.gca(projection='3d')
-    #ax.plot(input_points[:,0], input_points[:,1], input_points[:,2], c=color, ls="--", label='Input points')
-    ax.plot(input_points[:,0], input_points[:,1], input_points[:,2], c=color, ls="--")
+    ax.plot(input_points[:,0], input_points[:,1], input_points[:,2], c=color, ls="--", label='Input points')
     if title is not None:
         ax.set_title(title, horizontalalignment='center', verticalalignment='top', transform=ax.transAxes)
     for i, edge in enumerate(path):
         points = mesh.points[edge]
         if len(path) != 1:
             ax.plot(points[:,0], points[:,1], points[:,2], c=color, linewidth=linewidth, label=label if i==0 else "")
-    #ax.scatter(mesh.points[closest_vertices][:,0], mesh.points[closest_vertices][:,1], mesh.points[closest_vertices][:,2], s=100, c=color, label="Closest vertices")
-    ax.scatter(mesh.points[closest_vertices][:,0], mesh.points[closest_vertices][:,1], mesh.points[closest_vertices][:,2], s=100, c=color)
+    ax.scatter(mesh.points[closest_vertices][:,0], mesh.points[closest_vertices][:,1], mesh.points[closest_vertices][:,2], s=100, c=color, label="Closest vertices")
     ax.scatter(input_points[:,0], input_points[:,1], input_points[:,2], c=color)
-    '''
-    plt.legend(loc='lower right')
-    '''
+    #plt.legend(loc='lower right')
 
 def plot_median3d(mesh, input_currents, t, title='', figname="", file_doc=None, save=True):
     '''
@@ -196,12 +195,12 @@ def plot_median3d(mesh, input_currents, t, title='', figname="", file_doc=None, 
     ax.set_zlim([m1, m2])
     ax.set_aspect('equal')
     # Uncomment it if you want to plot median on mesh
-    #ax.plot_trisurf(mesh.points[:,0], mesh.points[:,1], mesh.points[:,2], triangles=mesh.triangles,  color=(0.8, 0.9, 1), shade=False, linewidth=0.7, edgecolor='gray')
+    ax.plot_trisurf(mesh.points[:,0], mesh.points[:,1], mesh.points[:,2], triangles=mesh.triangles,  color=(0.8, 0.9, 1), shade=False, linewidth=0.2, edgecolor='gray')
     for i, c in enumerate(input_currents):
         plot_curve3d(mesh, c, color=colors[i], label=r'$T_{%d}$'%(i+1), linewidth=5)
     plot_curve3d(mesh, t, label=r"$Median$")
     fig.tight_layout()
-    plt.legend(loc='lower right')
+    #plt.legend(loc='lower right')
     #plt.title(title, horizontalalignment='center', verticalalignment='top', transform=ax.transAxes)
     if save and figname:
         plt.savefig("%s.png"%figname, pad_inches=-1, box_inches='tight')
@@ -270,7 +269,7 @@ def plot_decomposition3d(mesh, input_currents, t, q, r, title='', figname=None, 
         plot_curve3d(mesh, input_currents[i], color='r', ls='--', \
                 label=r"$T_{%d}$"%(i+1), set_lim=set_lim)
 
-        plt.legend(loc='lower right')
+        #plt.legend(loc='lower right')
         if save and figname:
             plt.savefig("%s-%d.png" % (figname, i), pad_inches=-1, box_inches='tight')
         if save and file_doc:

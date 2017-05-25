@@ -118,7 +118,8 @@ def plot_median2d(mesh, input_currents, t, title='', figname="", file_doc=None, 
     for i, c in enumerate(input_currents):
         plot_curve2d(mesh,  c, color=colors[i], label=r'$T_{%d}$'%(i+1), linewidth=5)
     plot_curve2d(mesh, t, title, label=r'$Median$')
-    plt.legend(loc='lower right')
+    #Uncomment to show the legend
+    #plt.legend(loc='lower right')
     plt.tight_layout()
     if save and figname:
         plt.savefig("%s.png"%figname, dpi=fig.dpi)
@@ -170,6 +171,7 @@ def plot_decomposition2d(mesh, input_currents, t, q, r, title='', figname=None, 
         plot_curve2d(mesh, input_currents[i], color='r', ls='--', label=r'$T_{%d}$'%(i+1))
         if t is not None:
             plot_curve2d(mesh, t, linewidth=4, label=r'$T$')
+        #Uncomment to show the legend
         #plt.legend(loc='lower right')
         plt.tight_layout()
         if save and figname:
