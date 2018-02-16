@@ -208,7 +208,7 @@
 <span class="sd">    &#39;&#39;&#39;</span>
     <span class="k">return</span> <span class="n">smesh</span></div>
 
-<div class="viewcode-block" id="meshgen2d"><a class="viewcode-back" href="../../../simplicial/meshgen.html#medianshape.simplicial.meshgen.meshgen2d">[docs]</a><span class="k">def</span> <span class="nf">meshgen2d</span><span class="p">(</span><span class="n">bbox</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">l</span><span class="o">=</span><span class="mf">0.02</span><span class="p">,</span> <span class="n">fixed_points</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">include_corners</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+<div class="viewcode-block" id="meshgen2d"><a class="viewcode-back" href="../../../simplicial/meshgen.html#medianshape.simplicial.meshgen.meshgen2d">[docs]</a><span class="k">def</span> <span class="nf">meshgen2d</span><span class="p">(</span><span class="n">bbox</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">fixed_points</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">include_corners</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Generates a simplical complex K of dimension 2, a triangulated mesh.</span>
 
@@ -223,7 +223,7 @@
     <span class="c1">#l - initial length of triangle sides. Change it to vary traingle size</span>
     <span class="n">mesh</span><span class="o">.</span><span class="n">bbox</span> <span class="o">=</span> <span class="n">bbox</span>
     <span class="n">mesh</span><span class="o">.</span><span class="n">set_boundary_points</span><span class="p">()</span>
-    <span class="n">mesh</span><span class="o">.</span><span class="n">set_diagonal</span><span class="p">()</span>
+    <span class="n">mesh</span><span class="o">.</span><span class="n">set_diagonal</span><span class="p">()</span> 
     <span class="n">mesh</span><span class="o">.</span><span class="n">set_boundary_values</span><span class="p">()</span>
     <span class="n">mesh</span><span class="o">.</span><span class="n">fixed_points</span> <span class="o">=</span> <span class="n">fixed_points</span>
     <span class="k">if</span> <span class="n">include_corners</span><span class="p">:</span>
@@ -236,7 +236,7 @@
     <span class="n">mesh</span><span class="o">.</span><span class="n">orient_simplices_2D</span><span class="p">()</span>
     <span class="k">return</span> <span class="n">mesh</span></div>
 
-<div class="viewcode-block" id="meshgen3d"><a class="viewcode-back" href="../../../simplicial/meshgen.html#medianshape.simplicial.meshgen.meshgen3d">[docs]</a><span class="k">def</span> <span class="nf">meshgen3d</span><span class="p">(</span><span class="n">bbox</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">l</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">fixed_points</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">include_corners</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">load_data</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="s2">&quot;ball&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="meshgen3d"><a class="viewcode-back" href="../../../simplicial/meshgen.html#medianshape.simplicial.meshgen.meshgen3d">[docs]</a><span class="k">def</span> <span class="nf">meshgen3d</span><span class="p">(</span><span class="n">bbox</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">fixed_points</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">include_corners</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">load_data</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="s2">&quot;ball&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Generates a simplical complex K of dimension 3, a tetrahedralized mesh.</span>
 
@@ -295,7 +295,7 @@
 <span class="c1">#    mesh = build(mesh_info, volume_constraints=True, max_volume=max_volume)</span>
 <span class="c1">#    return np.array(mesh.points), np.array(mesh.elements)</span>
 
-<div class="viewcode-block" id="distmesh2d"><a class="viewcode-back" href="../../../simplicial/meshgen.html#medianshape.simplicial.meshgen.distmesh2d">[docs]</a><span class="k">def</span> <span class="nf">distmesh2d</span><span class="p">(</span><span class="n">bbox</span><span class="p">,</span> <span class="n">l</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">fixed_points</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="s2">&quot;square&quot;</span><span class="p">):</span>
+<div class="viewcode-block" id="distmesh2d"><a class="viewcode-back" href="../../../simplicial/meshgen.html#medianshape.simplicial.meshgen.distmesh2d">[docs]</a><span class="k">def</span> <span class="nf">distmesh2d</span><span class="p">(</span><span class="n">bbox</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">fixed_points</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="s2">&quot;square&quot;</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Generates a simplical complex K of dimension 2, a triangulated mesh.</span>
 
@@ -346,7 +346,7 @@
         <span class="n">points</span><span class="p">,</span> <span class="n">simplices</span><span class="o">=</span><span class="n">dm</span><span class="o">.</span><span class="n">distmeshnd</span><span class="p">(</span><span class="n">dist_function</span><span class="p">,</span> <span class="n">dm</span><span class="o">.</span><span class="n">huniform</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">bbox</span><span class="p">,</span> <span class="n">fig</span><span class="o">=</span><span class="bp">None</span><span class="p">);</span>
     <span class="k">return</span> <span class="n">points</span><span class="p">,</span> <span class="n">simplices</span></div>
 
-<div class="viewcode-block" id="square_mesh"><a class="viewcode-back" href="../../../simplicial/meshgen.html#medianshape.simplicial.meshgen.square_mesh">[docs]</a><span class="k">def</span> <span class="nf">square_mesh</span><span class="p">(</span><span class="n">bbox</span><span class="p">,</span> <span class="n">l</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">fixed_points</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<div class="viewcode-block" id="square_mesh"><a class="viewcode-back" href="../../../simplicial/meshgen.html#medianshape.simplicial.meshgen.square_mesh">[docs]</a><span class="k">def</span> <span class="nf">square_mesh</span><span class="p">(</span><span class="n">bbox</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">fixed_points</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Generates a simplical complex K of dimension 2, a triangulated mesh,</span>
 <span class="sd">    with square shape using Distmesh.</span>
@@ -362,7 +362,7 @@
     <span class="n">points</span><span class="p">,</span> <span class="n">triangles</span> <span class="o">=</span> <span class="n">dm</span><span class="o">.</span><span class="n">distmesh2d</span><span class="p">(</span><span class="n">dist_function</span><span class="p">,</span> <span class="n">dm</span><span class="o">.</span><span class="n">huniform</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">bbox</span><span class="p">,</span> <span class="n">fixed_points</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">points</span><span class="p">,</span> <span class="n">triangles</span> </div>
 
-<div class="viewcode-block" id="cuboid_mesh"><a class="viewcode-back" href="../../../simplicial/meshgen.html#medianshape.simplicial.meshgen.cuboid_mesh">[docs]</a><span class="k">def</span> <span class="nf">cuboid_mesh</span><span class="p">(</span><span class="n">bbox</span><span class="p">,</span> <span class="n">l</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">fixed_points</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<div class="viewcode-block" id="cuboid_mesh"><a class="viewcode-back" href="../../../simplicial/meshgen.html#medianshape.simplicial.meshgen.cuboid_mesh">[docs]</a><span class="k">def</span> <span class="nf">cuboid_mesh</span><span class="p">(</span><span class="n">bbox</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">fixed_points</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Generates tetrahedral mesh in 3D using DistMesh with cubic shape using Distmesh.</span>
 
@@ -414,7 +414,7 @@
     <span class="n">d</span><span class="p">[</span><span class="n">ix</span><span class="p">]</span> <span class="o">=</span> <span class="n">d245</span><span class="p">[</span><span class="n">ix</span><span class="p">]</span>
     <span class="n">ix</span> <span class="o">=</span> <span class="p">(</span><span class="n">d2</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">d4</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">d4</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">)</span>
     <span class="n">d</span><span class="p">[</span><span class="n">ix</span><span class="p">]</span> <span class="o">=</span> <span class="n">d246</span><span class="p">[</span><span class="n">ix</span><span class="p">]</span>
-    <span class="k">return</span> <span class="n">d</span></div>
+    <span class="k">return</span> </div>
 </pre></div>
 
            </div>

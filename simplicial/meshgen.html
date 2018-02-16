@@ -98,6 +98,7 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../viz/viz.html"><strong>Visualization</strong></a></li>
 <li class="toctree-l1"><a class="reference internal" href="../utils.html"><strong>Utils</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../inout.html"><strong>Input/output methods</strong></a></li>
 </ul>
 
             
@@ -154,7 +155,7 @@
 
 <dl class="function">
 <dt id="medianshape.simplicial.meshgen.meshgen2d">
-<code class="descclassname">medianshape.simplicial.meshgen.</code><code class="descname">meshgen2d</code><span class="sig-paren">(</span><em>bbox=None</em>, <em>l=0.02</em>, <em>fixed_points=None</em>, <em>include_corners=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/medianshape/simplicial/meshgen.html#meshgen2d"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#medianshape.simplicial.meshgen.meshgen2d" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">medianshape.simplicial.meshgen.</code><code class="descname">meshgen2d</code><span class="sig-paren">(</span><em>bbox</em>, <em>l</em>, <em>fixed_points=None</em>, <em>include_corners=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/medianshape/simplicial/meshgen.html#meshgen2d"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#medianshape.simplicial.meshgen.meshgen2d" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generates a simplical complex K of dimension 2, a triangulated mesh.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -180,7 +181,7 @@
 
 <dl class="function">
 <dt id="medianshape.simplicial.meshgen.meshgen3d">
-<code class="descclassname">medianshape.simplicial.meshgen.</code><code class="descname">meshgen3d</code><span class="sig-paren">(</span><em>bbox=None</em>, <em>l=0.2</em>, <em>fixed_points=None</em>, <em>include_corners=True</em>, <em>load_data=False</em>, <em>shape='ball'</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/medianshape/simplicial/meshgen.html#meshgen3d"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#medianshape.simplicial.meshgen.meshgen3d" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">medianshape.simplicial.meshgen.</code><code class="descname">meshgen3d</code><span class="sig-paren">(</span><em>bbox</em>, <em>l</em>, <em>fixed_points=None</em>, <em>include_corners=True</em>, <em>load_data=False</em>, <em>shape='ball'</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/medianshape/simplicial/meshgen.html#meshgen3d"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#medianshape.simplicial.meshgen.meshgen3d" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generates a simplical complex K of dimension 3, a tetrahedralized mesh.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -231,7 +232,7 @@
 
 <dl class="function">
 <dt id="medianshape.simplicial.meshgen.distmesh2d">
-<code class="descclassname">medianshape.simplicial.meshgen.</code><code class="descname">distmesh2d</code><span class="sig-paren">(</span><em>bbox</em>, <em>l=0.1</em>, <em>fixed_points=None</em>, <em>shape='square'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/medianshape/simplicial/meshgen.html#distmesh2d"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#medianshape.simplicial.meshgen.distmesh2d" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">medianshape.simplicial.meshgen.</code><code class="descname">distmesh2d</code><span class="sig-paren">(</span><em>bbox</em>, <em>l</em>, <em>fixed_points=None</em>, <em>shape='square'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/medianshape/simplicial/meshgen.html#distmesh2d"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#medianshape.simplicial.meshgen.distmesh2d" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generates a simplical complex K of dimension 2, a triangulated mesh.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -277,7 +278,7 @@
 
 <dl class="function">
 <dt id="medianshape.simplicial.meshgen.square_mesh">
-<code class="descclassname">medianshape.simplicial.meshgen.</code><code class="descname">square_mesh</code><span class="sig-paren">(</span><em>bbox</em>, <em>l=0.1</em>, <em>fixed_points=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/medianshape/simplicial/meshgen.html#square_mesh"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#medianshape.simplicial.meshgen.square_mesh" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">medianshape.simplicial.meshgen.</code><code class="descname">square_mesh</code><span class="sig-paren">(</span><em>bbox</em>, <em>l</em>, <em>fixed_points=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/medianshape/simplicial/meshgen.html#square_mesh"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#medianshape.simplicial.meshgen.square_mesh" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generates a simplical complex K of dimension 2, a triangulated mesh,
 with square shape using Distmesh.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -300,7 +301,7 @@ with square shape using Distmesh.</p>
 
 <dl class="function">
 <dt id="medianshape.simplicial.meshgen.cuboid_mesh">
-<code class="descclassname">medianshape.simplicial.meshgen.</code><code class="descname">cuboid_mesh</code><span class="sig-paren">(</span><em>bbox</em>, <em>l=0.1</em>, <em>fixed_points=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/medianshape/simplicial/meshgen.html#cuboid_mesh"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#medianshape.simplicial.meshgen.cuboid_mesh" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">medianshape.simplicial.meshgen.</code><code class="descname">cuboid_mesh</code><span class="sig-paren">(</span><em>bbox</em>, <em>l</em>, <em>fixed_points=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/medianshape/simplicial/meshgen.html#cuboid_mesh"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#medianshape.simplicial.meshgen.cuboid_mesh" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generates tetrahedral mesh in 3D using DistMesh with cubic shape using Distmesh.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
