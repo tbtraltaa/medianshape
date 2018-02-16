@@ -49,17 +49,11 @@ def runmedians2d(mesh, simplices, subsimplices, input_currents, lambdas, mus, w=
             input_currents, l, mu=mu, w=w, v=v, cons=cons)
             if save:
                 inout.save_data(t=t, lambda_=l, mu=mu)
-            #title = r"$\lambda=%.06f$, $\mu=%.06f$" % (l, mu)
             title = ''
             figname = '%s/figures/%d'%(outdir, figcount)
             plot2d.plot_median2d(mesh, input_currents, t, title, figname, file_doc, save=save)
             #plt.show()
             figcount += 1
-
-            #figname = '%s/figures/%d-%.04f-%.04f'%(outdir, figcount, l, mu)
-            #plot2d.plot_curve_and_median2d(mesh, input_currents, t, title, \
-            #figname, file_doc, save=save)
-            #figcount += input_currents.shape[0]
 
             figname = '%s/figures/%d'%(outdir, figcount)
             plot2d.plot_decomposition2d(mesh, input_currents, t, q, r, title, \
@@ -115,11 +109,6 @@ def runmedians3d(mesh, simplices, subsimplices, input_currents, lambdas, mus, w=
             #plt.show()
             fig = plt.figure(figsize=(8,8))
             figcount += 1
-
-            #figname = '%s/figures/%d-%s-%.04f-%.04f'%(outdir, figcount, l, mu)
-            #plotting.plot_curve_and_median3d(mesh, input_currents, comb, t, title, \
-            #figname, file_doc, save)
-            #figcount += input_currents.shape[0]
 
             figname = '%s/figures/%d'%(outdir, figcount)
             plot3d.plot_decomposition3d(mesh, input_currents, t, q, r, title, \

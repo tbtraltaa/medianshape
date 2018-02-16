@@ -38,7 +38,7 @@ def mediandemo3d(outdir='data', save=True):
     Median shape demo in 3D. The experiment case is chosen from 'medianshape.cases3d'.
     Given the experiment case, it gets input currents from the input curves by pushing
     the underlying simplicial complex. Then input the simplicial setting to Median LP which
-    solves median current. The experiment result is saved in outdir.
+    solves median current. The experiment result is saved in a given output directory(data).
     '''
     lp_times = list()
     start = time.time()

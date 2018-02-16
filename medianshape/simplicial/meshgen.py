@@ -73,7 +73,7 @@ def get_mesh_surface(mesh):
     '''
     return smesh
 
-def meshgen2d(bbox=None, l=0.02, fixed_points=None, include_corners=True):
+def meshgen2d(bbox, l, fixed_points=None, include_corners=True):
     '''
     Generates a simplical complex K of dimension 2, a triangulated mesh.
 
@@ -88,7 +88,7 @@ def meshgen2d(bbox=None, l=0.02, fixed_points=None, include_corners=True):
     #l - initial length of triangle sides. Change it to vary traingle size
     mesh.bbox = bbox
     mesh.set_boundary_points()
-    mesh.set_diagonal()
+    mesh.set_diagonal() 
     mesh.set_boundary_values()
     mesh.fixed_points = fixed_points
     if include_corners:
@@ -101,7 +101,7 @@ def meshgen2d(bbox=None, l=0.02, fixed_points=None, include_corners=True):
     mesh.orient_simplices_2D()
     return mesh
 
-def meshgen3d(bbox=None, l=0.2, fixed_points=None, include_corners=True, load_data=False, shape="ball", **kwargs):
+def meshgen3d(bbox, l, fixed_points=None, include_corners=True, load_data=False, shape="ball", **kwargs):
     '''
     Generates a simplical complex K of dimension 3, a tetrahedralized mesh.
 
@@ -160,7 +160,7 @@ def scipy_mesh3d(bbox, l, fixed_points):
 #    mesh = build(mesh_info, volume_constraints=True, max_volume=max_volume)
 #    return np.array(mesh.points), np.array(mesh.elements)
 
-def distmesh2d(bbox, l=0.1, fixed_points=None, shape="square"):
+def distmesh2d(bbox, l, fixed_points=None, shape="square"):
     '''
     Generates a simplical complex K of dimension 2, a triangulated mesh.
 
@@ -211,7 +211,7 @@ def distmesh3d(bbox, l=0.1, fixed_points=None, shape="ball", **kwargs):
         points, simplices=dm.distmeshnd(dist_function, dm.huniform, l, bbox, fig=None);
     return points, simplices
 
-def square_mesh(bbox, l=0.1, fixed_points=None):
+def square_mesh(bbox, l, fixed_points=None):
     '''
     Generates a simplical complex K of dimension 2, a triangulated mesh,
     with square shape using Distmesh.
@@ -227,7 +227,7 @@ def square_mesh(bbox, l=0.1, fixed_points=None):
     points, triangles = dm.distmesh2d(dist_function, dm.huniform, l, bbox, fixed_points)
     return points, triangles 
 
-def cuboid_mesh(bbox, l=0.1, fixed_points=None):
+def cuboid_mesh(bbox, l, fixed_points=None):
     '''
     Generates tetrahedral mesh in 3D using DistMesh with cubic shape using Distmesh.
 
@@ -279,4 +279,4 @@ def dcuboid(p, x1, y1, z1, x2, y2, z2):
     d[ix] = d245[ix]
     ix = (d2>0)*(d4>0)*(d4>0)
     d[ix] = d246[ix]
-    return d
+    return 

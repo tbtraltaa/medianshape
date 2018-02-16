@@ -21,7 +21,7 @@ def mediandemo2d(outdir='data', save=True):
     Median shape demo in 2D. The experiment case is chosen from 'medianshape.cases2d'.
     Given the experiment case, it gets input currents from the input curves by pushing
     the underlying simplicial complex. Then input the simplicial setting to Median LP which
-    solves median current. The experiment result is saved in outdir.
+    solves median current. The experiment result is saved in an output directory(data)'.
 
     '''
     lp_times = list()
