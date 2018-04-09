@@ -121,7 +121,7 @@ def sinuses2d():
     is_closed = False
     return mesh, mesh.simplices, mesh.edges, points, lambdas, mus, is_closed
 
-def multicurves2d():
+def multicurves2d(n=25):
     '''
     3 curves described by curve1, curve2, curve3 functions defined in 'medianshape.simplicial.utils'.
     '''
@@ -131,7 +131,7 @@ def multicurves2d():
     functions= ['curve1', 'curve2', 'curve3']
     points = list()
     for f in functions:
-        points.append(pointgen2d.sample_function(f, boundary_box, 25))
+        points.append(pointgen2d.sample_function(f, boundary_box, n))
     lambdas = [0.001]
     mus = [0.00001]
     is_closed = False
@@ -153,4 +153,29 @@ def two_curves2d():
     lambdas = [0.01]
     mus = [0.0001]
     is_closed = False
-    return mesh, mesh.simplices, mesh.edges, np.array(points), lambdas, mus, is_closed
+    return mesh, mesh.simplices, mesh.edges, points, lambdas, mus, is_closed
+
+def new():
+    gridSize=0.1
+    mesh  = meshgen2d((-8,-2,8,2), l=gridSize)
+    t = np.arange(-7, 7, 0.2)
+    points = list()
+    points.append(np.array([(x, np.cos(2*np.pi*x)) for x in t]))
+    lambdas = [0.01]
+    mus = [0.0001]
+    is_closed = False
+    return mesh, mesh.simplices, mesh.edges, points, lambdas, mus, is_closed
+
+def new1():
+    gridSize=0.1
+    mesh  = meshgen2d((-8,-2,8,2), l=gridSize)
+    t = np.linspace(0, 2,20)
+    # inputPoints = [(x, np.cos(2*np.pi*x)) for x in t]
+    inputPoints = [(np.cos(np.pi*x), np.sin(np.pi*x)) for x in t]
+    inputPoints = np.array(inputPoints)
+    points = list()
+    points.append(np.array([(np.cos(np.pi*x), np.sin(np.pi*x)) for x in t]))
+    lambdas = [0.01]
+    mus = [0.0001]
+    is_closed = True
+    return mesh, mesh.simplices, mesh.edges, points, lambdas, mus, is_closed

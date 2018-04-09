@@ -180,20 +180,20 @@ def equally_spaced_longitudes3ds():
     is_closed = False
     return smesh, smesh.triangles, smesh.edges, input_points, lambdas, mus, is_closed
 
-def equally_spaced_longitudes3d(): 
+def equally_spaced_longitudes3d(n=10): 
     '''
     Three equally-spaced longitude curves on the surface of a ball.
     '''
     # l - initial length of triangle sides. Change it to vary traingle size
     #boundary_box = [-10,-10,-10,10,10,10]
-    boundary_box = [-10,-10,-10,10,10,10]
-    l = 2
-    mesh = meshgen3d(boundary_box, l, include_corners=False, shape='ball')
+    #boundary_box = [-10,-10,-10,10,10,10]
+    #l = 2
+    #mesh = meshgen3d(boundary_box, l, include_corners=False, shape='ball')
     #inout.save_data(mesh, dirname=os.path.abspath("data/mesh_2"))
-    #mesh  = inout.load_mesh3d(dirname='data/mesh_2')
-    curve1 = pointgen3d.sphere_arc(mesh.bbox, 0, 10)
-    curve2 = pointgen3d.sphere_arc(mesh.bbox, 2*np.pi/3, 10)
-    curve3 = pointgen3d.sphere_arc(mesh.bbox, 4*np.pi/3, 10)
+    mesh  = inout.load_mesh3d(dirname='data/mesh_0.8')
+    curve1 = pointgen3d.sphere_arc(mesh.bbox, 0, n)
+    curve2 = pointgen3d.sphere_arc(mesh.bbox, 2*np.pi/3, n)
+    curve3 = pointgen3d.sphere_arc(mesh.bbox, 4*np.pi/3, n)
     shapes = [curve1, curve2, curve3]
     input_points  = np.array(shapes)
     lambdas = [0.001]

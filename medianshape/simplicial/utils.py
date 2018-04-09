@@ -165,16 +165,18 @@ def curve1(x):
     :math:`f(x) = 10e^{\\frac{x}{180}}\sin(\\frac{1}{100}\pi x) +25`
     '''
     return 10*math.sin(1/100* math.pi * x) * np.exp(1/180 * x)  + 25
+
 def curve2(x):
     '''
     :math:`f(x) = -10e^{\\frac{x}{200}}\sin(\\frac{1}{50}\pi x) +25`
     '''
     return -10*math.sin(1/50* math.pi * x) * np.exp(1/200 * x) + 25
+
 def curve3(x):
     '''
-    :math:`f(x) = 30e^{\\frac{-x}{150}}\sin(\\frac{1}{50}\pi x) +20`
+    :math:`f(x) = 30e^{\\frac{-x}{150}}\sin(\\frac{1}{50}\pi x) +25`
     '''
-    return 30*math.sin(1/50* math.pi * x) * np.exp(-1/150 * x) + 20
+    return 30*math.sin(1/50* math.pi * x) * np.exp(-1/150 * x) + 25
 def curve4(x):
     '''
     :math:`f(x) = 10e^{\\frac{-x}{200}}\sin(\\frac{1}{30}\pi x) +40`

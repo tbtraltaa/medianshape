@@ -178,7 +178,7 @@ def plot_curve_approx3d(mesh, input_points, closest_vertices, path, title=None, 
     ax.scatter(input_points[:,0], input_points[:,1], input_points[:,2], c=color)
     #plt.legend(loc='lower right')
 
-def plot_median3d(mesh, input_currents, t, title='', figname="", file_doc=None, save=True):
+def plot_median3d(mesh, input_currents, t, title='', figname="", file_doc=None, save=True, linewidth=3):
     '''
     Plots a median curve in a tetrahedralized mesh.
     Find the following line in the code and uncomment if you want to plot median on mesh.
@@ -195,10 +195,10 @@ def plot_median3d(mesh, input_currents, t, title='', figname="", file_doc=None, 
     ax.set_zlim([m1, m2])
     ax.set_aspect('equal')
     # Uncomment it if you want to plot median on mesh
-    ax.plot_trisurf(mesh.points[:,0], mesh.points[:,1], mesh.points[:,2], triangles=mesh.triangles,  color=(0.8, 0.9, 1), shade=False, linewidth=0.2, edgecolor='gray')
+    #ax.plot_trisurf(mesh.points[:,0], mesh.points[:,1], mesh.points[:,2], triangles=mesh.triangles,  color=(0.8, 0.9, 1), shade=False, linewidth=0.2, edgecolor='gray')
     for i, c in enumerate(input_currents):
-        plot_curve3d(mesh, c, color=colors[i], label=r'$T_{%d}$'%(i+1), linewidth=5)
-    plot_curve3d(mesh, t, label=r"$Median$")
+        plot_curve3d(mesh, c, color=colors[i], label=r'$T_{%d}$'%(i+1), linewidth=linewidth)
+    plot_curve3d(mesh, t, label=r"$Median$", linewidth=linewidth)
     fig.tight_layout()
     #plt.legend(loc='lower right')
     #plt.title(title, horizontalalignment='center', verticalalignment='top', transform=ax.transAxes)
@@ -231,7 +231,7 @@ def plot_curve_and_median3d(mesh, input_currents, t, title=None, figname=None, f
         if save and file_doc:
             file_doc.savefig(fig)
 
-def plot_decomposition3d(mesh, input_currents, t, q, r, title='', figname=None, file_doc=None, save=True):
+def plot_decomposition3d(mesh, input_currents, t, q, r, title='', figname=None, file_doc=None, save=True, linewidth=3):
     '''
     Plots flat norm decomposition.
     '''
@@ -262,12 +262,12 @@ def plot_decomposition3d(mesh, input_currents, t, q, r, title='', figname=None, 
         if q is not None:
             if title is not None:
                 title = title + r", $Q_{%d}&R_{%d}"%(i+1, i+1)
-            plot_curve3d(mesh, q[i], title, color='m', marker='*', linewidth=6, label='$Q_{%d}$'%(i+1), set_lim=set_lim)
+            plot_curve3d(mesh, q[i], title, color='m', marker='*', linewidth=linewidth, label='$Q_{%d}$'%(i+1), set_lim=set_lim)
         if t is not None:
-            plot_curve3d(mesh, t, linewidth=4, label=r"$Median$", set_lim=set_lim)
+            plot_curve3d(mesh, t, linewidth=linewidth, label=r"$Median$", set_lim=set_lim)
                 
         plot_curve3d(mesh, input_currents[i], color='r', ls='--', \
-                label=r"$T_{%d}$"%(i+1), set_lim=set_lim)
+                label=r"$T_{%d}$"%(i+1), set_lim=set_lim, linewidth=linewidth)
 
         #plt.legend(loc='lower right')
         if save and figname:

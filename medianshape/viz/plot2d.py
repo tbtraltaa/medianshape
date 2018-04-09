@@ -86,7 +86,7 @@ def plot_curves_approx2d(mesh, points, vertices, paths, title=r'$Curve$ $approxi
     plt.title(title)
     plt.tight_layout()
     if save and figname:
-        plt.savefig('%s.png'%figname, dpi=fig.dpi)
+        plt.savefig('%s.png'%figname, dpi=300)
     if save and file_doc:
         file_doc.savefig(fig)
 
@@ -103,7 +103,7 @@ def plot_curve_approx2d(mesh, input_points, closest_vertices, path, title=None, 
     plt.scatter(input_points[:,0], input_points[:,1], c=color)
     plt.legend(loc='lower right')
 
-def plot_median2d(mesh, input_currents, t, title='', figname="", file_doc=None, save=True, lim=5):
+def plot_median2d(mesh, input_currents, t, title='', figname="", file_doc=None, save=True, lim=5, linewidth=3):
     colors= get_colors(len(input_currents))
     '''
     Plots a median curve in a triangulated mesh.
@@ -116,13 +116,13 @@ def plot_median2d(mesh, input_currents, t, title='', figname="", file_doc=None, 
     plt.xlim([mesh.xmin-lim, mesh.xmax+lim])
     plotmesh2d(mesh)
     for i, c in enumerate(input_currents):
-        plot_curve2d(mesh,  c, color=colors[i], label=r'$T_{%d}$'%(i+1), linewidth=5)
-    plot_curve2d(mesh, t, title, label=r'$Median$')
+        plot_curve2d(mesh,  c, color=colors[i], label=r'$T_{%d}$'%(i+1), linewidth=linewidth)
+    plot_curve2d(mesh, t, title, label=r'$Median$', linewidth=linewidth)
     #Uncomment to show the legend
     #plt.legend(loc='lower right')
     plt.tight_layout()
     if save and figname:
-        plt.savefig("%s.png"%figname, dpi=fig.dpi)
+        plt.savefig("%s.png"%figname, dpi=300)
     if save and file_doc:
         file_doc.savefig(fig)
 
@@ -146,11 +146,11 @@ def plot_curve_and_median2d(mesh, input_currents, t, title=None, figname=None, f
         plt.legend(loc='lower right')
         plt.tight_layout()
         if save and figname:
-            plt.savefig("%s-%d.png" % (figname, i), dpi=fig.dpi)
+            plt.savefig("%s-%d.png" % (figname, i), dpi=300)
         if save and file_doc:
             file_doc.savefig(fig)
 
-def plot_decomposition2d(mesh, input_currents, t, q, r, title='', figname=None, file_doc=None, save=True, lim=None):
+def plot_decomposition2d(mesh, input_currents, t, q, r, title='', figname=None, file_doc=None, save=True, lim=None, linewidth=3):
     '''
     Plots flat norm decomposition.
     '''
@@ -167,14 +167,14 @@ def plot_decomposition2d(mesh, input_currents, t, q, r, title='', figname=None, 
         #plot_simplices2d(mesh, r_i, color=colors[i], label=r'$R_{%d}$'%(i+1))
         plot_simplices2d(mesh, r_i, color='b', label=r'$R_{%d}$'%(i+1))
         if q is not None:
-            plot_curve2d(mesh, q[i], title=title + r' $Q_{%d}$'%(i+1)+ r' $and$ ' + r'$R_{%d}$'%(i+1), color='m', marker='*', linewidth=6, label=r'$Q_{%d}$'%(i+1))
-        plot_curve2d(mesh, input_currents[i], color='r', ls='--', label=r'$T_{%d}$'%(i+1))
+            plot_curve2d(mesh, q[i], title=title + r' $Q_{%d}$'%(i+1)+ r' $and$ ' + r'$R_{%d}$'%(i+1), color='m', marker='*', linewidth=linewidth, label=r'$Q_{%d}$'%(i+1))
+        plot_curve2d(mesh, input_currents[i], color='r', ls='--', label=r'$T_{%d}$'%(i+1), linewidth=linewidth)
         if t is not None:
-            plot_curve2d(mesh, t, linewidth=4, label=r'$T$')
+            plot_curve2d(mesh, t, linewidth=linewidth, label=r'$T$')
         #Uncomment to show the legend
         #plt.legend(loc='lower right')
         plt.tight_layout()
         if save and figname:
-            plt.savefig("%s-%d.png" % (figname, i), dpi=fig.dpi)
+            plt.savefig("%s-%d.png" % (figname, i), dpi=300)
         if save and file_doc:
             file_doc.savefig(fig)

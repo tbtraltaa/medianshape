@@ -43,22 +43,19 @@ def runmedians2d(mesh, simplices, subsimplices, input_currents, lambdas, mus, w=
     w, v, b_matrix, cons = median.get_lp_inputs(mesh.points, simplices, subsimplices,  k_currents, w, v, b_matrix)
     if save:
         inout.save_data(mesh, input_currents, b_matrix, w, v)
+    t_list = list()
+    q_list = list()
+    r_list = list()
     for l in lambdas:
         for mu in mus:
             t, q, r, norm = median.median(mesh.points, mesh.simplices, mesh.edges, \
             input_currents, l, mu=mu, w=w, v=v, cons=cons)
             if save:
                 inout.save_data(t=t, lambda_=l, mu=mu)
-            title = ''
-            figname = '%s/figures/%d'%(outdir, figcount)
-            plot2d.plot_median2d(mesh, input_currents, t, title, figname, file_doc, save=save)
-            #plt.show()
-            figcount += 1
-
-            figname = '%s/figures/%d'%(outdir, figcount)
-            plot2d.plot_decomposition2d(mesh, input_currents, t, q, r, title, \
-            figname, file_doc, save)
-            figcount += input_currents.shape[0]
+            t_list.append(t)
+            q_list.append(q)
+            r_list.append(r)
+    return t_list, q_list, r_list
 
 def runmedians3d(mesh, simplices, subsimplices, input_currents, lambdas, mus, w=None, v=None, b_matrix=None, file_doc=None, save=True, outdir='data', figcount=1):
     '''
@@ -95,13 +92,15 @@ def runmedians3d(mesh, simplices, subsimplices, input_currents, lambdas, mus, w=
     k_currents = len(input_currents)
     w, v, b_matrix, cons = median.get_lp_inputs(mesh.points, simplices, subsimplices,  k_currents, w, v, b_matrix)
     #np.savetxt('%s/dumps/cons-%s.txt'%cons, fmt='%d', delimiter=' ')
+    t_list = list()
+    q_list = list()
+    r_list = list()
     for l in lambdas:
         for mu in mus:
             t, q, r, norm = median.median(mesh.points, simplices, subsimplices, input_currents, l, mu, w, v, cons)
             if save:
                 inout.save_data(t=t, q=q, r=r, lambda_=l, mu=mu)
-            title = r"$\lambda=%.06f$, $\mu=%.06f$" % (l, mu)
-            title = None
+            '''
             figname = '%s/figures/%d'%(outdir, figcount)
             fig = plt.figure(figsize=(8,8))
             plot3d.plot_median3d(mesh, input_currents, t, title, figname, file_doc, save)
@@ -114,3 +113,8 @@ def runmedians3d(mesh, simplices, subsimplices, input_currents, lambdas, mus, w=
             plot3d.plot_decomposition3d(mesh, input_currents, t, q, r, title, \
             figname, file_doc, save)
             figcount += input_currents.shape[0]
+            '''
+            t_list.append(t)
+            q_list.append(q)
+            r_list.append(r)
+    return t_list, q_list, r_list

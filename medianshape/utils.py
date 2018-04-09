@@ -14,6 +14,30 @@ from scipy.misc import factorial
 from scipy.spatial.distance import cdist, pdist
 from scipy.sparse import dok_matrix
 
+def simplicial_curve_to_points(points, edges, simplicial_curve):
+    nonzero_edges = simplicial_curve.nonzero()[0]
+    curve_points = edges[nonzero_edges[0]]
+    nonzero_edges = np.delete(nonzero_edges, 0, 0)
+    while nonzero_edges.size != 0:
+        found = False
+        for i, edge_idx in enumerate(nonzero_edges):
+            edge = edges[edge_idx]
+            if edge[0] == curve_points[-1]:
+                curve_points = np.append(curve_points, edge[1])
+                found = True
+            elif edge[1] == curve_points[-1]:
+                curve_points = np.append(curve_points, edge[0])
+                found = True
+            elif edge[0] == curve_points[0]:
+                curve_points = np.insert(curve_points, 0, edge[1])
+                found = True
+            elif edge[1] == curve_points[0]:
+                curve_points = np.insert(curve_points, 0, edge[0])
+                found = True
+            if found:
+                nonzero_edges = np.delete(nonzero_edges, i, 0)
+                break
+    return points[curve_points]
 
 def get_subsimplices(simplices):
     '''
