@@ -9,6 +9,7 @@ import time
 
 import numpy as np
 import matplotlib.pyplot as plt
+from scipy.spatial.distance import cdist
 from matplotlib.backends.backend_pdf import PdfPages
 
 from medianshape.simplicial import currentgen
@@ -52,8 +53,18 @@ def mediandemo2d(outdir='data', save=True):
     for i, t in enumerate(t_list):
         t_points = simplicial_curve_to_points(mesh.points, mesh.edges, t)
         smooth_t = smoothen(t_points)
-        smooth_t = np.append(smooth_t, points[0][0,:].reshape(-1,2), axis=0)
-        smooth_t = np.insert(smooth_t, 0, points[0][-1, :].reshape(-1,2), axis=0)
+        '''
+        start_point = points[0][0,:].reshape(-1,2)
+        end_point = points[0][-1,:].reshape(-1,2)
+        dist1 = cdist(t_points[0,:].reshape(-1,2), start_point )[0][0]
+        dist2 = cdist(t_points[-1,:].reshape(-1,2), start_point )[0][0]
+        if dist1 < dist2:
+            smooth_t = np.append(smooth_t.reshape(-1,2), end_point, axis=0)
+            smooth_t = np.insert(smooth_t.reshape(-1,2), 0, start_point, axis=0)
+        else:
+            smooth_t = np.insert(smooth_t, 0, end_point, axis=0)
+            smooth_t = np.append(smooth_t, start_point, axis=0)
+        '''
         figname = '%s/figures/%d'%(outdir, figcount)
         plot2d.plot_median2d(mesh, input_currents, t, title, figname, pdf_file, save=save,linewidth=3)
         

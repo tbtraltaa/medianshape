@@ -126,7 +126,7 @@ def multicurves2d(n=25):
     3 curves described by curve1, curve2, curve3 functions defined in 'medianshape.simplicial.utils'.
     '''
     boundary_box = (0,0,200,50)
-    l=3
+    l = 10
     mesh = meshgen2d(boundary_box, l)
     functions= ['curve1', 'curve2', 'curve3']
     points = list()

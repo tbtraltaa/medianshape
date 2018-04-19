@@ -16,7 +16,8 @@ def smoothen(sampleCurve):
 
     smoothCurve[:,0] = gaussian_kernel_convolution(smoothCurve[:,0], sigma)
     smoothCurve[:,1] = gaussian_kernel_convolution(smoothCurve[:,1], sigma)
-    smoothCurve[:,2] = gaussian_kernel_convolution(smoothCurve[:,2], sigma)
+    if sampleCurve.shape[1] == 3:
+        smoothCurve[:,2] = gaussian_kernel_convolution(smoothCurve[:,2], sigma)
 
 
     ## Convolute points ## 
